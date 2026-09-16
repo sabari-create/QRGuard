@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>QRGuard - Security Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-badge {
+            padding: 7px 12px;
+            border-radius: 9px;
+            color: #67e8f9;
+            background: rgba(34, 211, 238, 0.07);
+            border: 1px solid rgba(34, 211, 238, 0.16);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .logout-button {
+            padding: 7px 12px;
+            border-radius: 9px;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.07);
+            border: 1px solid rgba(239, 68, 68, 0.16);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .logout-button:hover {
+            background: rgba(239, 68, 68, 0.14);
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            font-size: 30px;
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.22);
+            box-shadow: 0 0 28px rgba(34, 211, 238, 0.10);
+        }
+
+        .dashboard-header h1 {
+            font-size: 34px;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #67e8f9, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-header p {
+            color: #7f98aa;
+            font-size: 14px;
+        }
+
+        .status-card {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 20px 23px;
+            margin-bottom: 25px;
+            border-radius: 17px;
+            background: linear-gradient(
+                135deg,
+                rgba(34, 197, 94, 0.08),
+                rgba(15, 23, 42, 0.80)
+            );
+            border: 1px solid rgba(34, 197, 94, 0.18);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.20);
+        }
+
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(34, 197, 94, 0.10);
+            font-size: 23px;
+        }
+
+        .status-card h3 {
+            color: #86efac;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .status-card p {
+            color: #7690a2;
+            font-size: 13px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 17px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 22px;
+            border-radius: 18px;
+            background: linear-gradient(
+                145deg,
+                rgba(15, 30, 50, 0.90),
+                rgba(5, 15, 30, 0.95)
+            );
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            overflow: hidden;
+            transition: 0.25s ease;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #22d3ee;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(34, 211, 238, 0.22);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .stat-card.low-card::before {
+            background: #22c55e;
+        }
+
+        .stat-card.medium-card::before {
+            background: #eab308;
+        }
+
+        .stat-card.high-card::before {
+            background: #ef4444;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(34, 211, 238, 0.07);
+            font-size: 22px;
+        }
+
+        .stat-content h3 {
+            color: #7891a3;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .stat-content strong {
+            color: #e8fbff;
+            font-size: 29px;
+        }
+
+        .dashboard-section {
+            margin-top: 24px;
+            padding: 25px;
+            border-radius: 20px;
+            background: linear-gradient(
+                145deg,
+                rgba(10, 24, 43, 0.90),
+                rgba(4, 14, 29, 0.94)
+            );
+            border: 1px solid rgba(100, 180, 255, 0.12);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.20);
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+
+        .section-heading h2 {
+            color: #dffaff;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .section-heading p {
+            color: #71899b;
+            font-size: 12px;
+        }
+
+        .risk-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 13px;
+            margin-bottom: 24px;
+        }
+
+        .risk-summary-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 17px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.70);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .risk-summary-item span {
+            color: #a3b7c5;
+            font-size: 13px;
+        }
+
+        .risk-summary-item strong {
+            color: #e8fbff;
+            font-size: 18px;
+        }
+
+        .risk-distribution {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .risk-row {
+            width: 100%;
+        }
+
+        .risk-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #8da5b6;
+            font-size: 12px;
+        }
+
+        .risk-label strong {
+            color: #c8dce7;
+        }
+
+        .risk-bar-container {
+            width: 100%;
+            height: 9px;
+            background: #07111f;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .risk-bar {
+            height: 100%;
+            border-radius: 20px;
+            min-width: 0;
+            transition: width 0.6s ease;
+        }
+
+        .low-bar {
+            background: linear-gradient(90deg, #16a34a, #4ade80);
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+        }
+
+        .medium-bar {
+            background: linear-gradient(90deg, #ca8a04, #facc15);
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.30);
+        }
+
+        .high-bar {
+            background: linear-gradient(90deg, #dc2626, #f87171);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.30);
+        }
+
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .monitor-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 13px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .monitor-icon {
+            font-size: 20px;
+        }
+
+        .monitor-item strong {
+            display: block;
+            color: #bdd2dd;
+            font-size: 12px;
+        }
+
+        .monitor-item small {
+            display: block;
+            margin-top: 4px;
+            color: #4ade80;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+        }
+
+        .view-history-button {
+            text-decoration: none;
+            padding: 9px 15px;
+            border-radius: 9px;
+            color: #67e8f9;
+            background: rgba(34, 211, 238, 0.07);
+            border: 1px solid rgba(34, 211, 238, 0.16);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .view-history-button:hover {
+            background: rgba(34, 211, 238, 0.13);
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 13px;
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .dashboard-table {
+            min-width: 700px;
+        }
+
+        .dashboard-table th {
+            background: rgba(34, 211, 238, 0.045);
+            color: #67e8f9;
+            padding: 14px;
+        }
+
+        .dashboard-table td {
+            padding: 14px;
+        }
+
+        .url-cell {
+            max-width: 380px;
+        }
+
+        .url-cell a {
+            display: block;
+            color: #91c9d8;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .url-cell a:hover {
+            color: #67e8f9;
+        }
+
+        .history-report-button {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.16);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .history-report-button:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .security-monitor {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .monitor-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 12px;
+            border-radius: 15px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+            transition: 0.25s ease;
+        }
+
+        .monitor-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(34, 211, 238, 0.18);
+        }
+
+        .monitor-card span {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .monitor-card strong {
+            color: #c9e5ed;
+            font-size: 13px;
+        }
+
+        .monitor-card small {
+            margin-top: 6px;
+            color: #4ade80;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.50);
+            border: 1px dashed rgba(148, 163, 184, 0.14);
+        }
+
+        .empty-icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            color: #ccecf3;
+            margin-bottom: 7px;
+        }
+
+        .empty-state p {
+            color: #71899b;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state a {
+            display: inline-block;
+            padding: 10px 17px;
+            border-radius: 9px;
+            text-decoration: none;
+            background: #0891b2;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .security-notice {
+            margin-top: 24px;
+            padding: 18px 20px;
+            border-radius: 15px;
+            background: rgba(245, 158, 11, 0.055);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+
+        .security-notice strong {
+            color: #fbbf24;
+            font-size: 13px;
+        }
+
+        .security-notice p {
+            color: #a89469;
+            margin-top: 7px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 28px 20px;
+            border-top: 1px solid rgba(148, 163, 184, 0.08);
+            color: #60798b;
+            font-size: 12px;
+            background: rgba(2, 8, 23, 0.55);
+        }
+
+        footer span {
+            display: inline-block;
+            margin-top: 6px;
+            color: #4e6575;
+        }
+
+        @media (max-width: 950px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .monitor-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .dashboard-header {
+                align-items: flex-start;
+            }
+
+            .dashboard-header h1 {
+                font-size: 27px;
+            }
+
+            .dashboard-section {
+                padding: 18px;
+            }
+
+            .risk-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .monitor-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .security-monitor {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-user {
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .monitor-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .security-monitor {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                gap: 12px;
+                flex-direction: column;
+            }
+
+            .nav-user {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="nav-container">
+
+        <div class="brand">
+            🛡️ QRGuard
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Scanner
+            </a>
+
+            <a href="/dashboard" class="active">
+                Dashboard
+            </a>
+
+            <a href="/history">
+                History
+            </a>
+
+            <div class="nav-user">
+
+                <span class="admin-badge">
+                    👤 Admin
+                </span>
+
+                <a href="/logout" class="logout-button">
+                    🚪 Logout
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<div class="container dashboard-container">
+
+    <div class="dashboard-header">
+
+        <div class="dashboard-icon">
+            📊
+        </div>
+
+        <div>
+            <h1>Security Dashboard</h1>
+
+            <p>
+                QRGuard scanning and security analysis overview.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="status-card">
+
+        <div class="status-icon">
+            🛡️
+        </div>
+
+        <div>
+
+            <h3>
+                QRGuard Monitoring Active
+            </h3>
+
+            <p>
+                URL analysis, risk scoring, scan history
+                and PDF reporting are available.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">📊</div>
+
+            <div class="stat-content">
+
+                <h3>Total Scans</h3>
+
+                <strong>
+                    {{ stats.total }}
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="stat-card low-card">
+
+            <div class="stat-icon">🟢</div>
+
+            <div class="stat-content">
+
+                <h3>Low Risk</h3>
+
+                <strong>
+                    {{ stats.low }}
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="stat-card medium-card">
+
+            <div class="stat-icon">🟡</div>
+
+            <div class="stat-content">
+
+                <h3>Medium Risk</h3>
+
+                <strong>
+                    {{ stats.medium }}
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="stat-card high-card">
+
+            <div class="stat-icon">🔴</div>
+
+            <div class="stat-content">
+
+                <h3>High Risk</h3>
+
+                <strong>
+                    {{ stats.high }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>📈 Risk Distribution</h2>
+
+                <p>
+                    Distribution of analyzed QR scans.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="risk-summary">
+
+            <div class="risk-summary-item">
+                <span>🟢 Low Risk</span>
+                <strong>{{ stats.low }}</strong>
+            </div>
+
+            <div class="risk-summary-item">
+                <span>🟡 Medium Risk</span>
+                <strong>{{ stats.medium }}</strong>
+            </div>
+
+            <div class="risk-summary-item">
+                <span>🔴 High Risk</span>
+                <strong>{{ stats.high }}</strong>
+            </div>
+
+        </div>
+
+        {% if stats.total > 0 %}
+
+            {% set low_percent = (stats.low / stats.total * 100) | round(1) %}
+
+            {% set medium_percent = (stats.medium / stats.total * 100) | round(1) %}
+
+            {% set high_percent = (stats.high / stats.total * 100) | round(1) %}
+
+        {% else %}
+
+            {% set low_percent = 0 %}
+            {% set medium_percent = 0 %}
+            {% set high_percent = 0 %}
+
+        {% endif %}
+
+        <div class="risk-distribution">
+
+            <div class="risk-row">
+
+                <div class="risk-label">
+                    <span>🟢 Low Risk</span>
+                    <strong>{{ low_percent }}%</strong>
+                </div>
+
+                <div class="risk-bar-container">
+
+                    <div class="risk-bar low-bar"
+                         style="width: {{ low_percent }}%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="risk-row">
+
+                <div class="risk-label">
+                    <span>🟡 Medium Risk</span>
+                    <strong>{{ medium_percent }}%</strong>
+                </div>
+
+                <div class="risk-bar-container">
+
+                    <div class="risk-bar medium-bar"
+                         style="width: {{ medium_percent }}%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="risk-row">
+
+                <div class="risk-label">
+                    <span>🔴 High Risk</span>
+                    <strong>{{ high_percent }}%</strong>
+                </div>
+
+                <div class="risk-bar-container">
+
+                    <div class="risk-bar high-bar"
+                         style="width: {{ high_percent }}%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>🛰️ Security Monitoring</h2>
+
+                <p>
+                    Current QRGuard analysis modules.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="monitor-grid">
+
+            <div class="monitor-item">
+                <div class="monitor-icon">📷</div>
+                <div>
+                    <strong>QR Scanner</strong>
+                    <small>ACTIVE</small>
+                </div>
+            </div>
+
+            <div class="monitor-item">
+                <div class="monitor-icon">🔗</div>
+                <div>
+                    <strong>URL Analyzer</strong>
+                    <small>ACTIVE</small>
+                </div>
+            </div>
+
+            <div class="monitor-item">
+                <div class="monitor-icon">⚠️</div>
+                <div>
+                    <strong>Risk Engine</strong>
+                    <small>ACTIVE</small>
+                </div>
+            </div>
+
+            <div class="monitor-item">
+                <div class="monitor-icon">🗄️</div>
+                <div>
+                    <strong>SQLite History</strong>
+                    <small>ACTIVE</small>
+                </div>
+            </div>
+
+            <div class="monitor-item">
+                <div class="monitor-icon">📄</div>
+                <div>
+                    <strong>PDF Reports</strong>
+                    <small>ACTIVE</small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>🕘 Recent Scans</h2>
+
+                <p>
+                    Latest QR-code security analysis results.
+                </p>
+
+            </div>
+
+            <a href="/history" class="view-history-button">
+                View Full History
+            </a>
+
+        </div>
+
+        {% if recent_scans %}
+
+        <div class="table-wrapper">
+
+            <table class="dashboard-table">
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>URL</th>
+                        <th>Risk Score</th>
+                        <th>Risk Level</th>
+                        <th>Scanned At</th>
+                        <th>Report</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for scan in recent_scans %}
+
+                    <tr>
+
+                        <td>
+                            #{{ scan.id }}
+                        </td>
+
+                        <td class="url-cell">
+
+                            <a href="{{ scan.url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                {{ scan.url }}
+                            </a>
+
+                        </td>
+
+                        <td>
+                            {{ scan.score }}/100
+                        </td>
+
+                        <td>
+
+                            {% if scan.risk == "LOW RISK" %}
+
+                                🟢 Low Risk
+
+                            {% elif scan.risk == "MEDIUM RISK" %}
+
+                                🟡 Medium Risk
+
+                            {% else %}
+
+                                🔴 High Risk
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ scan.scanned_at }}
+                        </td>
+
+                        <td>
+
+                            <a href="{{ url_for('report', scan_id=scan.id) }}"
+                               class="history-report-button">
+                                📄 PDF
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                📭
+            </div>
+
+            <h3>
+                No scans yet
+            </h3>
+
+            <p>
+                Scan your first QR code to start building
+                the security dashboard.
+            </p>
+
+            <a href="/">
+                Start Scanning
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>🔐 Protection Modules</h2>
+
+                <p>
+                    Defensive URL security checks used by QRGuard.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="security-monitor">
+
+            <div class="monitor-card">
+
+                <span>🔗</span>
+
+                <strong>
+                    URL Validation
+                </strong>
+
+                <small>
+                    Protected
+                </small>
+
+            </div>
+
+            <div class="monitor-card">
+
+                <span>🎯</span>
+
+                <strong>
+                    Risk Scoring
+                </strong>
+
+                <small>
+                    Protected
+                </small>
+
+            </div>
+
+            <div class="monitor-card">
+
+                <span>🧠</span>
+
+                <strong>
+                    Rule Analysis
+                </strong>
+
+                <small>
+                    Protected
+                </small>
+
+            </div>
+
+            <div class="monitor-card">
+
+                <span>🗄️</span>
+
+                <strong>
+                    Scan History
+                </strong>
+
+                <small>
+                    Protected
+                </small>
+
+            </div>
+
+            <div class="monitor-card">
+
+                <span>📄</span>
+
+                <strong>
+                    PDF Reporting
+                </strong>
+
+                <small>
+                    Protected
+                </small>
+
+            </div>
+
+            <div class="monitor-card">
+
+                <span>🛡️</span>
+
+                <strong>
+                    Defensive Mode
+                </strong>
+
+                <small>
+                    Enabled
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="security-notice">
+
+        <strong>
+            ⚠️ Security Notice
+        </strong>
+
+        <p>
+            QRGuard analyzes the URL extracted from a QR code using
+            defensive rule-based indicators. It does not automatically
+            open or visit submitted URLs. Risk results are intended
+            for educational and defensive cybersecurity analysis.
+        </p>
+
+    </div>
+
+</div>
+
+<footer>
+
+    🛡️ QRGuard — QR-Code Phishing Detection System
+
+    <br>
+
+    <span>
+        Defensive Cybersecurity Project
+    </span>
+
+</footer>
+
+</body>
+
+</html>
