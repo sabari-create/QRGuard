@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>QRGuard - Scan History</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        /* =====================================================
+           HISTORY PAGE - PREMIUM CYBER SOC STYLE
+        ===================================================== */
+
+        .history-container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 35px 20px 50px;
+        }
+
+
+        /* HEADER */
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .history-header-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 28px;
+
+            background: rgba(0, 212, 255, 0.10);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+
+            box-shadow:
+                0 0 25px rgba(0, 212, 255, 0.08);
+        }
+
+        .history-header h1 {
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: 0.3px;
+        }
+
+        .history-header p {
+            margin: 6px 0 0;
+            opacity: 0.65;
+        }
+
+
+        /* TOP INFO CARDS */
+
+        .history-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: 16px;
+
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.15);
+
+            transition: 0.25s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 212, 255, 0.25);
+        }
+
+        .summary-title {
+            font-size: 13px;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .summary-value {
+            margin-top: 7px;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .summary-description {
+            margin-top: 5px;
+            font-size: 12px;
+            opacity: 0.55;
+        }
+
+
+        /* CONTROLS */
+
+        .history-controls {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 12px;
+
+            padding: 16px;
+
+            border-radius: 16px;
+
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .history-search {
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 0 15px;
+
+            min-height: 48px;
+
+            border-radius: 12px;
+
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            transition: 0.2s ease;
+        }
+
+        .history-search:focus-within {
+            border-color: rgba(0, 212, 255, 0.45);
+
+            box-shadow:
+                0 0 0 3px rgba(0, 212, 255, 0.07);
+        }
+
+        .history-search span {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .history-search input {
+            width: 100%;
+
+            border: none;
+            outline: none;
+
+            background: transparent;
+
+            color: inherit;
+
+            font-size: 14px;
+        }
+
+        .history-search input::placeholder {
+            opacity: 0.45;
+        }
+
+
+        /* FILTER */
+
+        .history-filter select {
+            min-height: 48px;
+            min-width: 170px;
+
+            padding: 0 14px;
+
+            border-radius: 12px;
+
+            background: rgba(0, 0, 0, 0.20);
+            color: inherit;
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            outline: none;
+
+            cursor: pointer;
+        }
+
+        .history-filter select:focus {
+            border-color: rgba(0, 212, 255, 0.45);
+        }
+
+
+        /* COUNT */
+
+        .history-count {
+            margin: 14px 3px;
+
+            font-size: 13px;
+            opacity: 0.65;
+        }
+
+        .history-count strong {
+            opacity: 1;
+        }
+
+
+        /* TABLE CARD */
+
+        .table-wrapper {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+            border-radius: 18px;
+
+            background: rgba(255, 255, 255, 0.035);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            box-shadow:
+                0 15px 45px rgba(0, 0, 0, 0.20);
+        }
+
+
+        /* TABLE */
+
+        .history-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 850px;
+        }
+
+
+        .history-table thead {
+
+            background:
+                rgba(0, 212, 255, 0.055);
+        }
+
+
+        .history-table th {
+
+            padding: 17px 16px;
+
+            text-align: left;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            opacity: 0.65;
+
+            white-space: nowrap;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.08);
+        }
+
+
+        .history-table td {
+
+            padding: 17px 16px;
+
+            font-size: 13px;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.055);
+
+            vertical-align: middle;
+        }
+
+
+        .history-row {
+
+            transition: 0.2s ease;
+        }
+
+
+        .history-row:hover {
+
+            background:
+                rgba(0, 212, 255, 0.045);
+        }
+
+
+        .history-row:last-child td {
+
+            border-bottom: none;
+        }
+
+
+        /* ID */
+
+        .scan-id {
+
+            font-weight: 800;
+
+            color: #00d4ff;
+
+            letter-spacing: 0.4px;
+        }
+
+
+        /* URL */
+
+        .url-cell {
+
+            max-width: 400px;
+        }
+
+        .url-text {
+
+            display: block;
+
+            max-width: 390px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+            font-family:
+                Consolas,
+                "Courier New",
+                monospace;
+
+            font-size: 12px;
+
+            opacity: 0.9;
+        }
+
+
+        /* SCORE */
+
+        .score-value {
+
+            font-weight: 800;
+
+            white-space: nowrap;
+        }
+
+        .score-max {
+
+            opacity: 0.4;
+
+            font-weight: 400;
+        }
+
+
+        /* RISK BADGES */
+
+        .history-risk {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            padding: 7px 11px;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: 0.4px;
+
+            white-space: nowrap;
+        }
+
+
+        .history-risk.low {
+
+            color: #63f58b;
+
+            background:
+                rgba(46, 204, 113, 0.11);
+
+            border:
+                1px solid rgba(46, 204, 113, 0.25);
+        }
+
+
+        .history-risk.medium {
+
+            color: #ffd166;
+
+            background:
+                rgba(255, 193, 7, 0.11);
+
+            border:
+                1px solid rgba(255, 193, 7, 0.25);
+        }
+
+
+        .history-risk.high {
+
+            color: #ff6b6b;
+
+            background:
+                rgba(255, 82, 82, 0.11);
+
+            border:
+                1px solid rgba(255, 82, 82, 0.25);
+        }
+
+
+        /* PDF BUTTON */
+
+        .history-report-button {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 6px;
+
+            padding: 8px 13px;
+
+            border-radius: 9px;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            color: #00d4ff;
+
+            background:
+                rgba(0, 212, 255, 0.08);
+
+            border:
+                1px solid rgba(0, 212, 255, 0.22);
+
+            transition: 0.2s ease;
+        }
+
+
+        .history-report-button:hover {
+
+            transform: translateY(-2px);
+
+            background:
+                rgba(0, 212, 255, 0.15);
+
+            border-color:
+                rgba(0, 212, 255, 0.45);
+
+            box-shadow:
+                0 5px 18px rgba(0, 212, 255, 0.10);
+        }
+
+
+        /* NO RESULTS */
+
+        .no-results {
+
+            text-align: center;
+
+            padding: 55px 20px;
+
+            border-radius: 18px;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.08);
+        }
+
+
+        .no-results-icon {
+
+            font-size: 42px;
+
+            margin-bottom: 10px;
+        }
+
+
+        .no-results h3 {
+
+            margin: 0 0 7px;
+        }
+
+
+        .no-results p {
+
+            margin: 0;
+
+            opacity: 0.55;
+
+            font-size: 13px;
+        }
+
+
+        /* EMPTY STATE */
+
+        .empty-state {
+
+            text-align: center;
+
+            padding: 70px 25px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.08);
+        }
+
+
+        .empty-icon {
+
+            font-size: 55px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .empty-state h3 {
+
+            margin-bottom: 8px;
+        }
+
+
+        .empty-state p {
+
+            opacity: 0.6;
+
+            font-size: 14px;
+
+            max-width: 480px;
+
+            margin:
+                0 auto 20px;
+        }
+
+
+        .empty-state a {
+
+            display: inline-block;
+
+            padding: 10px 18px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(0, 212, 255, 0.10);
+
+            border:
+                1px solid rgba(0, 212, 255, 0.25);
+
+            color: #00d4ff;
+
+            text-decoration: none;
+
+            font-weight: 700;
+
+            font-size: 13px;
+        }
+
+
+        .empty-state a:hover {
+
+            background:
+                rgba(0, 212, 255, 0.17);
+        }
+
+
+        /* SECURITY NOTICE */
+
+        .security-notice {
+
+            margin-top: 24px;
+
+            padding: 18px 20px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(255, 193, 7, 0.045);
+
+            border:
+                1px solid rgba(255, 193, 7, 0.16);
+        }
+
+
+        .security-notice strong {
+
+            font-size: 13px;
+        }
+
+
+        .security-notice p {
+
+            margin: 7px 0 0;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+
+            opacity: 0.62;
+        }
+
+
+        /* RESPONSIVE */
+
+        @media (max-width: 800px) {
+
+            .history-summary {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .history-controls {
+
+                flex-direction: column;
+            }
+
+
+            .history-filter select {
+
+                width: 100%;
+            }
+
+
+            .history-header h1 {
+
+                font-size: 24px;
+            }
+
+
+            .history-header-icon {
+
+                width: 50px;
+                height: 50px;
+
+                font-size: 24px;
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .history-container {
+
+                padding:
+                    25px 12px 40px;
+            }
+
+
+            .history-header {
+
+                align-items: flex-start;
+            }
+
+
+            .history-header p {
+
+                font-size: 12px;
+            }
+
+
+            .summary-card {
+
+                padding: 16px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="nav-container">
+
+        <div class="brand">
+            🛡️ QRGuard
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="/">
+                Scanner
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/history"
+               class="active">
+                History
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<div class="container history-container">
+
+
+    <!-- HEADER -->
+
+    <div class="history-header">
+
+        <div class="history-header-icon">
+            🗄️
+        </div>
+
+        <div>
+
+            <h1>
+                Scan History
+            </h1>
+
+            <p>
+                Review previous QR security analysis results.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         SUMMARY
+    ================================================== -->
+
+    <div class="history-summary">
+
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                Total Scans
+            </div>
+
+            <div class="summary-value">
+                {{ scans|length }}
+            </div>
+
+            <div class="summary-description">
+                Stored security analyses
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                Detection Engine
+            </div>
+
+            <div class="summary-value">
+                Rule-Based
+            </div>
+
+            <div class="summary-description">
+                Defensive URL analysis
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                Reports
+            </div>
+
+            <div class="summary-value">
+                PDF
+            </div>
+
+            <div class="summary-description">
+                Downloadable scan reports
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         SEARCH / FILTER
+    ================================================== -->
+
+    <div class="history-controls">
+
+
+        <div class="history-search">
+
+            <span>
+                🔎
+            </span>
+
+            <input
+                type="text"
+                id="historySearch"
+                placeholder="Search scanned URL..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <div class="history-filter">
+
+            <select id="riskFilter">
+
+                <option value="ALL">
+                    All Risks
+                </option>
+
+                <option value="LOW">
+                    🟢 Low Risk
+                </option>
+
+                <option value="MEDIUM">
+                    🟡 Medium Risk
+                </option>
+
+                <option value="HIGH">
+                    🔴 High Risk
+                </option>
+
+            </select>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- COUNT -->
+
+    <div class="history-count">
+
+        Showing
+
+        <strong id="visibleCount">
+            {{ scans|length }}
+        </strong>
+
+        of
+
+        <strong>
+            {{ scans|length }}
+        </strong>
+
+        scans
+
+    </div>
+
+
+
+    <!-- =================================================
+         NO RESULTS
+    ================================================== -->
+
+    <div id="noResults"
+         class="no-results"
+         style="display:none;">
+
+        <div class="no-results-icon">
+            🔍
+        </div>
+
+        <h3>
+            No matching scans found
+        </h3>
+
+        <p>
+            Try another URL or change the risk filter.
+        </p>
+
+    </div>
+
+
+
+    <!-- =================================================
+         HISTORY TABLE
+    ================================================== -->
+
+    {% if scans %}
+
+    <div class="table-wrapper">
+
+        <table
+            class="history-table"
+            id="historyTable"
+        >
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        ID
+                    </th>
+
+                    <th>
+                        URL
+                    </th>
+
+                    <th>
+                        Score
+                    </th>
+
+                    <th>
+                        Risk
+                    </th>
+
+                    <th>
+                        Scanned At
+                    </th>
+
+                    <th>
+                        Report
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for scan in scans %}
+
+                {% set scan_id = scan[0] %}
+
+                {% set scan_url = scan[1] %}
+
+                {% set scan_score = scan[2] %}
+
+                {% set scan_time = scan[4] %}
+
+
+                <!-- RISK CALCULATION -->
+
+                {% if scan_score <= 30 %}
+
+                    {% set risk_label = "LOW" %}
+
+                    {% set risk_class = "low" %}
+
+                {% elif scan_score <= 60 %}
+
+                    {% set risk_label = "MEDIUM" %}
+
+                    {% set risk_class = "medium" %}
+
+                {% else %}
+
+                    {% set risk_label = "HIGH" %}
+
+                    {% set risk_class = "high" %}
+
+                {% endif %}
+
+
+                <tr
+                    class="history-row"
+                    data-url="{{ scan_url|lower }}"
+                    data-score="{{ scan_score }}"
+                    data-risk="{{ risk_label }}"
+                >
+
+
+                    <!-- ID -->
+
+                    <td>
+
+                        <span class="scan-id">
+                            #{{ scan_id }}
+                        </span>
+
+                    </td>
+
+
+
+                    <!-- URL -->
+
+                    <td class="url-cell">
+
+                        <span
+                            class="url-text"
+                            title="{{ scan_url }}"
+                        >
+                            {{ scan_url }}
+                        </span>
+
+                    </td>
+
+
+
+                    <!-- SCORE -->
+
+                    <td>
+
+                        <span class="score-value">
+                            {{ scan_score }}
+                        </span>
+
+                        <span class="score-max">
+                            /100
+                        </span>
+
+                    </td>
+
+
+
+                    <!-- RISK -->
+
+                    <td>
+
+                        <span
+                            class="history-risk {{ risk_class }}"
+                        >
+
+                            {% if risk_label == "LOW" %}
+
+                                🟢
+
+                            {% elif risk_label == "MEDIUM" %}
+
+                                🟡
+
+                            {% else %}
+
+                                🔴
+
+                            {% endif %}
+
+                            {{ risk_label }}
+
+                        </span>
+
+                    </td>
+
+
+
+                    <!-- TIME -->
+
+                    <td>
+
+                        {{ scan_time }}
+
+                    </td>
+
+
+
+                    <!-- REPORT -->
+
+                    <td>
+
+                        <a
+                            href="/report/{{ scan_id }}"
+                            class="history-report-button"
+                        >
+                            📄 PDF
+                        </a>
+
+                    </td>
+
+
+                </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- EMPTY -->
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            📭
+        </div>
+
+        <h3>
+            No Scan History
+        </h3>
+
+        <p>
+            Scan a QR code to create your first
+            security analysis record.
+        </p>
+
+        <a href="/">
+            Open Scanner
+        </a>
+
+    </div>
+
+
+    {% endif %}
+
+
+
+    <!-- =================================================
+         SECURITY NOTICE
+    ================================================== -->
+
+    <div class="security-notice">
+
+        <strong>
+            ⚠️ Educational Security Tool
+        </strong>
+
+        <p>
+            QRGuard uses rule-based URL analysis for
+            defensive and educational purposes.
+            Risk scores are indicators and should not
+            be treated as definitive proof of malicious
+            or safe status.
+        </p>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+    🛡️ QRGuard — QR-Code Phishing Detection System
+
+    <br>
+
+    <span>
+        Defensive Cybersecurity Project
+    </span>
+
+</footer>
+
+
+
+<!-- =====================================================
+     SEARCH & FILTER JAVASCRIPT
+===================================================== -->
+
+<script>
+
+function filterHistory() {
+
+    const searchInput =
+        document.getElementById("historySearch");
+
+    const riskFilter =
+        document.getElementById("riskFilter");
+
+    const searchText =
+        searchInput.value.toLowerCase().trim();
+
+    const selectedRisk =
+        riskFilter.value;
+
+
+    const rows =
+        document.querySelectorAll(".history-row");
+
+
+    let visibleRows = 0;
+
+
+    rows.forEach(function(row) {
+
+        const url =
+            row.getAttribute("data-url") || "";
+
+
+        const risk =
+            row.getAttribute("data-risk") || "";
+
+
+        const matchesSearch =
+            url.includes(searchText);
+
+
+        const matchesRisk =
+            selectedRisk === "ALL"
+            || selectedRisk === risk;
+
+
+        if (
+            matchesSearch
+            && matchesRisk
+        ) {
+
+            row.style.display = "";
+
+            visibleRows++;
+
+        }
+
+        else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+
+    /*
+     * Update visible count.
+     */
+
+    document.getElementById(
+        "visibleCount"
+    ).textContent = visibleRows;
+
+
+    /*
+     * No results message.
+     */
+
+    const noResults =
+        document.getElementById("noResults");
+
+
+    if (
+        visibleRows === 0
+        && rows.length > 0
+    ) {
+
+        noResults.style.display = "block";
+
+    }
+
+    else {
+
+        noResults.style.display = "none";
+
+    }
+
+}
+
+
+
+/* =====================================================
+   LIVE SEARCH
+===================================================== */
+
+document
+    .getElementById("historySearch")
+    .addEventListener(
+        "input",
+        filterHistory
+    );
+
+
+
+/* =====================================================
+   RISK FILTER
+===================================================== */
+
+document
+    .getElementById("riskFilter")
+    .addEventListener(
+        "change",
+        filterHistory
+    );
+
+
+
+/* =====================================================
+   INITIAL FILTER
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        filterHistory();
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
