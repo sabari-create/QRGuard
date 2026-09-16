@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRGuard | QR Security Scanner</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, #172554, transparent 35%),
+                radial-gradient(circle at bottom right, #064e3b, transparent 30%),
+                #020617;
+            color: #e2e8f0;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            width: 100%;
+            padding: 18px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #06b6d4, #2563eb);
+            font-size: 22px;
+        }
+
+        .brand h1 {
+            font-size: 21px;
+            color: #f8fafc;
+        }
+
+        .brand span {
+            font-size: 11px;
+            color: #94a3b8;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #cbd5e1;
+            padding: 9px 14px;
+            border-radius: 9px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #38bdf8;
+        }
+
+        .logout {
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        /* MAIN */
+        .container {
+            width: min(1100px, 92%);
+            margin: 45px auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border: 1px solid rgba(34, 211, 238, 0.25);
+            background: rgba(8, 47, 73, 0.45);
+            border-radius: 50px;
+            color: #67e8f9;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .hero h2 {
+            font-size: clamp(28px, 5vw, 46px);
+            color: #f8fafc;
+            margin-bottom: 12px;
+        }
+
+        .hero h2 span {
+            color: #38bdf8;
+        }
+
+        .hero p {
+            color: #94a3b8;
+            max-width: 700px;
+            margin: auto;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* SECURITY STATUS */
+        .status {
+            margin: 0 auto 25px;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.7);
+        }
+
+        .status strong {
+            color: #86efac;
+            font-size: 13px;
+        }
+
+        .status small {
+            color: #64748b;
+            margin-left: auto;
+        }
+
+        /* SCANNER GRID */
+        .scanner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(148, 163, 184, 0.13);
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .card h3 {
+            color: #f8fafc;
+            font-size: 19px;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+
+        /* UPLOAD */
+        .upload-box {
+            border: 2px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 15px;
+            padding: 38px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            background: rgba(2, 132, 199, 0.04);
+        }
+
+        .upload-box:hover {
+            border-color: #38bdf8;
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .upload-box strong {
+            display: block;
+            color: #e2e8f0;
+            margin-bottom: 7px;
+        }
+
+        .upload-box small {
+            color: #64748b;
+        }
+
+        #qr_file {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            color: #67e8f9;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .scan-btn {
+            width: 100%;
+            border: none;
+            margin-top: 18px;
+            padding: 13px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .scan-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* CAMERA */
+        .camera-area {
+            min-height: 235px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #video {
+            width: 100%;
+            display: none;
+            border-radius: 12px;
+        }
+
+        .camera-placeholder {
+            padding: 25px;
+        }
+
+        .camera-placeholder div {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .camera-placeholder p {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .camera-btn {
+            margin-top: 15px;
+            padding: 10px 17px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 9px;
+            background: rgba(14, 116, 144, 0.12);
+            color: #67e8f9;
+            cursor: pointer;
+        }
+
+        /* INFO CARDS */
+        .info-grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .info-card {
+            padding: 18px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 14px;
+        }
+
+        .info-card .icon {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .info-card h4 {
+            font-size: 14px;
+            color: #e2e8f0;
+            margin-bottom: 6px;
+        }
+
+        .info-card p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* NOTICE */
+        .notice {
+            margin-top: 25px;
+            padding: 17px 20px;
+            border-radius: 13px;
+            border: 1px solid rgba(245, 158, 11, 0.18);
+            background: rgba(120, 53, 15, 0.08);
+            color: #cbd5e1;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notice strong {
+            color: #fbbf24;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 35px 15px;
+            color: #475569;
+            font-size: 12px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .scanner-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                width: 94%;
+                margin-top: 30px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .brand h1 {
+                font-size: 18px;
+            }
+
+            .nav-links a {
+                padding: 7px 9px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="brand">
+            <div class="brand-icon">🛡️</div>
+            <div>
+                <h1>QRGuard</h1>
+                <span>QR-Code Phishing Detection System</span>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="active">Scanner</a>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="#">👤 Admin</a>
+            <a href="{{ url_for('logout') }}" class="logout">🚪 Logout</a>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <section class="hero">
+            <div class="hero-badge">🔐 DEFENSIVE SECURITY ANALYSIS</div>
+
+            <h2>Scan. <span>Analyze.</span> Stay Safe.</h2>
+
+            <p>
+                QRGuard analyzes URLs extracted from QR codes using
+                defensive security rules and provides a clear risk assessment.
+            </p>
+        </section>
+
+        <!-- SECURITY STATUS -->
+        <div class="status">
+            <div class="status-dot"></div>
+            <strong>Security Analysis Engine Online</strong>
+            <small>Local Analysis • No automatic URL opening</small>
+        </div>
+
+        <!-- SCANNER -->
+        <section class="scanner-grid">
+
+            <!-- UPLOAD CARD -->
+            <div class="card">
+                <h3>📷 Upload QR Code</h3>
+
+                <p class="card-description">
+                    Select a QR image from your computer. QRGuard will
+                    extract and analyze the encoded URL.
+                </p>
+
+                <form method="POST"
+                      action="{{ url_for('index') }}"
+                      enctype="multipart/form-data">
+
+                    <label for="qr_file" class="upload-box">
+                        <div class="upload-icon">⬆️</div>
+
+                        <strong>Click to select QR image</strong>
+
+                        <small>
+                            PNG, JPG, JPEG, WEBP or BMP • Max 5 MB
+                        </small>
+
+                        <div class="file-name" id="fileName">
+                            No file selected
+                        </div>
+                    </label>
+
+                    <input
+                        type="file"
+                        id="qr_file"
+                        name="qr_file"
+                        accept=".png,.jpg,.jpeg,.webp,.bmp"
+                        required
+                    >
+
+                    <button type="submit" class="scan-btn" id="scanBtn">
+                        🔍 Analyze QR Code
+                    </button>
+                </form>
+            </div>
+
+            <!-- CAMERA CARD -->
+            <div class="card">
+                <h3>📹 Camera Scanner</h3>
+
+                <p class="card-description">
+                    Camera scanning interface for QR-code detection.
+                    Camera permission is required.
+                </p>
+
+                <div class="camera-area">
+
+                    <video id="video" autoplay playsinline></video>
+
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+                        <div>📱</div>
+
+                        <p>
+                            Camera scanner can be enabled from this panel.
+                            <br>
+                            Use it in a secure environment.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="camera-btn"
+                            onclick="startCamera()">
+                            Start Camera
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- FEATURES -->
+        <section class="info-grid">
+
+            <div class="info-card">
+                <div class="icon">🔎</div>
+                <h4>URL Validation</h4>
+                <p>
+                    Checks whether the extracted URL has a valid HTTP or HTTPS structure.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="icon">🛡️</div>
+                <h4>Risk Analysis</h4>
+                <p>
+                    Applies multiple defensive heuristics to calculate a security risk score.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="icon">📊</div>
+                <h4>Security Report</h4>
+                <p>
+                    Stores scan history and generates a downloadable PDF security report.
+                </p>
+            </div>
+
+        </section>
+
+        <!-- SECURITY NOTICE -->
+        <div class="notice">
+            <strong>⚠️ Security Notice:</strong>
+            QRGuard performs static URL analysis only.
+            It does not automatically open, visit, or execute content from
+            scanned URLs.
+        </div>
+
+    </main>
+
+    <footer>
+        QRGuard © 2026 • Defensive QR-Code Security Analysis Project
+    </footer>
+
+    <script>
+        /* FILE NAME */
+        const fileInput = document.getElementById("qr_file");
+        const fileName = document.getElementById("fileName");
+
+        fileInput.addEventListener("change", function () {
+            if (this.files.length > 0) {
+                fileName.textContent = "Selected: " + this.files[0].name;
+            } else {
+                fileName.textContent = "No file selected";
+            }
+        });
+
+        /* CAMERA */
+        let cameraStream = null;
+
+        async function startCamera() {
+            const video = document.getElementById("video");
+            const placeholder = document.getElementById("cameraPlaceholder");
+
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "environment"
+                    },
+                    audio: false
+                });
+
+                video.srcObject = cameraStream;
+                video.style.display = "block";
+                placeholder.style.display = "none";
+
+            } catch (error) {
+                alert(
+                    "Camera access was not available. Please allow camera permission and try again."
+                );
+            }
+        }
+
+        /* STOP CAMERA WHEN LEAVING PAGE */
+        window.addEventListener("beforeunload", function () {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+
+</body>
+</html>

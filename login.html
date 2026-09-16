@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>QRGuard | Secure Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(0, 212, 255, 0.12), transparent 30%),
+                radial-gradient(circle at 80% 80%, rgba(0, 119, 255, 0.12), transparent 30%),
+                #030914;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .login-card {
+            background: rgba(8, 20, 35, 0.95);
+            border: 1px solid rgba(0, 217, 255, 0.25);
+            border-radius: 22px;
+            padding: 40px;
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.55),
+                0 0 35px rgba(0, 180, 255, 0.06);
+        }
+
+        .logo-box {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            background: rgba(0, 217, 255, 0.08);
+            border: 1px solid rgba(0, 217, 255, 0.25);
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00d9ff;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            color: #8fa5ba;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0 25px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(0, 255, 170, 0.06);
+            border: 1px solid rgba(0, 255, 170, 0.14);
+            color: #83e6c1;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d9a6;
+            box-shadow: 0 0 10px rgba(0, 217, 166, 0.7);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4e0ec;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6f879d;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            height: 50px;
+            padding: 0 15px 0 42px;
+            border: 1px solid #29435b;
+            border-radius: 11px;
+            outline: none;
+            background: #06111f;
+            color: #ffffff;
+            font-size: 15px;
+            transition: 0.2s ease;
+        }
+
+        input::placeholder {
+            color: #60758a;
+        }
+
+        input:focus {
+            border-color: #00d9ff;
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.08);
+        }
+
+        .login-button {
+            width: 100%;
+            height: 52px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #00b8d9, #0077ff);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(0, 150, 255, 0.25);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(220, 53, 69, 0.10);
+            border: 1px solid rgba(220, 53, 69, 0.25);
+            color: #ff9da7;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .security-info {
+            margin-top: 25px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(0, 217, 255, 0.04);
+            border: 1px solid rgba(0, 217, 255, 0.12);
+            color: #8ca5bb;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            color: #52687d;
+            font-size: 11px;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 22px;
+            }
+
+            .logo {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-card">
+
+            <div class="logo-box">
+
+                <div class="logo-icon">
+                    🛡️
+                </div>
+
+                <div class="logo">
+                    QRGuard
+                </div>
+
+                <div class="subtitle">
+                    QR-Code Phishing Detection System
+                </div>
+
+            </div>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                Secure Analysis Environment
+            </div>
+
+            {% if error %}
+            <div class="error-message">
+                ⚠️ {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            👤
+                        </span>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Enter username"
+                            required
+                            autocomplete="username"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            🔑
+                        </span>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter password"
+                            required
+                            autocomplete="current-password"
+                        >
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+                    🔐 Login to QRGuard
+                </button>
+
+            </form>
+
+            <div class="security-info">
+                🔒 This system performs static QR and URL security analysis.
+                Submitted URLs are not automatically opened.
+            </div>
+
+        </div>
+
+        <div class="footer">
+            QRGuard © 2026 | Cyber Security Project
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,1008 @@
+/* =========================================================
+   QRGuard - Cyber Security Theme
+   Scanner + Dashboard + History + Result
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(0, 229, 255, 0.10), transparent 30%),
+        radial-gradient(circle at 90% 20%, rgba(77, 124, 255, 0.10), transparent 30%),
+        linear-gradient(135deg, #030712, #07111f 50%, #020617);
+    color: #e5f7ff;
+    min-height: 100vh;
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.navbar {
+    width: 100%;
+    min-height: 72px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: rgba(3, 10, 24, 0.88);
+    border-bottom: 1px solid rgba(0, 229, 255, 0.18);
+
+    backdrop-filter: blur(18px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.nav-logo {
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #67e8f9;
+
+    text-shadow:
+        0 0 10px rgba(34, 211, 238, 0.45);
+}
+
+.nav-links {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #a8c3d5;
+
+    padding: 10px 16px;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.25s ease;
+}
+
+.nav-links a:hover {
+    color: #67e8f9;
+    background: rgba(34, 211, 238, 0.08);
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.12);
+}
+
+/* =========================================================
+   SCANNER MAIN
+   ========================================================= */
+
+.scanner-container {
+    width: min(1100px, 92%);
+    margin: 55px auto;
+}
+
+.scanner-header {
+    text-align: center;
+    margin-bottom: 38px;
+}
+
+.scanner-icon {
+    width: 78px;
+    height: 78px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 35px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(34, 211, 238, 0.18),
+            rgba(59, 130, 246, 0.10)
+        );
+
+    border: 1px solid rgba(34, 211, 238, 0.35);
+
+    box-shadow:
+        0 0 30px rgba(34, 211, 238, 0.12),
+        inset 0 0 25px rgba(34, 211, 238, 0.04);
+}
+
+.scanner-header h1 {
+    font-size: clamp(30px, 5vw, 46px);
+    font-weight: 800;
+
+    background: linear-gradient(
+        90deg,
+        #67e8f9,
+        #60a5fa,
+        #a78bfa
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    margin-bottom: 12px;
+}
+
+.scanner-header p {
+    color: #91a9bb;
+    font-size: 16px;
+}
+
+.security-status {
+    width: fit-content;
+    margin: 22px auto 0;
+
+    padding: 10px 18px;
+
+    border-radius: 30px;
+
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+
+    color: #86efac;
+    font-size: 13px;
+    font-weight: 600;
+
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.06);
+}
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.upload-card {
+    position: relative;
+
+    padding: 34px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10, 24, 43, 0.92),
+            rgba(4, 14, 29, 0.96)
+        );
+
+    border: 1px solid rgba(100, 180, 255, 0.15);
+    border-radius: 24px;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.40),
+        inset 0 1px rgba(255, 255, 255, 0.025);
+
+    overflow: hidden;
+}
+
+.upload-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #22d3ee,
+        #3b82f6,
+        #a78bfa,
+        transparent
+    );
+
+    opacity: 0.8;
+}
+
+.upload-card h2 {
+    color: #dffaff;
+    font-size: 23px;
+    margin-bottom: 8px;
+}
+
+.upload-description {
+    color: #8199aa;
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+   DROP ZONE
+   ========================================================= */
+
+.drop-zone {
+    min-height: 270px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 30px;
+
+    border: 2px dashed rgba(34, 211, 238, 0.25);
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(34, 211, 238, 0.07),
+            transparent 65%
+        );
+
+    transition: 0.3s ease;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-active {
+    border-color: rgba(34, 211, 238, 0.75);
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(34, 211, 238, 0.12),
+            transparent 65%
+        );
+
+    box-shadow:
+        0 0 35px rgba(34, 211, 238, 0.10);
+}
+
+.upload-icon {
+    width: 72px;
+    height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+
+    border-radius: 18px;
+
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.20);
+
+    margin-bottom: 15px;
+}
+
+.drop-zone h3 {
+    font-size: 19px;
+    color: #dffaff;
+    margin-bottom: 8px;
+}
+
+.drop-zone p {
+    color: #71889a;
+    margin-bottom: 13px;
+}
+
+.drop-zone small {
+    display: block;
+    margin-top: 15px;
+
+    color: #6f899b;
+    font-size: 12px;
+}
+
+/* =========================================================
+   CHOOSE BUTTON
+   ========================================================= */
+
+.choose-button {
+    display: inline-block;
+
+    padding: 12px 24px;
+
+    border-radius: 11px;
+
+    background: linear-gradient(
+        135deg,
+        #0891b2,
+        #2563eb
+    );
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 25px rgba(37, 99, 235, 0.22);
+
+    transition: 0.25s ease;
+}
+
+.choose-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(34, 211, 238, 0.25);
+}
+
+/* =========================================================
+   CAMERA
+   ========================================================= */
+
+.camera-section {
+    margin-top: 35px;
+    padding-top: 30px;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+.camera-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.camera-heading > span {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: rgba(59, 130, 246, 0.10);
+    border: 1px solid rgba(59, 130, 246, 0.20);
+
+    font-size: 22px;
+}
+
+.camera-heading h2 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.camera-heading p {
+    color: #7890a2;
+    margin-top: 4px;
+    font-size: 13px;
+}
+
+/* =========================================================
+   CAMERA BOX
+   ========================================================= */
+
+.camera-box {
+    position: relative;
+
+    width: 100%;
+    min-height: 330px;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(34, 211, 238, 0.04),
+            #020817
+        );
+
+    border: 1px solid rgba(34, 211, 238, 0.16);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        inset 0 0 50px rgba(0, 0, 0, 0.45);
+}
+
+.camera-box video {
+    width: 100%;
+    height: 330px;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+.camera-message {
+    position: absolute;
+
+    left: 50%;
+    bottom: 18px;
+
+    transform: translateX(-50%);
+
+    width: max-content;
+    max-width: 90%;
+
+    padding: 9px 16px;
+
+    border-radius: 20px;
+
+    background: rgba(2, 8, 23, 0.82);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+
+    color: #9fb5c5;
+
+    font-size: 12px;
+
+    backdrop-filter: blur(10px);
+}
+
+.camera-message.camera-active {
+    color: #67e8f9;
+
+    border-color: rgba(34, 211, 238, 0.30);
+
+    box-shadow:
+        0 0 20px rgba(34, 211, 238, 0.08);
+}
+
+/* =========================================================
+   CAMERA BUTTONS
+   ========================================================= */
+
+.camera-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    gap: 12px;
+
+    margin-top: 18px;
+}
+
+.camera-controls button {
+    border: none;
+    border-radius: 10px;
+
+    padding: 11px 18px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+.camera-button {
+    background: rgba(34, 211, 238, 0.10);
+    border: 1px solid rgba(34, 211, 238, 0.25) !important;
+
+    color: #67e8f9;
+}
+
+.capture-button {
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #4f46e5
+    );
+
+    color: white;
+}
+
+.stop-camera-button {
+    background: rgba(239, 68, 68, 0.08);
+
+    border: 1px solid rgba(239, 68, 68, 0.20) !important;
+
+    color: #fca5a5;
+}
+
+.camera-controls button:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.camera-controls button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.camera-note {
+    text-align: center;
+
+    margin-top: 13px;
+
+    color: #647c8e;
+    font-size: 12px;
+}
+
+/* =========================================================
+   PREVIEW
+   ========================================================= */
+
+.preview-container {
+    display: none;
+
+    margin-top: 25px;
+
+    padding: 22px;
+
+    border-radius: 17px;
+
+    background: rgba(15, 23, 42, 0.65);
+
+    border: 1px solid rgba(34, 211, 238, 0.14);
+
+    text-align: center;
+}
+
+.preview-container h3 {
+    color: #c9f7ff;
+    margin-bottom: 15px;
+}
+
+.preview-container img {
+    max-width: 260px;
+    max-height: 260px;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(34, 211, 238, 0.25);
+
+    box-shadow:
+        0 0 30px rgba(34, 211, 238, 0.10);
+}
+
+.preview-container p {
+    margin-top: 12px;
+    color: #8fa8ba;
+    font-size: 13px;
+}
+
+/* =========================================================
+   ANALYZE BUTTON
+   ========================================================= */
+
+.analyze-button {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 16px 20px;
+
+    border: none;
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #2563eb,
+            #4f46e5
+        );
+
+    color: white;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    letter-spacing: 0.3px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 12px 35px rgba(37, 99, 235, 0.22);
+
+    transition: 0.25s ease;
+}
+
+.analyze-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 40px rgba(34, 211, 238, 0.22);
+}
+
+.analyze-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading-box {
+    display: none;
+
+    text-align: center;
+
+    margin-top: 20px;
+
+    padding: 20px;
+
+    border-radius: 14px;
+
+    background: rgba(34, 211, 238, 0.05);
+
+    border: 1px solid rgba(34, 211, 238, 0.12);
+}
+
+.loading-spinner {
+    width: 34px;
+    height: 34px;
+
+    margin: 0 auto 12px;
+
+    border: 3px solid rgba(34, 211, 238, 0.15);
+    border-top-color: #22d3ee;
+
+    border-radius: 50%;
+
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-box p {
+    color: #b9eff8;
+    font-weight: 600;
+}
+
+.loading-box small {
+    color: #6f899b;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   FEATURES
+   ========================================================= */
+
+.features-section {
+    margin-top: 35px;
+}
+
+.features-section > h2 {
+    text-align: center;
+
+    margin-bottom: 22px;
+
+    color: #dffaff;
+    font-size: 24px;
+}
+
+.feature-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 16px;
+}
+
+.feature-card {
+    padding: 22px;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 30, 50, 0.80),
+            rgba(5, 15, 30, 0.85)
+        );
+
+    border: 1px solid rgba(148, 163, 184, 0.10);
+
+    transition: 0.25s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+
+    border-color: rgba(34, 211, 238, 0.25);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.feature-icon {
+    font-size: 26px;
+
+    margin-bottom: 13px;
+}
+
+.feature-card h3 {
+    color: #c9f7ff;
+
+    font-size: 16px;
+
+    margin-bottom: 8px;
+}
+
+.feature-card p {
+    color: #71889a;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   DISCLAIMER
+   ========================================================= */
+
+.scanner-disclaimer {
+    margin-top: 28px;
+
+    padding: 17px 20px;
+
+    border-radius: 14px;
+
+    background: rgba(245, 158, 11, 0.06);
+
+    border: 1px solid rgba(245, 158, 11, 0.18);
+
+    color: #d6bd82;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+.scanner-disclaimer strong {
+    color: #fbbf24;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+    margin-top: 60px;
+
+    padding: 30px 20px;
+
+    text-align: center;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+
+    background: rgba(2, 8, 23, 0.55);
+}
+
+.footer p {
+    color: #61798b;
+
+    font-size: 12px;
+
+    margin: 5px 0;
+}
+
+/* =========================================================
+   DASHBOARD / HISTORY / RESULT COMMON
+   ========================================================= */
+
+.container,
+.dashboard-container,
+.history-container,
+.result-container {
+    width: min(1100px, 92%);
+    margin: 45px auto;
+}
+
+.card,
+.dashboard-card,
+.history-card,
+.result-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10, 24, 43, 0.92),
+            rgba(4, 14, 29, 0.96)
+        );
+
+    border: 1px solid rgba(100, 180, 255, 0.13);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.30);
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    color: #67e8f9;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.6px;
+
+    padding: 15px;
+
+    background: rgba(34, 211, 238, 0.04);
+}
+
+td {
+    padding: 14px;
+
+    color: #a9bdca;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+
+    font-size: 13px;
+}
+
+tr:hover td {
+    background: rgba(34, 211, 238, 0.025);
+}
+
+/* =========================================================
+   RISK BADGES
+   ========================================================= */
+
+.risk-badge,
+.badge {
+    display: inline-block;
+
+    padding: 6px 11px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.3px;
+}
+
+.low {
+    color: #86efac;
+
+    background: rgba(34, 197, 94, 0.10);
+
+    border: 1px solid rgba(34, 197, 94, 0.20);
+}
+
+.medium {
+    color: #fcd34d;
+
+    background: rgba(234, 179, 8, 0.10);
+
+    border: 1px solid rgba(234, 179, 8, 0.20);
+}
+
+.high {
+    color: #fca5a5;
+
+    background: rgba(239, 68, 68, 0.10);
+
+    border: 1px solid rgba(239, 68, 68, 0.20);
+}
+
+/* =========================================================
+   BUTTONS / LINKS
+   ========================================================= */
+
+button,
+.action-button {
+    transition: 0.25s ease;
+}
+
+button:hover,
+.action-button:hover {
+    transform: translateY(-1px);
+}
+
+a {
+    color: #67e8f9;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .navbar {
+        padding: 14px 5%;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+    .nav-links {
+        width: 100%;
+
+        justify-content: center;
+
+        flex-wrap: wrap;
+    }
+
+    .scanner-container {
+        width: 94%;
+        margin: 35px auto;
+    }
+
+    .upload-card {
+        padding: 22px;
+    }
+
+    .camera-box {
+        min-height: 250px;
+    }
+
+    .camera-box video {
+        height: 250px;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 520px) {
+
+    .scanner-header h1 {
+        font-size: 30px;
+    }
+
+    .scanner-header p {
+        font-size: 14px;
+    }
+
+    .security-status {
+        font-size: 11px;
+    }
+
+    .upload-card {
+        padding: 17px;
+    }
+
+    .drop-zone {
+        min-height: 230px;
+        padding: 20px;
+    }
+
+    .camera-controls {
+        flex-direction: column;
+    }
+
+    .camera-controls button {
+        width: 100%;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scanner-disclaimer {
+        font-size: 12px;
+    }
+}
