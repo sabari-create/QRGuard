@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>QRGuard | Create Account</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(124, 58, 237, 0.30),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at bottom right,
+                    rgba(245, 158, 11, 0.18),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    135deg,
+                    #050816,
+                    #0b1026,
+                    #11152f
+                );
+
+            color: #ffffff;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .brand-icon {
+            width: 72px;
+            height: 72px;
+
+            margin: auto;
+            margin-bottom: 14px;
+
+            border-radius: 22px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 38px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7c3aed,
+                    #4f46e5
+                );
+
+            border: 1px solid rgba(255,255,255,0.18);
+
+            box-shadow:
+                0 0 25px rgba(124,58,237,0.55),
+                0 0 60px rgba(124,58,237,0.20);
+        }
+
+        .brand h1 {
+            font-size: 32px;
+            letter-spacing: 1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #d8b4fe,
+                    #fbbf24
+                );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand p {
+            margin-top: 6px;
+            color: #aab2d5;
+            font-size: 14px;
+        }
+
+        .card {
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.10),
+                    rgba(255,255,255,0.035)
+                );
+
+            border: 1px solid rgba(255,255,255,0.14);
+
+            border-radius: 24px;
+
+            padding: 32px;
+
+            backdrop-filter: blur(20px);
+
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.45),
+                0 0 35px rgba(124,58,237,0.12);
+        }
+
+        .card-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card-title h2 {
+            font-size: 23px;
+            margin-bottom: 7px;
+        }
+
+        .card-title p {
+            color: #929abd;
+            font-size: 13px;
+        }
+
+        .error {
+            background: rgba(239,68,68,0.12);
+
+            border: 1px solid rgba(239,68,68,0.45);
+
+            color: #fca5a5;
+
+            padding: 12px 14px;
+
+            border-radius: 12px;
+
+            margin-bottom: 18px;
+
+            font-size: 13px;
+
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #d9def5;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+
+            left: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            font-size: 17px;
+
+            opacity: 0.75;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 14px 15px 14px 44px;
+
+            border-radius: 12px;
+
+            border: 1px solid rgba(255,255,255,0.13);
+
+            outline: none;
+
+            background: rgba(5,8,22,0.65);
+
+            color: #ffffff;
+
+            font-size: 14px;
+
+            transition: 0.25s;
+        }
+
+        input::placeholder {
+            color: #70789b;
+        }
+
+        input:focus {
+            border-color: #a78bfa;
+
+            box-shadow:
+                0 0 0 3px rgba(124,58,237,0.14),
+                0 0 20px rgba(124,58,237,0.16);
+        }
+
+        .password-note {
+            margin-top: 6px;
+
+            font-size: 11px;
+
+            color: #737c9f;
+        }
+
+        .register-btn {
+            width: 100%;
+
+            border: none;
+
+            border-radius: 13px;
+
+            padding: 14px;
+
+            margin-top: 7px;
+
+            cursor: pointer;
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            letter-spacing: 0.3px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #6d28d9,
+                    #7c3aed,
+                    #9333ea
+                );
+
+            box-shadow:
+                0 8px 25px rgba(124,58,237,0.35);
+
+            transition: 0.25s;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 35px rgba(124,58,237,0.48);
+        }
+
+        .login-link {
+            text-align: center;
+
+            margin-top: 22px;
+
+            color: #8f97b8;
+
+            font-size: 13px;
+        }
+
+        .login-link a {
+            color: #c4b5fd;
+
+            text-decoration: none;
+
+            font-weight: 700;
+        }
+
+        .login-link a:hover {
+            color: #fbbf24;
+        }
+
+        .security {
+            margin-top: 22px;
+
+            padding-top: 18px;
+
+            border-top: 1px solid rgba(255,255,255,0.08);
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            color: #777f9f;
+
+            font-size: 11px;
+        }
+
+        .security span {
+            color: #fbbf24;
+        }
+
+        .footer {
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #555d7c;
+
+            font-size: 11px;
+        }
+
+        @media (max-width: 520px) {
+
+            body {
+                padding: 18px;
+            }
+
+            .card {
+                padding: 25px 20px;
+            }
+
+            .brand h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- BRAND -->
+    <div class="brand">
+
+        <div class="brand-icon">
+            🛡️
+        </div>
+
+        <h1>QRGuard</h1>
+
+        <p>QR-Code Phishing Detection System</p>
+
+    </div>
+
+
+    <!-- REGISTER CARD -->
+    <div class="card">
+
+        <div class="card-title">
+
+            <h2>Create Your Account</h2>
+
+            <p>
+                Join QRGuard and protect your QR scans
+            </p>
+
+        </div>
+
+
+        <!-- ERROR -->
+        {% if error %}
+
+        <div class="error">
+            ⚠️ {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- REGISTER FORM -->
+        <form
+            action="/register"
+            method="POST"
+        >
+
+            <!-- USERNAME -->
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <div class="input-box">
+
+                    <span class="input-icon">
+                        👤
+                    </span>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        minlength="3"
+                        maxlength="50"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- EMAIL -->
+            <div class="form-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <div class="input-box">
+
+                    <span class="input-icon">
+                        ✉️
+                    </span>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        maxlength="120"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="input-box">
+
+                    <span class="input-icon">
+                        🔐
+                    </span>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a password"
+                        minlength="6"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+                <div class="password-note">
+                    Minimum 6 characters
+                </div>
+
+            </div>
+
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="form-group">
+
+                <label for="confirm_password">
+                    Confirm Password
+                </label>
+
+                <div class="input-box">
+
+                    <span class="input-icon">
+                        🔒
+                    </span>
+
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        placeholder="Re-enter your password"
+                        minlength="6"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTON -->
+            <button
+                type="submit"
+                class="register-btn"
+            >
+                ✨ Create Account
+            </button>
+
+        </form>
+
+
+        <!-- LOGIN -->
+        <div class="login-link">
+
+            Already have an account?
+
+            <a href="/login">
+                Login
+            </a>
+
+        </div>
+
+
+        <!-- SECURITY -->
+        <div class="security">
+
+            <span>🛡️</span>
+
+            QRGuard Secure Account System
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        QRGuard © 2026 | Cyber Security Project
+
+    </div>
+
+</div>
+
+</body>
+</html>
