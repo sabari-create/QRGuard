@@ -1,20 +1,17 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
 
-    <!-- Google Search Console Verification -->
     <meta name="google-site-verification"
-          content="bdFd29_fwLQDwspw717PsfaTVk0j3h4SZpwQvOM57-Q" />
+          content="bdFd29_fwLQDwspw717PsfaTVk0j3h4SZpwQvOM57-Q">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>QRGuard | Login</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -22,129 +19,80 @@
         body {
             margin: 0;
             min-height: 100vh;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             color: #f5f5f5;
 
             background:
-                radial-gradient(
-                    circle at 15% 15%,
+                radial-gradient(circle at 15% 15%,
                     rgba(112, 67, 190, 0.24),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 85% 12%,
+                    transparent 35%),
+                radial-gradient(circle at 85% 12%,
                     rgba(255, 193, 7, 0.12),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 50% 100%,
+                    transparent 30%),
+                radial-gradient(circle at 50% 100%,
                     rgba(84, 44, 140, 0.15),
-                    transparent 42%
-                ),
-                linear-gradient(
-                    135deg,
+                    transparent 42%),
+                linear-gradient(135deg,
                     #03050a,
                     #080d1b 52%,
-                    #09050f
-                );
+                    #09050f);
 
             display: flex;
             align-items: center;
             justify-content: center;
-
             padding: 25px;
         }
 
-        /* =========================================
-           BACKGROUND GLOW
-        ========================================= */
-
         .glow-one {
             position: fixed;
-
             width: 280px;
             height: 280px;
-
             left: -130px;
             bottom: -120px;
-
             border-radius: 50%;
-
             background:
-                radial-gradient(
-                    circle,
+                radial-gradient(circle,
                     rgba(255,193,7,0.08),
-                    transparent 70%
-                );
-
+                    transparent 70%);
             pointer-events: none;
         }
 
         .glow-two {
             position: fixed;
-
             width: 260px;
             height: 260px;
-
             right: -120px;
             top: -110px;
-
             border-radius: 50%;
-
             background:
-                radial-gradient(
-                    circle,
+                radial-gradient(circle,
                     rgba(113,67,190,0.13),
-                    transparent 70%
-                );
-
+                    transparent 70%);
             pointer-events: none;
         }
 
-        /* =========================================
-           MAIN CARD
-        ========================================= */
-
         .login-card {
-            width: min(
-                430px,
-                100%
-            );
-
+            width: min(430px, 100%);
             padding: 36px;
 
             border-radius: 25px;
 
             background:
-                linear-gradient(
-                    145deg,
+                linear-gradient(145deg,
                     rgba(17,20,36,0.96),
-                    rgba(10,8,20,0.96)
-                );
+                    rgba(10,8,20,0.96));
 
-            border:
-                1px solid rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.09);
 
             box-shadow:
                 0 35px 90px rgba(0,0,0,0.55),
                 0 0 55px rgba(105,62,175,0.13);
 
-            backdrop-filter:
-                blur(22px);
+            backdrop-filter: blur(22px);
 
             position: relative;
-
             z-index: 2;
         }
-
-        /* =========================================
-           LOGO
-        ========================================= */
 
         .logo-area {
             text-align: center;
@@ -154,7 +102,6 @@
         .logo {
             width: 70px;
             height: 70px;
-
             margin: 0 auto 15px;
 
             display: flex;
@@ -166,14 +113,11 @@
             font-size: 34px;
 
             background:
-                linear-gradient(
-                    145deg,
+                linear-gradient(145deg,
                     #1b1834,
-                    #090a12
-                );
+                    #090a12);
 
-            border:
-                1px solid rgba(255,193,7,0.42);
+            border: 1px solid rgba(255,193,7,0.42);
 
             color: #ffc107;
 
@@ -183,9 +127,7 @@
 
         .brand {
             font-size: 27px;
-
             font-weight: 900;
-
             letter-spacing: 0.3px;
         }
 
@@ -195,45 +137,29 @@
 
         .tagline {
             margin-top: 7px;
-
             color: #818a9d;
-
             font-size: 12px;
         }
 
-        /* =========================================
-           TITLE
-        ========================================= */
-
         .title {
             text-align: center;
-
             margin-bottom: 23px;
         }
 
         .title h1 {
             margin: 0 0 7px;
-
             font-size: 25px;
         }
 
         .title p {
             margin: 0;
-
             color: #858ea0;
-
             font-size: 13px;
         }
 
-        /* =========================================
-           ERROR
-        ========================================= */
-
         .error {
             margin-bottom: 17px;
-
             padding: 12px 14px;
-
             border-radius: 10px;
 
             color: #ff9ca3;
@@ -241,17 +167,11 @@
             background:
                 rgba(220,53,69,0.09);
 
-            border:
-                1px solid rgba(220,53,69,0.23);
+            border: 1px solid rgba(220,53,69,0.23);
 
             font-size: 12px;
-
             line-height: 1.5;
         }
-
-        /* =========================================
-           FORM
-        ========================================= */
 
         .field {
             margin-bottom: 16px;
@@ -259,23 +179,19 @@
 
         .field label {
             display: block;
-
             margin-bottom: 7px;
 
             color: #c9cfda;
 
             font-size: 12px;
-
             font-weight: 700;
         }
 
         .field input {
             width: 100%;
-
             padding: 13px 14px;
 
             border-radius: 11px;
-
             outline: none;
 
             color: #f0f2f6;
@@ -283,11 +199,9 @@
             background:
                 rgba(255,255,255,0.045);
 
-            border:
-                1px solid rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.09);
 
             font-size: 13px;
-
             transition: 0.2s;
         }
 
@@ -303,17 +217,11 @@
                 0 0 0 3px rgba(255,193,7,0.06);
         }
 
-        /* =========================================
-           LOGIN BUTTON
-        ========================================= */
-
         .login-btn {
             width: 100%;
-
             border: none;
 
             padding: 14px;
-
             border-radius: 11px;
 
             cursor: pointer;
@@ -321,14 +229,11 @@
             color: #080a10;
 
             background:
-                linear-gradient(
-                    135deg,
+                linear-gradient(135deg,
                     #ffc107,
-                    #dfa300
-                );
+                    #dfa300);
 
             font-size: 13px;
-
             font-weight: 900;
 
             box-shadow:
@@ -338,30 +243,21 @@
         }
 
         .login-btn:hover {
-            transform:
-                translateY(-2px);
+            transform: translateY(-2px);
 
             box-shadow:
                 0 14px 32px rgba(255,193,7,0.20);
         }
 
-        /* =========================================
-           DIVIDER
-        ========================================= */
-
         .divider {
             display: flex;
-
             align-items: center;
-
             gap: 12px;
-
             margin: 22px 0;
         }
 
         .divider-line {
             flex: 1;
-
             height: 1px;
 
             background:
@@ -370,27 +266,17 @@
 
         .divider span {
             color: #697285;
-
             font-size: 11px;
-
             font-weight: 700;
         }
 
-        /* =========================================
-           GOOGLE BUTTON
-        ========================================= */
-
         .google-btn {
             width: 100%;
-
             min-height: 47px;
 
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             gap: 11px;
 
             text-decoration: none;
@@ -402,11 +288,9 @@
             background:
                 rgba(255,255,255,0.045);
 
-            border:
-                1px solid rgba(255,255,255,0.11);
+            border: 1px solid rgba(255,255,255,0.11);
 
             font-size: 13px;
-
             font-weight: 800;
 
             transition: 0.2s;
@@ -419,8 +303,7 @@
             border-color:
                 rgba(255,193,7,0.25);
 
-            transform:
-                translateY(-1px);
+            transform: translateY(-1px);
         }
 
         .google-icon {
@@ -428,28 +311,20 @@
             height: 20px;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
 
             border-radius: 50%;
 
             background: white;
-
             color: #4285f4;
 
             font-size: 13px;
-
             font-weight: 900;
         }
 
-        /* =========================================
-           REGISTER
-        ========================================= */
-
         .register {
             text-align: center;
-
             margin-top: 22px;
 
             color: #737d90;
@@ -459,9 +334,7 @@
 
         .register a {
             color: #ffc107;
-
             text-decoration: none;
-
             font-weight: 800;
         }
 
@@ -469,7 +342,176 @@
             text-decoration: underline;
         }
 
-        /* =========================================
-           SECURITY
-        ========
+        .security {
+            margin-top: 22px;
+            padding: 11px 12px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            color: #6f788b;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            border: 1px solid rgba(255,255,255,0.06);
+
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .security strong {
+            color: #9da5b5;
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 15px;
+            }
+
+            .login-card {
+                padding: 28px 22px;
+                border-radius: 20px;
+            }
+
+            .brand {
+                font-size: 24px;
+            }
+
+            .title h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow-one"></div>
+    <div class="glow-two"></div>
+
+    <div class="login-card">
+
+        <div class="logo-area">
+
+            <div class="logo">
+                🛡️
+            </div>
+
+            <div class="brand">
+                QR<span>Guard</span>
+            </div>
+
+            <div class="tagline">
+                QR-Code Phishing Detection System
+            </div>
+
+        </div>
+
+        <div class="title">
+
+            <h1>Welcome Back</h1>
+
+            <p>
+                Sign in to access your security dashboard
+            </p>
+
+        </div>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+
+            <div class="field">
+
+                <label for="username">
+                    Username or Email
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter username or email"
+                    required
+                    autocomplete="username"
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="login-btn">
+                SIGN IN
+            </button>
+
+        </form>
+
+        <div class="divider">
+
+            <div class="divider-line"></div>
+
+            <span>OR</span>
+
+            <div class="divider-line"></div>
+
+        </div>
+
+        <a
+            href="{{ url_for('google_login') }}"
+            class="google-btn">
+
+            <span class="google-icon">
+                G
+            </span>
+
+            Continue with Google
+
+        </a>
+
+        <div class="register">
+
+            Don't have an account?
+
+            <a href="{{ url_for('register') }}">
+                Create Account
+            </a>
+
+        </div>
+
+        <div class="security">
+
+            🔒 <strong>Secure Access</strong><br>
+
+            Your QRGuard account is protected by
+            secure authentication.
+
+        </div>
+
+    </div>
+
+</body>
+</html>
 ```
