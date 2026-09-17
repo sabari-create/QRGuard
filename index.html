@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,7 @@
 
     <!-- Google Search Console Verification -->
     <meta name="google-site-verification"
-          content="bdFd29_fwLQDwspw717PsfaTVk0j3h4SZpwQvOM57-Q" />
+          content="bdFd29_fwLQDwspw717PsfaTVk0j3h4SZpwQvOM57-Q">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -26,20 +25,20 @@
             min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
             background:
-                radial-gradient(circle at 15% 20%, rgba(126, 87, 194, 0.18), transparent 30%),
-                radial-gradient(circle at 85% 80%, rgba(212, 175, 55, 0.12), transparent 30%),
+                radial-gradient(circle at 15% 20%, rgba(126, 87, 194, 0.20), transparent 30%),
+                radial-gradient(circle at 85% 80%, rgba(212, 175, 55, 0.14), transparent 30%),
                 #05060a;
             color: #ffffff;
         }
 
         .topbar {
-            height: 76px;
+            min-height: 76px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 6%;
+            padding: 14px 6%;
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            background: rgba(5,6,10,0.88);
+            background: rgba(5,6,10,0.92);
             backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
@@ -57,13 +56,13 @@
         }
 
         .shield {
-            width: 42px;
-            height: 46px;
+            width: 44px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 1px solid #d4af37;
-            border-radius: 12px;
+            border-radius: 13px;
             color: #d4af37;
             font-size: 21px;
             box-shadow: 0 0 22px rgba(212,175,55,0.18);
@@ -76,7 +75,8 @@
         .nav {
             display: flex;
             align-items: center;
-            gap: 22px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
         .nav a {
@@ -183,6 +183,7 @@
         .upload-area:hover {
             border-color: #d4af37;
             background: rgba(212,175,55,0.055);
+            transform: translateY(-2px);
         }
 
         .upload-icon {
@@ -192,6 +193,7 @@
 
         .upload-area h3 {
             margin-bottom: 8px;
+            font-size: 20px;
         }
 
         .upload-area p {
@@ -208,6 +210,7 @@
             color: #d4af37;
             font-size: 13px;
             min-height: 18px;
+            word-break: break-word;
         }
 
         .scan-btn {
@@ -230,10 +233,275 @@
             box-shadow: 0 14px 35px rgba(212,175,55,0.28);
         }
 
+        .scan-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .error {
             margin: 20px auto 0;
             max-width: 760px;
             padding: 14px 18px;
             border-radius: 12px;
-            border: 1p
-```
+            border: 1px solid rgba(255,80,80,0.35);
+            background: rgba(255,60,60,0.08);
+            color: #ffb4b4;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .info-grid {
+            max-width: 760px;
+            margin: 28px auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .info-box {
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.025);
+            text-align: center;
+        }
+
+        .info-box strong {
+            display: block;
+            color: #d4af37;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .info-box span {
+            color: #858592;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px 45px;
+            color: #62626d;
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .topbar {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .nav {
+                justify-content: center;
+            }
+
+            .container {
+                padding: 45px 0;
+            }
+
+            .scanner-card {
+                padding: 24px 18px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <a href="{{ url_for('index') }}" class="brand">
+        <div class="shield">🛡</div>
+        QR<span>Guard</span>
+    </a>
+
+    <nav class="nav">
+        <a href="{{ url_for('index') }}">Scanner</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </nav>
+
+</header>
+
+
+<main class="container">
+
+    <section class="hero">
+
+        <div class="badge">
+            QR SECURITY ANALYSIS
+        </div>
+
+        <h1>
+            Scan. <span>Detect.</span> Protect.
+        </h1>
+
+        <p>
+            QRGuard analyzes URLs hidden inside QR codes
+            using security-focused URL heuristics and
+            provides an automated risk assessment.
+        </p>
+
+    </section>
+
+
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+
+
+    <section class="scanner-card">
+
+        <div class="scanner-title">
+
+            <h2>QR Code Scanner</h2>
+
+            <p>
+                Upload a QR image to analyze the embedded URL.
+            </p>
+
+        </div>
+
+
+        <!-- IMPORTANT:
+             Scan form must POST to /scan
+             because Flask scan route handles the POST request.
+        -->
+
+        <form
+            method="POST"
+            action="{{ url_for('scan') }}"
+            enctype="multipart/form-data"
+            id="scanForm"
+        >
+
+            <label
+                for="qr_image"
+                class="upload-area"
+            >
+
+                <div class="upload-icon">
+                    ▣
+                </div>
+
+                <h3>
+                    Choose QR Image
+                </h3>
+
+                <p>
+                    Click here to select PNG, JPG, JPEG,
+                    WEBP or BMP
+                </p>
+
+                <input
+                    type="file"
+                    id="qr_image"
+                    name="qr_image"
+                    accept=".png,.jpg,.jpeg,.webp,.bmp,image/png,image/jpeg,image/webp,image/bmp"
+                    required
+                >
+
+            </label>
+
+
+            <div
+                class="file-name"
+                id="fileName"
+            >
+                No file selected
+            </div>
+
+
+            <button
+                type="submit"
+                class="scan-btn"
+                id="scanButton"
+            >
+                🔍 Scan QR Code
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="info-grid">
+
+        <div class="info-box">
+            <strong>LOCAL ANALYSIS</strong>
+            <span>QR image is processed by QRGuard.</span>
+        </div>
+
+        <div class="info-box">
+            <strong>STATIC CHECK</strong>
+            <span>The extracted URL is analyzed without visiting it.</span>
+        </div>
+
+        <div class="info-box">
+            <strong>RISK SCORE</strong>
+            <span>Security indicators generate a risk classification.</span>
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="footer">
+    QRGuard © 2026 | Cyber Security Project
+</footer>
+
+
+<script>
+
+    const fileInput = document.getElementById("qr_image");
+    const fileName = document.getElementById("fileName");
+    const scanForm = document.getElementById("scanForm");
+    const scanButton = document.getElementById("scanButton");
+
+
+    fileInput.addEventListener("change", function () {
+
+        if (this.files && this.files.length > 0) {
+
+            fileName.textContent =
+                "Selected: " + this.files[0].name;
+
+        } else {
+
+            fileName.textContent =
+                "No file selected";
+
+        }
+
+    });
+
+
+    scanForm.addEventListener("submit", function () {
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+
+            return;
+
+        }
+
+        scanButton.disabled = true;
+
+        scanButton.textContent =
+            "⏳ Scanning QR Code...";
+
+    });
+
+</script>
+
+</body>
+</html>
+
