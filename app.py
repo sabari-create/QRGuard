@@ -14,18 +14,23 @@ import sqlite3
 import ipaddress
 import io
 import html
-import hashlib
 import secrets
+import hashlib
+import uuid
 
 from urllib.parse import urlparse, unquote
+from werkzeug.utils import secure_filename
 from functools import wraps
 
-from werkzeug.utils import secure_filename
+from authlib.integrations.flask_client import OAuth
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import (
+    getSampleStyleSheet,
+    ParagraphStyle
+)
 from reportlab.lib.units import mm
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -40,7 +45,9 @@ from reportlab.platypus import (
 # QRGuard - QR-Code Phishing Detection System
 # ============================================================
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 app = Flask(
     __name__,
@@ -50,24 +57,39 @@ app = Flask(
 )
 
 app.secret_key = os.environ.get(
-    "SECRET_KEY",
+    "FLASK_SECRET_KEY",
     "QRGuard-Local-Project-Secret-Key-2026"
 )
 
 
 # ============================================================
-# DATABASE
+# GOOGLE OAUTH
 # ============================================================
 
-if os.environ.get("VERCEL"):
-    DB_NAME = "/tmp/qrgurad.db"
-else:
-    DB_NAME = os.path.join(BASE_DIR, "qrgurad.db")
+oauth = OAuth(app)
+
+google = oauth.register(
+    name="google",
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url=(
+        "https://accounts.google.com/"
+        ".well-known/openid-configuration"
+    ),
+    client_kwargs={
+        "scope": "openid email profile"
+    }
+)
 
 
 # ============================================================
-# FILE CONFIGURATION
+# UPLOAD CONFIGURATION
 # ============================================================
+
+UPLOAD_FOLDER = os.path.join(
+    BASE_DIR,
+    "uploads"
+)
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -79,14 +101,37 @@ ALLOWED_EXTENSIONS = {
     "bmp"
 }
 
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = MAX_FILE_SIZE
+
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
 
 
 # ============================================================
-# DEMO ADMIN
+# DATABASE
+# ============================================================
+
+if os.environ.get("VERCEL"):
+
+    DB_NAME = "/tmp/qrgurad.db"
+
+else:
+
+    DB_NAME = os.path.join(
+        BASE_DIR,
+        "qrgurad.db"
+    )
+
+
+# ============================================================
+# DEMO ACCOUNT
 # ============================================================
 
 DEMO_USERNAME = "admin"
+DEMO_EMAIL = "admin@qrgurad.local"
 DEMO_PASSWORD = "qrgurad123"
 
 
@@ -96,7 +141,9 @@ DEMO_PASSWORD = "qrgurad123"
 
 def get_db():
 
-    connection = sqlite3.connect(DB_NAME)
+    connection = sqlite3.connect(
+        DB_NAME
+    )
 
     connection.row_factory = sqlite3.Row
 
@@ -118,20 +165,24 @@ def hash_password(password):
         120000
     ).hex()
 
-    return salt, password_hash
+    return password_hash, salt
 
 
-def verify_password(password, salt, stored_hash):
+def verify_password(
+    password,
+    stored_hash,
+    stored_salt
+):
 
-    password_hash = hashlib.pbkdf2_hmac(
+    calculated_hash = hashlib.pbkdf2_hmac(
         "sha256",
         password.encode("utf-8"),
-        salt.encode("utf-8"),
+        stored_salt.encode("utf-8"),
         120000
     ).hex()
 
     return secrets.compare_digest(
-        password_hash,
+        calculated_hash,
         stored_hash
     )
 
@@ -144,10 +195,6 @@ def init_db():
 
     connection = get_db()
 
-    # --------------------------------------------------------
-    # Users table
-    # --------------------------------------------------------
-
     connection.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -155,13 +202,11 @@ def init_db():
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             password_salt TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            google_id TEXT UNIQUE,
+            created_at TIMESTAMP
+                DEFAULT CURRENT_TIMESTAMP
         )
     """)
-
-    # --------------------------------------------------------
-    # Scans table
-    # --------------------------------------------------------
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS scans (
@@ -170,18 +215,35 @@ def init_db():
             url TEXT NOT NULL,
             score INTEGER NOT NULL,
             risk TEXT NOT NULL,
-            scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(user_id) REFERENCES users(id)
+            scanned_at TIMESTAMP
+                DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id)
+                REFERENCES users(id)
         )
     """)
 
-    connection.commit()
-
     # --------------------------------------------------------
-    # Create demo admin if not available
+    # Add google_id to older databases if required
     # --------------------------------------------------------
 
-    existing_admin = connection.execute(
+    try:
+
+        connection.execute(
+            "SELECT google_id FROM users LIMIT 1"
+        )
+
+    except sqlite3.OperationalError:
+
+        connection.execute(
+            "ALTER TABLE users "
+            "ADD COLUMN google_id TEXT"
+        )
+
+    # --------------------------------------------------------
+    # Add demo account
+    # --------------------------------------------------------
+
+    existing_user = connection.execute(
         """
         SELECT id
         FROM users
@@ -190,10 +252,10 @@ def init_db():
         (DEMO_USERNAME,)
     ).fetchone()
 
-    if existing_admin is None:
+    if existing_user is None:
 
-        salt, password_hash = hash_password(
-            DEMO_PASSWORD
+        password_hash, password_salt = (
+            hash_password(DEMO_PASSWORD)
         )
 
         connection.execute(
@@ -209,13 +271,13 @@ def init_db():
             """,
             (
                 DEMO_USERNAME,
-                "admin@qrgurad.local",
+                DEMO_EMAIL,
                 password_hash,
-                salt
+                password_salt
             )
         )
 
-        connection.commit()
+    connection.commit()
 
     connection.close()
 
@@ -249,7 +311,9 @@ def login_required(view_function):
 
 def current_user():
 
-    user_id = session.get("user_id")
+    user_id = session.get(
+        "user_id"
+    )
 
     if not user_id:
 
@@ -259,7 +323,7 @@ def current_user():
 
     user = connection.execute(
         """
-        SELECT id, username, email
+        SELECT *
         FROM users
         WHERE id = ?
         """,
@@ -283,7 +347,8 @@ def allowed_file(filename):
         and filename.rsplit(
             ".",
             1
-        )[1].lower() in ALLOWED_EXTENSIONS
+        )[1].lower()
+        in ALLOWED_EXTENSIONS
     )
 
 
@@ -295,7 +360,8 @@ def validate_url(url):
 
     if not url:
 
-        return False, (
+        return (
+            False,
             "The QR code did not contain any URL."
         )
 
@@ -303,7 +369,8 @@ def validate_url(url):
 
     if len(url) > 2048:
 
-        return False, (
+        return (
+            False,
             "The extracted URL is too long."
         )
 
@@ -314,16 +381,16 @@ def validate_url(url):
         "https"
     ):
 
-        return False, (
-            "QR code does not contain a valid "
-            "HTTP/HTTPS URL."
+        return (
+            False,
+            "QR code does not contain a valid HTTP/HTTPS URL."
         )
 
     if not parsed.hostname:
 
-        return False, (
-            "The extracted URL does not contain "
-            "a valid hostname."
+        return (
+            False,
+            "The extracted URL does not contain a valid hostname."
         )
 
     try:
@@ -332,7 +399,8 @@ def validate_url(url):
 
     except ValueError:
 
-        return False, (
+        return (
+            False,
             "Invalid URL port detected."
         )
 
@@ -346,17 +414,13 @@ def validate_url(url):
 def analyze_url(url):
 
     score = 0
-
     reasons = []
-
     details = []
 
     parsed = urlparse(url)
 
     hostname = parsed.hostname or ""
-
     path = parsed.path or ""
-
     query = parsed.query or ""
 
     def add_indicator(
@@ -368,12 +432,16 @@ def analyze_url(url):
 
         score += points
 
-        reasons.append(indicator)
+        reasons.append(
+            indicator
+        )
 
-        details.append({
-            "indicator": indicator,
-            "points": points
-        })
+        details.append(
+            {
+                "indicator": indicator,
+                "points": points
+            }
+        )
 
     # --------------------------------------------------------
     # URL length
@@ -403,7 +471,9 @@ def analyze_url(url):
 
     try:
 
-        ipaddress.ip_address(hostname)
+        ipaddress.ip_address(
+            hostname
+        )
 
         add_indicator(
             "IP address used instead of domain name",
@@ -415,10 +485,13 @@ def analyze_url(url):
         pass
 
     # --------------------------------------------------------
-    # Username / password
+    # Username/password
     # --------------------------------------------------------
 
-    if parsed.username or parsed.password:
+    if (
+        parsed.username
+        or parsed.password
+    ):
 
         add_indicator(
             "Username or password is embedded in the URL",
@@ -466,9 +539,8 @@ def analyze_url(url):
         )
 
         add_indicator(
-            f"Suspicious keywords detected: "
-            f"{keyword_text}",
-            5 * len(found_keywords)
+            f"Suspicious keywords: {keyword_text}",
+            10
         )
 
     # --------------------------------------------------------
@@ -521,7 +593,7 @@ def analyze_url(url):
         )
 
     # --------------------------------------------------------
-    # Encoded / unusual characters
+    # Encoded/unusual characters
     # --------------------------------------------------------
 
     if "%" in url or "_" in url:
@@ -579,7 +651,7 @@ def analyze_url(url):
             )
 
     # --------------------------------------------------------
-    # Suspicious extensions
+    # Suspicious extension
     # --------------------------------------------------------
 
     suspicious_extensions = (
@@ -647,7 +719,7 @@ def analyze_url(url):
         )
 
     # --------------------------------------------------------
-    # Long hostname label
+    # Very long hostname label
     # --------------------------------------------------------
 
     hostname_labels = hostname.split(".")
@@ -663,7 +735,7 @@ def analyze_url(url):
         )
 
     # --------------------------------------------------------
-    # Score limit
+    # SCORE LIMIT
     # --------------------------------------------------------
 
     score = min(
@@ -672,7 +744,7 @@ def analyze_url(url):
     )
 
     # --------------------------------------------------------
-    # Risk classification
+    # RISK LEVEL
     # --------------------------------------------------------
 
     if score <= 30:
@@ -688,7 +760,7 @@ def analyze_url(url):
         risk = "HIGH RISK"
 
     # --------------------------------------------------------
-    # No indicators
+    # NO INDICATORS
     # --------------------------------------------------------
 
     if not reasons:
@@ -697,11 +769,13 @@ def analyze_url(url):
             "No major suspicious indicators detected"
         )
 
-        details.append({
-            "indicator":
-                "No major suspicious indicators detected",
-            "points": 0
-        })
+        details.append(
+            {
+                "indicator":
+                    "No major suspicious indicators detected",
+                "points": 0
+            }
+        )
 
     return (
         score,
@@ -716,10 +790,10 @@ def analyze_url(url):
 # ============================================================
 
 def save_scan(
-    user_id,
     url,
     score,
-    risk
+    risk,
+    user_id
 ):
 
     connection = get_db()
@@ -770,9 +844,13 @@ def login():
 
     error = None
 
+    registered = request.args.get(
+        "registered"
+    )
+
     if request.method == "POST":
 
-        login_value = request.form.get(
+        username_or_email = request.form.get(
             "username",
             ""
         ).strip()
@@ -782,61 +860,267 @@ def login():
             ""
         )
 
-        if not login_value or not password:
+        connection = get_db()
 
-            error = (
-                "Please enter your username/email "
-                "and password."
+        user = connection.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE username = ?
+               OR email = ?
+            """,
+            (
+                username_or_email,
+                username_or_email
+            )
+        ).fetchone()
+
+        connection.close()
+
+        if (
+            user
+            and verify_password(
+                password,
+                user["password_hash"],
+                user["password_salt"]
+            )
+        ):
+
+            session.clear()
+
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+
+            return redirect(
+                url_for("index")
             )
 
-        else:
+        error = (
+            "Invalid username/email or password."
+        )
 
-            connection = get_db()
+    return render_template(
+        "login.html",
+        error=error,
+        registered=registered
+    )
+
+
+# ============================================================
+# GOOGLE LOGIN
+# ============================================================
+
+@app.route(
+    "/auth/google"
+)
+def google_login():
+
+    if not os.environ.get(
+        "GOOGLE_CLIENT_ID"
+    ):
+
+        return (
+            "Google OAuth is not configured yet.",
+            500
+        )
+
+    redirect_uri = url_for(
+        "google_callback",
+        _external=True
+    )
+
+    return google.authorize_redirect(
+        redirect_uri
+    )
+
+
+# ============================================================
+# GOOGLE CALLBACK
+# ============================================================
+
+@app.route(
+    "/auth/google/callback"
+)
+def google_callback():
+
+    try:
+
+        token = google.authorize_access_token()
+
+        user_info = token.get(
+            "userinfo"
+        )
+
+        if not user_info:
+
+            user_info = google.userinfo()
+
+        google_id = user_info.get(
+            "sub"
+        )
+
+        email = user_info.get(
+            "email"
+        )
+
+        name = user_info.get(
+            "name"
+        ) or email.split("@")[0]
+
+        if not google_id or not email:
+
+            return (
+                "Google account information could not be read.",
+                400
+            )
+
+        connection = get_db()
+
+        # ----------------------------------------------------
+        # Find Google account
+        # ----------------------------------------------------
+
+        user = connection.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE google_id = ?
+            """,
+            (google_id,)
+        ).fetchone()
+
+        # ----------------------------------------------------
+        # If Google account not found, find email
+        # ----------------------------------------------------
+
+        if user is None:
 
             user = connection.execute(
                 """
                 SELECT *
                 FROM users
-                WHERE username = ?
-                   OR email = ?
+                WHERE email = ?
                 """,
-                (
-                    login_value,
-                    login_value
-                )
+                (email,)
             ).fetchone()
 
-            connection.close()
+        # ----------------------------------------------------
+        # Create or link user
+        # ----------------------------------------------------
 
-            if (
-                user
-                and verify_password(
-                    password,
-                    user["password_salt"],
-                    user["password_hash"]
+        if user is None:
+
+            base_username = secure_filename(
+                name.lower().replace(
+                    " ",
+                    "_"
                 )
-            ):
-
-                session.clear()
-
-                session["user_id"] = user["id"]
-
-                session["username"] = user["username"]
-
-                session["email"] = user["email"]
-
-                return redirect(
-                    url_for("index")
-                )
-
-            error = (
-                "Invalid username/email or password."
             )
 
-    return render_template(
-        "login.html",
-        error=error
-    )
+            if not base_username:
+
+                base_username = "google_user"
+
+            username = base_username
+
+            counter = 1
+
+            while True:
+
+                username_exists = connection.execute(
+                    """
+                    SELECT id
+                    FROM users
+                    WHERE username = ?
+                    """,
+                    (username,)
+                ).fetchone()
+
+                if username_exists is None:
+
+                    break
+
+                counter += 1
+
+                username = (
+                    f"{base_username}_{counter}"
+                )
+
+            random_password = secrets.token_urlsafe(
+                32
+            )
+
+            password_hash, password_salt = (
+                hash_password(
+                    random_password
+                )
+            )
+
+            cursor = connection.execute(
+                """
+                INSERT INTO users
+                (
+                    username,
+                    email,
+                    password_hash,
+                    password_salt,
+                    google_id
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    username,
+                    email,
+                    password_hash,
+                    password_salt,
+                    google_id
+                )
+            )
+
+            user_id = cursor.lastrowid
+
+        else:
+
+            user_id = user["id"]
+
+            connection.execute(
+                """
+                UPDATE users
+                SET google_id = ?
+                WHERE id = ?
+                """,
+                (
+                    google_id,
+                    user_id
+                )
+            )
+
+        connection.commit()
+
+        connection.close()
+
+        session.clear()
+
+        session["user_id"] = user_id
+        session["username"] = name
+        session["google_login"] = True
+
+        return redirect(
+            url_for("index")
+        )
+
+    except Exception as exception:
+
+        print(
+            "Google OAuth Error:",
+            exception
+        )
+
+        return (
+            "Google login failed. "
+            "Please try again.",
+            500
+        )
 
 
 # ============================================================
@@ -879,35 +1163,29 @@ def register():
             ""
         )
 
-        # ----------------------------------------------------
-        # Basic validation
-        # ----------------------------------------------------
-
-        if not username:
-
-            error = "Username is required."
-
-        elif len(username) < 3:
+        if len(username) < 3:
 
             error = (
-                "Username must contain at least "
-                "3 characters."
+                "Username must contain at least 3 characters."
             )
 
-        elif not email or "@" not in email:
+        elif "@" not in email:
 
-            error = "Please enter a valid email address."
+            error = (
+                "Please enter a valid email address."
+            )
 
         elif len(password) < 6:
 
             error = (
-                "Password must contain at least "
-                "6 characters."
+                "Password must contain at least 6 characters."
             )
 
         elif password != confirm_password:
 
-            error = "Passwords do not match."
+            error = (
+                "Passwords do not match."
+            )
 
         else:
 
@@ -936,49 +1214,39 @@ def register():
 
             else:
 
-                salt, password_hash = hash_password(
-                    password
+                password_hash, password_salt = (
+                    hash_password(password)
                 )
 
-                try:
-
-                    connection.execute(
-                        """
-                        INSERT INTO users
-                        (
-                            username,
-                            email,
-                            password_hash,
-                            password_salt
-                        )
-                        VALUES (?, ?, ?, ?)
-                        """,
-                        (
-                            username,
-                            email,
-                            password_hash,
-                            salt
-                        )
+                connection.execute(
+                    """
+                    INSERT INTO users
+                    (
+                        username,
+                        email,
+                        password_hash,
+                        password_salt
                     )
-
-                    connection.commit()
-
-                    connection.close()
-
-                    return redirect(
-                        url_for(
-                            "login",
-                            registered="1"
-                        )
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (
+                        username,
+                        email,
+                        password_hash,
+                        password_salt
                     )
+                )
 
-                except sqlite3.IntegrityError:
+                connection.commit()
 
-                    connection.close()
+                connection.close()
 
-                    error = (
-                        "Username or email already exists."
+                return redirect(
+                    url_for(
+                        "login",
+                        registered=1
                     )
+                )
 
     return render_template(
         "register.html",
@@ -990,7 +1258,9 @@ def register():
 # LOGOUT
 # ============================================================
 
-@app.route("/logout")
+@app.route(
+    "/logout"
+)
 def logout():
 
     session.clear()
@@ -1001,7 +1271,7 @@ def logout():
 
 
 # ============================================================
-# MAIN SCANNER
+# MAIN PAGE
 # ============================================================
 
 @app.route(
@@ -1017,7 +1287,7 @@ def index():
 
 
 # ============================================================
-# QR SCAN
+# QR SCANNER
 # ============================================================
 
 @app.route(
@@ -1029,26 +1299,20 @@ def scan():
 
     try:
 
-        # ----------------------------------------------------
-        # Uploaded file
-        # ----------------------------------------------------
-
-        file = request.files.get(
-            "qr_file"
-        )
-
-        if file is None:
+        if "qr_file" not in request.files:
 
             return render_template(
                 "index.html",
                 error="Please select a QR image."
             )
 
+        file = request.files["qr_file"]
+
         if not file.filename:
 
             return render_template(
                 "index.html",
-                error="No file selected."
+                error="No file selected. Please choose a QR image."
             )
 
         if not allowed_file(
@@ -1063,6 +1327,17 @@ def scan():
                 )
             )
 
+        filename = secure_filename(
+            file.filename
+        )
+
+        if not filename:
+
+            return render_template(
+                "index.html",
+                error="Invalid filename."
+            )
+
         # ----------------------------------------------------
         # Read image in memory
         # ----------------------------------------------------
@@ -1073,16 +1348,14 @@ def scan():
 
             return render_template(
                 "index.html",
-                error="The uploaded file is empty."
+                error="Uploaded image is empty."
             )
 
-        image_array = __import__(
-            "numpy"
-        ).frombuffer(
+        import numpy as np
+
+        image_array = np.frombuffer(
             image_bytes,
-            dtype=__import__(
-                "numpy"
-            ).uint8
+            dtype=np.uint8
         )
 
         image = cv2.imdecode(
@@ -1099,27 +1372,28 @@ def scan():
                 )
             )
 
-        # ----------------------------------------------------
-        # QR detector
-        # ----------------------------------------------------
-
         detector = cv2.QRCodeDetector()
 
         data = ""
 
-        # Normal image
+        # ----------------------------------------------------
+        # Normal detection
+        # ----------------------------------------------------
+
         try:
 
-            data, _, _ = detector.detectAndDecode(
-                image
+            data, points, _ = (
+                detector.detectAndDecode(
+                    image
+                )
             )
 
         except cv2.error:
 
-            data = ""
+            pass
 
         # ----------------------------------------------------
-        # Try resized image
+        # Resized detection
         # ----------------------------------------------------
 
         if not data:
@@ -1134,7 +1408,7 @@ def scan():
                     interpolation=cv2.INTER_CUBIC
                 )
 
-                data, _, _ = (
+                data, points, _ = (
                     detector.detectAndDecode(
                         resized
                     )
@@ -1142,10 +1416,10 @@ def scan():
 
             except cv2.error:
 
-                data = ""
+                pass
 
         # ----------------------------------------------------
-        # Try grayscale
+        # Grayscale detection
         # ----------------------------------------------------
 
         if not data:
@@ -1157,7 +1431,7 @@ def scan():
                     cv2.COLOR_BGR2GRAY
                 )
 
-                data, _, _ = (
+                data, points, _ = (
                     detector.detectAndDecode(
                         gray
                     )
@@ -1165,11 +1439,7 @@ def scan():
 
             except cv2.error:
 
-                data = ""
-
-        # ----------------------------------------------------
-        # QR not detected
-        # ----------------------------------------------------
+                pass
 
         if not data:
 
@@ -1181,18 +1451,10 @@ def scan():
                 )
             )
 
-        # ----------------------------------------------------
-        # URL
-        # ----------------------------------------------------
-
         url = data.strip()
 
-        # ----------------------------------------------------
-        # Validate URL
-        # ----------------------------------------------------
-
-        valid, validation_error = validate_url(
-            url
+        valid, validation_error = (
+            validate_url(url)
         )
 
         if not valid:
@@ -1202,39 +1464,26 @@ def scan():
                 error=validation_error
             )
 
-        # ----------------------------------------------------
-        # Analyze
-        # ----------------------------------------------------
-
-        score, risk_level, reasons, details = (
+        score, risk, reasons, details = (
             analyze_url(url)
         )
-
-        # ----------------------------------------------------
-        # Save scan for current user
-        # ----------------------------------------------------
 
         user_id = session.get(
             "user_id"
         )
 
         scan_id = save_scan(
-            user_id,
             url,
             score,
-            risk_level
+            risk,
+            user_id
         )
-
-        # ----------------------------------------------------
-        # IMPORTANT:
-        # result.html expects result.url
-        # ----------------------------------------------------
 
         result = {
             "id": scan_id,
             "url": url,
-            "risk": risk_level,
-            "risk_level": risk_level,
+            "risk": risk,
+            "risk_level": risk,
             "score": score,
             "reasons": reasons,
             "details": details
@@ -1243,27 +1492,18 @@ def scan():
         return render_template(
             "result.html",
             result=result,
-            scan_id=scan_id,
-            url=url,
-            risk_level=risk_level,
+            risk_level=risk,
             score=score,
+            url=url,
             reasons=reasons,
-            details=details
-        )
-
-    except cv2.error:
-
-        return render_template(
-            "index.html",
-            error=(
-                "The image could not be processed."
-            )
+            details=details,
+            scan_id=scan_id
         )
 
     except sqlite3.Error as exception:
 
         print(
-            "Database error:",
+            "Database Error:",
             exception
         )
 
@@ -1292,10 +1532,102 @@ def scan():
 
 
 # ============================================================
+# FILE SIZE ERROR
+# ============================================================
+
+@app.errorhandler(413)
+def file_too_large(error):
+
+    return render_template(
+        "index.html",
+        error=(
+            "File is too large. "
+            "Maximum allowed size is 5 MB."
+        )
+    ), 413
+
+
+# ============================================================
+# PAGE NOT FOUND
+# ============================================================
+
+@app.errorhandler(404)
+def page_not_found(error):
+
+    if "user_id" in session:
+
+        return render_template(
+            "index.html",
+            error="The requested page was not found."
+        ), 404
+
+    return redirect(
+        url_for("login")
+    )
+
+
+# ============================================================
+# INTERNAL SERVER ERROR
+# ============================================================
+
+@app.errorhandler(500)
+def internal_server_error(error):
+
+    return render_template(
+        "index.html",
+        error=(
+            "A server error occurred. "
+            "Please try again."
+        )
+    ), 500
+
+
+# ============================================================
+# HISTORY
+# ============================================================
+
+@app.route(
+    "/history"
+)
+@login_required
+def history():
+
+    user_id = session.get(
+        "user_id"
+    )
+
+    connection = get_db()
+
+    scans = connection.execute(
+        """
+        SELECT
+            id,
+            url,
+            score,
+            risk,
+            scanned_at
+        FROM scans
+        WHERE user_id = ?
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    ).fetchall()
+
+    connection.close()
+
+    return render_template(
+        "history.html",
+        scans=scans
+    )
+
+
+# ============================================================
 # DASHBOARD
 # ============================================================
 
-@app.route("/dashboard")
+@app.route(
+    "/dashboard"
+)
 @login_required
 def dashboard():
 
@@ -1305,7 +1637,7 @@ def dashboard():
 
     connection = get_db()
 
-    total_scans = connection.execute(
+    total = connection.execute(
         """
         SELECT COUNT(*)
         FROM scans
@@ -1314,7 +1646,7 @@ def dashboard():
         (user_id,)
     ).fetchone()[0]
 
-    low_risk = connection.execute(
+    low = connection.execute(
         """
         SELECT COUNT(*)
         FROM scans
@@ -1327,7 +1659,7 @@ def dashboard():
         )
     ).fetchone()[0]
 
-    medium_risk = connection.execute(
+    medium = connection.execute(
         """
         SELECT COUNT(*)
         FROM scans
@@ -1340,7 +1672,7 @@ def dashboard():
         )
     ).fetchone()[0]
 
-    high_risk = connection.execute(
+    high = connection.execute(
         """
         SELECT COUNT(*)
         FROM scans
@@ -1372,53 +1704,16 @@ def dashboard():
     connection.close()
 
     stats = {
-        "total": total_scans,
-        "high": high_risk,
-        "medium": medium_risk,
-        "low": low_risk
+        "total": total,
+        "low": low,
+        "medium": medium,
+        "high": high
     }
 
     return render_template(
         "dashboard.html",
         stats=stats,
         recent_scans=recent_scans
-    )
-
-
-# ============================================================
-# HISTORY
-# ============================================================
-
-@app.route("/history")
-@login_required
-def history():
-
-    user_id = session.get(
-        "user_id"
-    )
-
-    connection = get_db()
-
-    scans = connection.execute(
-        """
-        SELECT
-            id,
-            url,
-            score,
-            risk,
-            scanned_at
-        FROM scans
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
-
-    connection.close()
-
-    return render_template(
-        "history.html",
-        scans=scans
     )
 
 
@@ -1468,9 +1763,7 @@ def report(scan_id):
     url = scan["url"]
 
     stored_score = scan["score"]
-
     stored_risk = scan["risk"]
-
     scanned_at = scan["scanned_at"]
 
     score, risk, reasons, details = (
@@ -1478,7 +1771,6 @@ def report(scan_id):
     )
 
     score = stored_score
-
     risk = stored_risk
 
     pdf_buffer = io.BytesIO()
@@ -1536,10 +1828,6 @@ def report(scan_id):
     )
 
     story = []
-
-    # --------------------------------------------------------
-    # Header
-    # --------------------------------------------------------
 
     story.append(
         Paragraph(
@@ -1602,15 +1890,13 @@ def report(scan_id):
         ])
     )
 
-    story.append(header_table)
+    story.append(
+        header_table
+    )
 
     story.append(
         Spacer(1, 12)
     )
-
-    # --------------------------------------------------------
-    # Scan information
-    # --------------------------------------------------------
 
     story.append(
         Paragraph(
@@ -1619,7 +1905,9 @@ def report(scan_id):
         )
     )
 
-    safe_url = html.escape(url)
+    safe_url = html.escape(
+        url
+    )
 
     scan_data = [
         [
@@ -1689,15 +1977,13 @@ def report(scan_id):
         ])
     )
 
-    story.append(scan_table)
+    story.append(
+        scan_table
+    )
 
     story.append(
         Spacer(1, 12)
     )
-
-    # --------------------------------------------------------
-    # Risk assessment
-    # --------------------------------------------------------
 
     story.append(
         Paragraph(
@@ -1801,15 +2087,13 @@ def report(scan_id):
         ])
     )
 
-    story.append(risk_table)
+    story.append(
+        risk_table
+    )
 
     story.append(
         Spacer(1, 12)
     )
-
-    # --------------------------------------------------------
-    # Detection indicators
-    # --------------------------------------------------------
 
     story.append(
         Paragraph(
@@ -1827,19 +2111,21 @@ def report(scan_id):
 
     for detail in details:
 
-        indicator_rows.append([
-            Paragraph(
-                html.escape(
-                    str(
-                        detail["indicator"]
-                    )
+        indicator_rows.append(
+            [
+                Paragraph(
+                    html.escape(
+                        str(
+                            detail["indicator"]
+                        )
+                    ),
+                    small_style
                 ),
-                small_style
-            ),
-            str(
-                detail["points"]
-            )
-        ])
+                str(
+                    detail["points"]
+                )
+            ]
+        )
 
     indicator_table = Table(
         indicator_rows,
@@ -1898,15 +2184,13 @@ def report(scan_id):
         ])
     )
 
-    story.append(indicator_table)
+    story.append(
+        indicator_table
+    )
 
     story.append(
         Spacer(1, 12)
     )
-
-    # --------------------------------------------------------
-    # Score breakdown
-    # --------------------------------------------------------
 
     story.append(
         Paragraph(
@@ -1918,8 +2202,9 @@ def report(scan_id):
     breakdown_text = (
         "The QRGuard risk score is calculated using "
         "rule-based URL security indicators. Each "
-        "detected indicator contributes predefined "
-        "points. The final score is limited to 100."
+        "detected indicator contributes a predefined "
+        "number of points. The final score is limited "
+        "to a maximum of 100."
     )
 
     story.append(
@@ -2008,10 +2293,6 @@ def report(scan_id):
         Spacer(1, 12)
     )
 
-    # --------------------------------------------------------
-    # Methodology
-    # --------------------------------------------------------
-
     story.append(
         Paragraph(
             "5. Security Methodology",
@@ -2044,10 +2325,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 8)
     )
-
-    # --------------------------------------------------------
-    # Security notice
-    # --------------------------------------------------------
 
     notice_table = Table(
         [
@@ -2118,10 +2395,6 @@ def report(scan_id):
         Spacer(1, 12)
     )
 
-    # --------------------------------------------------------
-    # Disclaimer
-    # --------------------------------------------------------
-
     story.append(
         Paragraph(
             "6. Disclaimer",
@@ -2133,7 +2406,10 @@ def report(scan_id):
         "This report is generated for educational and "
         "defensive cybersecurity analysis purposes. "
         "QRGuard uses heuristic indicators and may "
-        "produce false positives or false negatives."
+        "produce false positives or false negatives. "
+        "Users should verify suspicious links through "
+        "trusted security resources before interacting "
+        "with them."
     )
 
     story.append(
@@ -2171,68 +2447,17 @@ def report(scan_id):
 
 
 # ============================================================
-# FILE SIZE ERROR
-# ============================================================
-
-@app.errorhandler(413)
-def file_too_large(error):
-
-    return render_template(
-        "index.html",
-        error=(
-            "File is too large. "
-            "Maximum allowed size is 5 MB."
-        )
-    ), 413
-
-
-# ============================================================
-# PAGE NOT FOUND
-# ============================================================
-
-@app.errorhandler(404)
-def page_not_found(error):
-
-    if "user_id" in session:
-
-        return render_template(
-            "index.html",
-            error=(
-                "The requested page was not found."
-            )
-        ), 404
-
-    return redirect(
-        url_for("login")
-    )
-
-
-# ============================================================
-# INTERNAL SERVER ERROR
-# ============================================================
-
-@app.errorhandler(500)
-def internal_server_error(error):
-
-    return render_template(
-        "index.html",
-        error=(
-            "A server error occurred. "
-            "Please try again."
-        )
-    ), 500
-
-
-# ============================================================
 # HEALTH CHECK
 # ============================================================
 
-@app.route("/health")
+@app.route(
+    "/health"
+)
 def health():
 
     return {
         "status": "ok",
-        "application": "QRGuard"
+        "service": "QRGuard"
     }
 
 
