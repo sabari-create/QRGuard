@@ -4,278 +4,1569 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QRGuard Dashboard</title>
+    <title>QRGuard | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
     <style>
+
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
             min-height: 100vh;
-            color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #f5f5f5;
+
             background:
-                radial-gradient(circle at top left, #182a55 0%, transparent 35%),
-                radial-gradient(circle at bottom right, #35145f 0%, transparent 35%),
-                #050816;
+                radial-gradient(
+                    circle at 12% 10%,
+                    rgba(112, 67, 190, 0.22),
+                    transparent 34%
+                ),
+                radial-gradient(
+                    circle at 88% 12%,
+                    rgba(255, 193, 7, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(74, 43, 130, 0.12),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    135deg,
+                    #03050a,
+                    #080d1b 52%,
+                    #09050f
+                );
         }
 
-        .navbar {
-            width: 100%;
-            padding: 18px 35px;
+
+        /* ==========================================
+           TOP NAVIGATION
+        ========================================== */
+
+        .topbar {
+            height: 74px;
+
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: rgba(7, 12, 30, 0.92);
-            border-bottom: 1px solid rgba(100, 150, 255, 0.25);
+            justify-content: space-between;
+
+            padding: 0 42px;
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            background:
+                rgba(4, 7, 15, 0.90);
+
+            border-bottom:
+                1px solid rgba(255, 193, 7, 0.18);
+
+            backdrop-filter: blur(20px);
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #6ea8ff;
-            letter-spacing: 1px;
-        }
 
-        .logo span {
-            color: #b76cff;
-        }
-
-        .nav-links {
+        .brand {
             display: flex;
+            align-items: center;
             gap: 12px;
+
+            font-size: 23px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+        }
+
+
+        .shield {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #1a1732,
+                    #090a12
+                );
+
+            border:
+                1px solid rgba(255, 193, 7, 0.42);
+
+            color: #ffc107;
+
+            font-size: 21px;
+
+            box-shadow:
+                0 0 25px rgba(112, 67, 190, 0.22),
+                inset 0 0 15px rgba(255,255,255,0.02);
+        }
+
+
+        .brand span {
+            color: #ffc107;
+        }
+
+
+        /* ==========================================
+           NAV
+        ========================================== */
+
+        .nav-area {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+
+        .nav-btn {
+            text-decoration: none;
+
+            color: #c9cfda;
+
+            padding: 10px 14px;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            background:
+                rgba(255,255,255,0.035);
+
+            border:
+                1px solid rgba(255,255,255,0.07);
+
+            transition: 0.2s;
+        }
+
+
+        .nav-btn:hover {
+            color: #ffc107;
+
+            border-color:
+                rgba(255,193,7,0.32);
+
+            transform: translateY(-1px);
+        }
+
+
+        /* ==========================================
+           PROFILE
+        ========================================== */
+
+        .profile {
+            position: relative;
+        }
+
+
+        .profile-button {
+            border: 1px solid rgba(255,193,7,0.22);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,193,7,0.08),
+                    rgba(112,67,190,0.10)
+                );
+
+            color: #f1f3f7;
+
+            padding: 8px 12px;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            cursor: pointer;
+
+            font-weight: 700;
+        }
+
+
+        .profile-icon {
+            width: 31px;
+            height: 31px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffc107,
+                    #a87900
+                );
+
+            color: #111;
+
+            font-weight: 900;
+        }
+
+
+        .profile-menu {
+            position: absolute;
+
+            right: 0;
+            top: 52px;
+
+            width: 230px;
+
+            padding: 12px;
+
+            border-radius: 16px;
+
+            background:
+                rgba(12, 16, 29, 0.97);
+
+            border:
+                1px solid rgba(255,193,7,0.18);
+
+            box-shadow:
+                0 25px 60px rgba(0,0,0,0.55),
+                0 0 30px rgba(100,60,170,0.12);
+
+            backdrop-filter: blur(20px);
+
+            display: none;
+        }
+
+
+        .profile:hover .profile-menu {
+            display: block;
+        }
+
+
+        .profile-name {
+            padding: 10px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.07);
+
+            margin-bottom: 7px;
+        }
+
+
+        .profile-name strong {
+            display: block;
+            color: #fff;
+        }
+
+
+        .profile-name small {
+            display: block;
+
+            margin-top: 4px;
+
+            color: #858ea0;
+
+            word-break: break-all;
+        }
+
+
+        .profile-link {
+            display: block;
+
+            padding: 10px 11px;
+
+            border-radius: 9px;
+
+            color: #cdd3df;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            transition: 0.2s;
+        }
+
+
+        .profile-link:hover {
+            background:
+                rgba(255,193,7,0.08);
+
+            color: #ffc107;
+        }
+
+
+        .logout {
+            color: #ff7b83;
+        }
+
+
+        /* ==========================================
+           MAIN
+        ========================================== */
+
+        .container {
+            width: min(
+                1160px,
+                calc(100% - 32px)
+            );
+
+            margin: 42px auto 70px;
+        }
+
+
+        /* ==========================================
+           HERO
+        ========================================== */
+
+        .hero {
+            position: relative;
+
+            padding: 34px;
+
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(17, 20, 37, 0.94),
+                    rgba(12, 9, 24, 0.91)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.42),
+                0 0 50px rgba(112,67,190,0.10);
+        }
+
+
+        .hero::after {
+            content: "";
+
+            position: absolute;
+
+            width: 250px;
+            height: 250px;
+
+            right: -100px;
+            top: -110px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(255,193,7,0.13),
+                    transparent 65%
+                );
+        }
+
+
+        .eyebrow {
+            color: #ffc107;
+
+            font-size: 12px;
+
+            font-weight: 900;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+        }
+
+
+        .hero h1 {
+            margin: 9px 0 9px;
+
+            font-size: 38px;
+
+            line-height: 1.15;
+        }
+
+
+        .hero h1 span {
+            color: #ffc107;
+        }
+
+
+        .hero p {
+            margin: 0;
+
+            max-width: 700px;
+
+            color: #969fb0;
+
+            line-height: 1.7;
+
+            font-size: 14px;
+        }
+
+
+        .hero-actions {
+            display: flex;
+
+            gap: 11px;
+
+            margin-top: 23px;
+
             flex-wrap: wrap;
         }
 
-        .nav-links a {
+
+        .primary-btn,
+        .secondary-btn {
+            display: inline-block;
+
+            padding: 12px 17px;
+
+            border-radius: 11px;
+
             text-decoration: none;
-            color: #dce7ff;
-            padding: 10px 16px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            transition: 0.3s;
+
+            font-weight: 800;
+
+            font-size: 13px;
+
+            transition: 0.2s;
         }
 
-        .nav-links a:hover {
-            background: rgba(90,130,255,0.2);
-            border-color: #668cff;
+
+        .primary-btn {
+            color: #080a10;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffc107,
+                    #e2a500
+                );
+
+            box-shadow:
+                0 8px 25px rgba(255,193,7,0.14);
         }
 
-        .logout {
-            color: #ff9b9b !important;
+
+        .secondary-btn {
+            color: #dfe4ed;
+
+            background:
+                rgba(255,255,255,0.045);
+
+            border:
+                1px solid rgba(255,255,255,0.09);
         }
 
-        .container {
-            width: 92%;
-            max-width: 1200px;
-            margin: 45px auto;
+
+        .primary-btn:hover,
+        .secondary-btn:hover {
+            transform: translateY(-2px);
         }
 
-        .heading {
-            text-align: center;
-            margin-bottom: 35px;
+
+        /* ==========================================
+           SECTION TITLE
+        ========================================== */
+
+        .section {
+            margin-top: 30px;
         }
 
-        .heading h1 {
-            font-size: 38px;
-            margin-bottom: 10px;
-            color: #ffffff;
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin-bottom: 16px;
         }
 
-        .heading p {
-            color: #9caed1;
-            font-size: 16px;
+
+        .section-heading h2 {
+            margin: 0;
+
+            font-size: 20px;
         }
 
-        .cards {
+
+        .section-line {
+            flex: 1;
+
+            height: 1px;
+
+            background:
+                rgba(255,255,255,0.08);
+        }
+
+
+        /* ==========================================
+           STAT CARDS
+        ========================================== */
+
+        .stats {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
         }
 
-        .card {
-            padding: 28px 20px;
+
+        .stat-card {
+            position: relative;
+
+            padding: 21px;
+
+            min-height: 145px;
+
             border-radius: 18px;
-            background: rgba(14, 22, 48, 0.82);
-            border: 1px solid rgba(100, 150, 255, 0.22);
-            box-shadow: 0 0 25px rgba(60, 100, 255, 0.08);
-            text-align: center;
-            transition: 0.3s;
+
+            background:
+                rgba(12,16,29,0.82);
+
+            border:
+                1px solid rgba(255,255,255,0.07);
+
+            overflow: hidden;
+
+            transition: 0.25s;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 30px rgba(100, 140, 255, 0.2);
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+
+            border-color:
+                rgba(255,193,7,0.20);
+
+            box-shadow:
+                0 15px 40px rgba(0,0,0,0.25);
         }
 
-        .icon {
-            font-size: 35px;
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,193,7,0.08);
+
+            border:
+                1px solid rgba(255,193,7,0.15);
+
+            font-size: 19px;
+
             margin-bottom: 15px;
         }
 
-        .number {
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 8px;
+
+        .stat-title {
+            color: #80899b;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
         }
 
-        .label {
-            color: #aebbd5;
+
+        .stat-number {
+            margin-top: 5px;
+
+            font-size: 31px;
+
+            font-weight: 900;
+
+            color: #f4f6fa;
+        }
+
+
+        .stat-card.total .stat-number {
+            color: #ffc107;
+        }
+
+
+        .stat-card.low .stat-number {
+            color: #5ee6a0;
+        }
+
+
+        .stat-card.medium .stat-number {
+            color: #ffc107;
+        }
+
+
+        .stat-card.high .stat-number {
+            color: #ff6f78;
+        }
+
+
+        /* ==========================================
+           RECENT SCANS
+        ========================================== */
+
+        .recent-card {
+            padding: 23px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(12,16,29,0.82);
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.30);
+        }
+
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 720px;
+        }
+
+
+        th {
+            padding: 13px 11px;
+
+            text-align: left;
+
+            color: #ffc107;
+
+            font-size: 10px;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+            border-bottom:
+                1px solid rgba(255,193,7,0.14);
+        }
+
+
+        td {
+            padding: 15px 11px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.055);
+
+            color: #cbd1dc;
+
+            font-size: 13px;
+        }
+
+
+        tr:hover td {
+            background:
+                rgba(255,255,255,0.025);
+        }
+
+
+        .id {
+            color: #ffc107;
+
+            font-weight: 900;
+        }
+
+
+        .url {
+            max-width: 400px;
+
+            word-break: break-all;
+
+            font-family: Consolas, monospace;
+
+            color: #e2e6ee;
+
+            line-height: 1.5;
+        }
+
+
+        .score {
+            font-weight: 900;
+
+            color: #f1f3f6;
+        }
+
+
+        /* ==========================================
+           RISK
+        ========================================== */
+
+        .risk {
+            display: inline-block;
+
+            padding: 6px 10px;
+
+            border-radius: 999px;
+
+            font-size: 9px;
+
+            font-weight: 900;
+
+            letter-spacing: 0.5px;
+        }
+
+
+        .risk.low {
+            color: #62e6a4;
+
+            background:
+                rgba(25,135,84,0.12);
+
+            border:
+                1px solid rgba(25,135,84,0.25);
+        }
+
+
+        .risk.medium {
+            color: #ffc107;
+
+            background:
+                rgba(255,193,7,0.11);
+
+            border:
+                1px solid rgba(255,193,7,0.25);
+        }
+
+
+        .risk.high {
+            color: #ff7078;
+
+            background:
+                rgba(220,53,69,0.12);
+
+            border:
+                1px solid rgba(220,53,69,0.25);
+        }
+
+
+        .report-btn {
+            display: inline-block;
+
+            text-decoration: none;
+
+            color: #dce2eb;
+
+            padding: 7px 11px;
+
+            border-radius: 8px;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            background:
+                rgba(255,255,255,0.045);
+
+            border:
+                1px solid rgba(255,255,255,0.09);
+
+            transition: 0.2s;
+        }
+
+
+        .report-btn:hover {
+            color: #ffc107;
+
+            border-color:
+                rgba(255,193,7,0.30);
+        }
+
+
+        /* ==========================================
+           EMPTY
+        ========================================== */
+
+        .empty {
+            text-align: center;
+
+            padding: 50px 20px;
+        }
+
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+
+            margin: 0 auto 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background:
+                rgba(255,193,7,0.06);
+
+            border:
+                1px solid rgba(255,193,7,0.14);
+
+            font-size: 27px;
+        }
+
+
+        .empty h3 {
+            margin: 0 0 7px;
+
+            font-size: 19px;
+        }
+
+
+        .empty p {
+            margin: 0 auto 20px;
+
+            max-width: 430px;
+
+            color: #7f899b;
+
+            line-height: 1.6;
+        }
+
+
+        /* ==========================================
+           SECURITY INFO
+        ========================================== */
+
+        .security-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 14px;
+        }
+
+
+        .security-card {
+            padding: 20px;
+
+            border-radius: 17px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(91,55,151,0.11),
+                    rgba(255,193,7,0.035)
+                );
+
+            border:
+                1px solid rgba(125,85,190,0.15);
+        }
+
+
+        .security-card .icon {
+            font-size: 22px;
+
+            margin-bottom: 12px;
+        }
+
+
+        .security-card h3 {
+            margin: 0 0 8px;
+
             font-size: 15px;
         }
 
-        .total .number {
-            color: #6ea8ff;
+
+        .security-card p {
+            margin: 0;
+
+            color: #8f98a9;
+
+            line-height: 1.6;
+
+            font-size: 12px;
         }
 
-        .high .number {
-            color: #ff6262;
-        }
 
-        .medium .number {
-            color: #ffc857;
-        }
+        /* ==========================================
+           FOOTER
+        ========================================== */
 
-        .low .number {
-            color: #56e39f;
-        }
+        .footer {
+            text-align: center;
 
-        .info-box {
             margin-top: 35px;
-            padding: 28px;
-            border-radius: 18px;
-            background: rgba(14, 22, 48, 0.82);
-            border: 1px solid rgba(100, 150, 255, 0.18);
+
+            color: #5f6879;
+
+            font-size: 11px;
         }
 
-        .info-box h2 {
-            margin-bottom: 12px;
-            color: #ffffff;
-        }
 
-        .info-box p {
-            color: #aebbd5;
-            line-height: 1.7;
-        }
-
-        .scan-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 22px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            background: linear-gradient(135deg, #4169e1, #7b3fe4);
-            font-weight: bold;
-        }
+        /* ==========================================
+           MOBILE
+        ========================================== */
 
         @media (max-width: 900px) {
-            .cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
 
-        @media (max-width: 600px) {
-            .navbar {
-                padding: 15px;
-                flex-direction: column;
-                gap: 15px;
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
             }
 
-            .container {
-                width: 94%;
-            }
-
-            .cards {
+            .security-grid {
                 grid-template-columns: 1fr;
             }
 
-            .heading h1 {
-                font-size: 30px;
-            }
         }
+
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .nav-area > .nav-btn {
+                display: none;
+            }
+
+            .container {
+                width:
+                    calc(100% - 20px);
+
+                margin-top: 25px;
+            }
+
+            .hero {
+                padding: 24px;
+            }
+
+            .hero h1 {
+                font-size: 29px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-button span {
+                display: none;
+            }
+
+        }
+
     </style>
 </head>
 
+
 <body>
 
-    <nav class="navbar">
 
-        <div class="logo">
-            QR<span>Guard</span>
+<!-- ==========================================
+     TOP BAR
+========================================== -->
+
+<header class="topbar">
+
+
+    <!-- BRAND -->
+
+    <div class="brand">
+
+        <div class="shield">
+            🛡
         </div>
 
-        <div class="nav-links">
-            <a href="/">Scanner</a>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/history">History</a>
-            <a href="/logout" class="logout">Logout</a>
+        QR<span>Guard</span>
+
+    </div>
+
+
+    <!-- NAV -->
+
+    <div class="nav-area">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="nav-btn"
+        >
+            Scan
+        </a>
+
+
+        <a
+            href="{{ url_for('history') }}"
+            class="nav-btn"
+        >
+            History
+        </a>
+
+
+        <!-- PROFILE -->
+
+        <div class="profile">
+
+            <button class="profile-button">
+
+                <div class="profile-icon">
+                    👤
+                </div>
+
+                <span>
+                    Profile
+                </span>
+
+                ▼
+
+            </button>
+
+
+            <div class="profile-menu">
+
+                <div class="profile-name">
+
+                    <strong>
+                        {{ session.get("username", "User") }}
+                    </strong>
+
+                    <small>
+                        {{ session.get("email", "") }}
+                    </small>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="profile-link"
+                >
+                    📊 Dashboard
+                </a>
+
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="profile-link"
+                >
+                    🔍 QR Scanner
+                </a>
+
+
+                <a
+                    href="{{ url_for('history') }}"
+                    class="profile-link"
+                >
+                    🕘 Scan History
+                </a>
+
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="profile-link logout"
+                >
+                    🚪 Logout
+                </a>
+
+            </div>
+
         </div>
 
-    </nav>
+    </div>
+
+</header>
 
 
-    <main class="container">
 
-        <div class="heading">
-            <h1>Security Dashboard</h1>
-            <p>QR-Code Phishing Detection System</p>
+<!-- ==========================================
+     MAIN
+========================================== -->
+
+<main class="container">
+
+
+    <!-- ======================================
+         HERO
+    ====================================== -->
+
+    <section class="hero">
+
+        <div class="eyebrow">
+            Security Command Center
         </div>
 
 
-        <div class="cards">
-
-            <div class="card total">
-                <div class="icon">📊</div>
-                <div class="number">{{ stats.total }}</div>
-                <div class="label">Total Scans</div>
-            </div>
+        <h1>
+            Welcome to <span>QRGuard</span>
+        </h1>
 
 
-            <div class="card high">
-                <div class="icon">🚨</div>
-                <div class="number">{{ stats.high }}</div>
-                <div class="label">High Risk</div>
-            </div>
+        <p>
+            Monitor QR-code security scans, review risk assessments,
+            and analyze suspicious URLs using QRGuard's rule-based
+            phishing detection system.
+        </p>
 
 
-            <div class="card medium">
-                <div class="icon">⚠️</div>
-                <div class="number">{{ stats.medium }}</div>
-                <div class="label">Medium Risk</div>
-            </div>
+        <div class="hero-actions">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="primary-btn"
+            >
+                🔍 Scan New QR
+            </a>
 
 
-            <div class="card low">
-                <div class="icon">🛡️</div>
-                <div class="number">{{ stats.low }}</div>
-                <div class="label">Low Risk</div>
-            </div>
-
-        </div>
-
-
-        <div class="info-box">
-
-            <h2>QRGuard Protection</h2>
-
-            <p>
-                QRGuard analyzes QR-code URLs using security rules
-                and identifies suspicious URL patterns. Scan results
-                are stored in the system history for review.
-            </p>
-
-            <a href="/" class="scan-button">
-                🔎 Scan New QR
+            <a
+                href="{{ url_for('history') }}"
+                class="secondary-btn"
+            >
+                🕘 View History
             </a>
 
         </div>
 
-    </main>
+    </section>
+
+
+
+    <!-- ======================================
+         STATISTICS
+    ====================================== -->
+
+    <section class="section">
+
+
+        <div class="section-heading">
+
+            <h2>
+                Security Overview
+            </h2>
+
+            <div class="section-line"></div>
+
+        </div>
+
+
+        <div class="stats">
+
+
+            <!-- TOTAL -->
+
+            <div class="stat-card total">
+
+                <div class="stat-icon">
+                    📊
+                </div>
+
+                <div class="stat-title">
+                    Total Scans
+                </div>
+
+                <div class="stat-number">
+                    {{ stats.total }}
+                </div>
+
+            </div>
+
+
+            <!-- LOW -->
+
+            <div class="stat-card low">
+
+                <div class="stat-icon">
+                    🟢
+                </div>
+
+                <div class="stat-title">
+                    Low Risk
+                </div>
+
+                <div class="stat-number">
+                    {{ stats.low }}
+                </div>
+
+            </div>
+
+
+            <!-- MEDIUM -->
+
+            <div class="stat-card medium">
+
+                <div class="stat-icon">
+                    🟡
+                </div>
+
+                <div class="stat-title">
+                    Medium Risk
+                </div>
+
+                <div class="stat-number">
+                    {{ stats.medium }}
+                </div>
+
+            </div>
+
+
+            <!-- HIGH -->
+
+            <div class="stat-card high">
+
+                <div class="stat-icon">
+                    🔴
+                </div>
+
+                <div class="stat-title">
+                    High Risk
+                </div>
+
+                <div class="stat-number">
+                    {{ stats.high }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         RECENT SCANS
+    ====================================== -->
+
+    <section class="section">
+
+
+        <div class="section-heading">
+
+            <h2>
+                Recent Scans
+            </h2>
+
+            <div class="section-line"></div>
+
+        </div>
+
+
+        <div class="recent-card">
+
+
+            {% if recent_scans %}
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    URL
+                                </th>
+
+                                <th>
+                                    Score
+                                </th>
+
+                                <th>
+                                    Risk
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Report
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {% for scan in recent_scans %}
+
+                            <tr>
+
+
+                                <td>
+
+                                    <span class="id">
+                                        #{{ scan["id"] }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="url">
+                                        {{ scan["url"] }}
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="score">
+                                        {{ scan["score"] }}/100
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+
+                                    {% if scan["risk"] == "LOW RISK" %}
+
+                                        <span class="risk low">
+                                            LOW RISK
+                                        </span>
+
+
+                                    {% elif scan["risk"] == "MEDIUM RISK" %}
+
+                                        <span class="risk medium">
+                                            MEDIUM RISK
+                                        </span>
+
+
+                                    {% else %}
+
+                                        <span class="risk high">
+                                            HIGH RISK
+                                        </span>
+
+                                    {% endif %}
+
+
+                                </td>
+
+
+                                <td>
+                                    {{ scan["scanned_at"] }}
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for(
+                                            'report',
+                                            scan_id=scan['id']
+                                        ) }}"
+                                        class="report-btn"
+                                    >
+                                        PDF
+                                    </a>
+
+                                </td>
+
+
+                            </tr>
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div
+                    style="
+                        text-align:center;
+                        margin-top:18px;
+                    "
+                >
+
+                    <a
+                        href="{{ url_for('history') }}"
+                        class="secondary-btn"
+                    >
+                        View Complete History →
+                    </a>
+
+                </div>
+
+
+            {% else %}
+
+
+                <!-- EMPTY STATE -->
+
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        🛡
+                    </div>
+
+
+                    <h3>
+                        No Security Scans Yet
+                    </h3>
+
+
+                    <p>
+                        Start your first QR-code analysis and
+                        your security activity will appear here.
+                    </p>
+
+
+                    <a
+                        href="{{ url_for('index') }}"
+                        class="primary-btn"
+                    >
+                        Start First Scan
+                    </a>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         HOW QR GUARD WORKS
+    ====================================== -->
+
+    <section class="section">
+
+
+        <div class="section-heading">
+
+            <h2>
+                QRGuard Protection
+            </h2>
+
+            <div class="section-line"></div>
+
+        </div>
+
+
+        <div class="security-grid">
+
+
+            <div class="security-card">
+
+                <div class="icon">
+                    📷
+                </div>
+
+                <h3>
+                    QR Extraction
+                </h3>
+
+                <p>
+                    The uploaded QR image is processed locally
+                    to extract the encoded URL.
+                </p>
+
+            </div>
+
+
+            <div class="security-card">
+
+                <div class="icon">
+                    🔎
+                </div>
+
+                <h3>
+                    URL Analysis
+                </h3>
+
+                <p>
+                    QRGuard checks the URL for predefined
+                    suspicious security indicators.
+                </p>
+
+            </div>
+
+
+            <div class="security-card">
+
+                <div class="icon">
+                    🛡
+                </div>
+
+                <h3>
+                    Risk Assessment
+                </h3>
+
+                <p>
+                    Detected indicators are converted into a
+                    risk score from 0 to 100.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================
+         FOOTER
+    ====================================== -->
+
+    <div class="footer">
+
+        QRGuard © 2026 ·
+        QR-Code Phishing Detection System
+
+    </div>
+
+
+</main>
+
 
 </body>
 </html>
