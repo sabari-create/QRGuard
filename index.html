@@ -6,1513 +6,785 @@
 
     <title>QRGuard | QR Scanner</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <style>
-
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
-
             font-family: Arial, Helvetica, sans-serif;
-
-            color: #f5f5f5;
-
             background:
-                radial-gradient(
-                    circle at 12% 10%,
-                    rgba(110, 60, 180, 0.22),
-                    transparent 34%
-                ),
-                radial-gradient(
-                    circle at 88% 8%,
-                    rgba(255, 193, 7, 0.11),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 50% 100%,
-                    rgba(88, 46, 145, 0.13),
-                    transparent 40%
-                ),
-                linear-gradient(
-                    135deg,
-                    #03050a,
-                    #080d1b 52%,
-                    #09050f
-                );
+                radial-gradient(circle at top right, rgba(123, 63, 170, 0.25), transparent 35%),
+                radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.12), transparent 35%),
+                #05070d;
+            color: #ffffff;
         }
 
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-        /* ==========================================
-           TOP BAR
-        ========================================== */
+        /* ================= TOPBAR ================= */
 
         .topbar {
-            height: 74px;
-
+            width: 100%;
+            padding: 18px 6%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            padding: 0 42px;
-
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(5,7,13,0.92);
+            backdrop-filter: blur(15px);
             position: sticky;
             top: 0;
-
-            z-index: 1000;
-
-            background:
-                rgba(4, 7, 15, 0.92);
-
-            border-bottom:
-                1px solid rgba(255,193,7,0.18);
-
-            backdrop-filter: blur(20px);
+            z-index: 100;
         }
-
 
         .brand {
             display: flex;
             align-items: center;
-
             gap: 12px;
-
-            font-size: 23px;
-
-            font-weight: 900;
         }
-
 
         .shield {
             width: 42px;
-            height: 42px;
-
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            border-radius: 13px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #1a1732,
-                    #090a12
-                );
-
-            border:
-                1px solid rgba(255,193,7,0.42);
-
-            color: #ffc107;
-
-            font-size: 21px;
-
-            box-shadow:
-                0 0 25px rgba(112,67,190,0.22);
-        }
-
-
-        .brand span {
-            color: #ffc107;
-        }
-
-
-        /* ==========================================
-           NAV
-        ========================================== */
-
-        .nav-area {
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-        }
-
-
-        .nav-btn {
-            text-decoration: none;
-
-            color: #c9cfda;
-
-            padding: 10px 14px;
-
-            border-radius: 10px;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            background:
-                rgba(255,255,255,0.035);
-
-            border:
-                1px solid rgba(255,255,255,0.07);
-
-            transition: 0.2s;
-        }
-
-
-        .nav-btn:hover {
-            color: #ffc107;
-
-            border-color:
-                rgba(255,193,7,0.32);
-
-            transform:
-                translateY(-1px);
-        }
-
-
-        /* ==========================================
-           PROFILE
-        ========================================== */
-
-        .profile {
-            position: relative;
-        }
-
-
-        .profile-button {
-            border:
-                1px solid rgba(255,193,7,0.22);
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(255,193,7,0.08),
-                    rgba(112,67,190,0.10)
-                );
-
-            color: #f1f3f7;
-
-            padding: 7px 11px;
-
-            border-radius: 12px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            cursor: pointer;
-
-            font-weight: 700;
-        }
-
-
-        .profile-icon {
-            width: 31px;
-            height: 31px;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #ffc107,
-                    #a87900
-                );
-
-            color: #111;
-
-            font-weight: 900;
-        }
-
-
-        .profile-menu {
-            position: absolute;
-
-            right: 0;
-
-            top: 52px;
-
-            width: 230px;
-
-            padding: 12px;
-
-            border-radius: 16px;
-
-            background:
-                rgba(12,16,29,0.98);
-
-            border:
-                1px solid rgba(255,193,7,0.18);
-
-            box-shadow:
-                0 25px 60px rgba(0,0,0,0.55),
-                0 0 30px rgba(100,60,170,0.12);
-
-            backdrop-filter: blur(20px);
-
-            display: none;
-        }
-
-
-        .profile:hover .profile-menu {
-            display: block;
-        }
-
-
-        .profile-name {
-            padding: 10px;
-
-            border-bottom:
-                1px solid rgba(255,255,255,0.07);
-
-            margin-bottom: 7px;
-        }
-
-
-        .profile-name strong {
-            display: block;
-        }
-
-
-        .profile-name small {
-            display: block;
-
-            margin-top: 4px;
-
-            color: #858ea0;
-
-            word-break: break-all;
-        }
-
-
-        .profile-link {
-            display: block;
-
-            padding: 10px 11px;
-
-            border-radius: 9px;
-
-            color: #cdd3df;
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            transition: 0.2s;
-        }
-
-
-        .profile-link:hover {
-            background:
-                rgba(255,193,7,0.08);
-
-            color: #ffc107;
-        }
-
-
-        .logout {
-            color: #ff7b83;
-        }
-
-
-        /* ==========================================
-           MAIN
-        ========================================== */
-
-        .container {
-            width: min(
-                1120px,
-                calc(100% - 32px)
+            background: linear-gradient(145deg, #f3d36b, #9b7417);
+            clip-path: polygon(
+                50% 0%,
+                90% 15%,
+                90% 60%,
+                50% 100%,
+                10% 60%,
+                10% 15%
             );
-
-            margin:
-                42px auto 70px;
+            color: #08090d;
+            font-size: 20px;
+            font-weight: bold;
         }
 
-
-        /* ==========================================
-           HERO
-        ========================================== */
-
-        .hero {
-            text-align: center;
-
-            margin-bottom: 28px;
+        .brand-name {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
 
-
-        .eyebrow {
-            color: #ffc107;
-
-            font-size: 12px;
-
-            font-weight: 900;
-
-            letter-spacing: 2px;
-
-            text-transform: uppercase;
+        .brand-name span {
+            color: #e5c35b;
         }
 
-
-        .hero h1 {
-            margin:
-                8px 0 10px;
-
-            font-size: 42px;
-
-            line-height: 1.15;
-        }
-
-
-        .hero h1 span {
-            color: #ffc107;
-        }
-
-
-        .hero p {
-            margin: 0 auto;
-
-            max-width: 680px;
-
-            color: #929bad;
-
-            font-size: 14px;
-
-            line-height: 1.7;
-        }
-
-
-        /* ==========================================
-           SCANNER
-        ========================================== */
-
-        .scanner-card {
-            position: relative;
-
-            padding: 30px;
-
-            border-radius: 25px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(16,19,34,0.95),
-                    rgba(12,9,24,0.93)
-                );
-
-            border:
-                1px solid rgba(255,255,255,0.08);
-
-            box-shadow:
-                0 30px 85px rgba(0,0,0,0.45),
-                0 0 55px rgba(110,60,180,0.10);
-
-            backdrop-filter: blur(20px);
-        }
-
-
-        /* ==========================================
-           UPLOAD AREA
-        ========================================== */
-
-        .upload-area {
-            position: relative;
-
-            min-height: 330px;
-
+        .nav {
             display: flex;
-
             align-items: center;
+            gap: 10px;
+        }
 
-            justify-content: center;
-
-            flex-direction: column;
-
-            text-align: center;
-
-            border-radius: 20px;
-
-            border:
-                1px dashed rgba(255,193,7,0.30);
-
-            background:
-                radial-gradient(
-                    circle at center,
-                    rgba(111,66,185,0.10),
-                    rgba(0,0,0,0.16)
-                );
-
-            overflow: hidden;
-
+        .nav a {
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: #d7d7df;
+            font-size: 14px;
             transition: 0.25s;
         }
 
-
-        .upload-area:hover {
-            border-color:
-                rgba(255,193,7,0.55);
-
-            box-shadow:
-                inset 0 0 45px rgba(112,67,190,0.08);
+        .nav a:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.07);
         }
 
+        .logout {
+            border: 1px solid rgba(229,195,91,0.35);
+            color: #e5c35b !important;
+        }
 
-        .upload-icon {
-            width: 82px;
-            height: 82px;
+        /* ================= MAIN ================= */
 
-            display: flex;
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: auto;
+            padding: 55px 0 70px;
+        }
 
-            align-items: center;
-            justify-content: center;
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-            border-radius: 23px;
-
+        .hero-badge {
+            display: inline-block;
+            padding: 7px 15px;
+            border-radius: 30px;
+            border: 1px solid rgba(229,195,91,0.35);
+            background: rgba(229,195,91,0.08);
+            color: #e5c35b;
+            font-size: 12px;
+            letter-spacing: 1px;
             margin-bottom: 18px;
+        }
 
-            font-size: 36px;
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 55px);
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
 
+        .hero h1 span {
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #e5c35b,
+                #a56de2
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            max-width: 680px;
+            margin: auto;
+            color: #a9acb8;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* ================= SCANNER CARD ================= */
+
+        .scanner-card {
+            max-width: 700px;
+            margin: auto;
+            padding: 38px;
+            border-radius: 24px;
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,193,7,0.12),
-                    rgba(108,64,179,0.13)
+                    rgba(255,255,255,0.075),
+                    rgba(255,255,255,0.025)
                 );
-
-            border:
-                1px solid rgba(255,193,7,0.22);
-
+            border: 1px solid rgba(255,255,255,0.10);
             box-shadow:
-                0 0 35px rgba(108,64,179,0.13);
+                0 25px 80px rgba(0,0,0,0.45),
+                0 0 60px rgba(123,63,170,0.08);
+            backdrop-filter: blur(18px);
         }
 
-
-        .upload-area h2 {
-            margin:
-                0 0 8px;
-
-            font-size: 23px;
+        .scanner-title {
+            text-align: center;
+            margin-bottom: 28px;
         }
 
+        .scanner-title h2 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .scanner-title p {
+            color: #9295a2;
+            font-size: 14px;
+        }
+
+        /* ================= UPLOAD ================= */
+
+        .upload-area {
+            border: 2px dashed rgba(229,195,91,0.35);
+            border-radius: 18px;
+            padding: 38px 20px;
+            text-align: center;
+            background: rgba(229,195,91,0.025);
+            transition: 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(229,195,91,0.75);
+            background: rgba(229,195,91,0.055);
+        }
+
+        .upload-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            margin-bottom: 8px;
+        }
 
         .upload-area p {
-            margin:
-                0 0 19px;
-
-            color: #858ea0;
-
+            color: #9295a2;
             font-size: 13px;
+            margin-bottom: 20px;
         }
 
-
-        .browse-btn {
+        .file-label {
             display: inline-block;
-
-            padding:
-                13px 23px;
-
-            border-radius: 11px;
-
-            color: #090b12;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #ffc107,
-                    #e3a600
-                );
-
-            font-weight: 900;
-
+            padding: 12px 20px;
+            border-radius: 10px;
             cursor: pointer;
-
-            box-shadow:
-                0 8px 28px rgba(255,193,7,0.15);
-
-            transition: 0.2s;
+            background: linear-gradient(
+                135deg,
+                #e5c35b,
+                #a47b19
+            );
+            color: #090a0f;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.25s;
         }
 
-
-        .browse-btn:hover {
-            transform:
-                translateY(-2px);
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(229,195,91,0.18);
         }
-
 
         #qr_file {
             display: none;
         }
 
-
-        .file-name {
-            margin-top: 14px;
-
-            color: #ffc107;
-
-            font-family: Consolas, monospace;
-
-            font-size: 12px;
-
-            word-break: break-all;
-
-            max-width: 80%;
-        }
-
-
-        /* ==========================================
-           FILE INFO
-        ========================================== */
-
-        .file-info {
-            display: flex;
-
-            justify-content: center;
-
-            gap: 10px;
-
-            flex-wrap: wrap;
-
-            margin-top: 16px;
-        }
-
-
-        .info-pill {
-            padding:
-                7px 11px;
-
-            border-radius: 999px;
-
-            color: #8e97a8;
-
-            background:
-                rgba(255,255,255,0.035);
-
-            border:
-                1px solid rgba(255,255,255,0.07);
-
-            font-size: 10px;
-
-            font-weight: 700;
-        }
-
-
-        /* ==========================================
-           ERROR
-        ========================================== */
-
-        .error {
-            margin-top: 18px;
-
-            padding:
-                13px 15px;
-
-            border-radius: 11px;
-
-            color: #ff9da3;
-
-            background:
-                rgba(220,53,69,0.09);
-
-            border:
-                1px solid rgba(220,53,69,0.22);
-
+        #file-name {
+            margin-top: 15px;
+            color: #e5c35b;
             font-size: 13px;
-
-            line-height: 1.5;
+            word-break: break-word;
         }
 
+        .formats {
+            margin-top: 18px;
+            color: #777b88;
+            font-size: 12px;
+        }
 
-        /* ==========================================
-           SCAN BUTTON
-        ========================================== */
+        /* ================= BUTTON ================= */
 
-        .scan-button {
+        .scan-btn {
             width: 100%;
-
-            margin-top: 20px;
-
+            margin-top: 25px;
             padding: 15px;
-
             border: none;
-
             border-radius: 12px;
-
             cursor: pointer;
-
-            color: #080a10;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #ffc107,
-                    #dfa300
-                );
-
-            font-size: 14px;
-
-            font-weight: 900;
-
+            background: linear-gradient(
+                135deg,
+                #e5c35b,
+                #b48724
+            );
+            color: #08090d;
+            font-size: 16px;
+            font-weight: 800;
             letter-spacing: 0.3px;
-
-            box-shadow:
-                0 10px 30px rgba(255,193,7,0.14);
-
-            transition: 0.2s;
-        }
-
-
-        .scan-button:hover {
-            transform:
-                translateY(-2px);
-
-            box-shadow:
-                0 14px 35px rgba(255,193,7,0.20);
-        }
-
-
-        /* ==========================================
-           SECURITY NOTICE
-        ========================================== */
-
-        .notice {
-            display: flex;
-
-            gap: 13px;
-
-            align-items: flex-start;
-
-            margin-top: 18px;
-
-            padding: 17px;
-
-            border-radius: 14px;
-
-            background:
-                rgba(255,193,7,0.055);
-
-            border:
-                1px solid rgba(255,193,7,0.16);
-        }
-
-
-        .notice-icon {
-            font-size: 20px;
-        }
-
-
-        .notice strong {
-            display: block;
-
-            color: #ffc107;
-
-            margin-bottom: 4px;
-
-            font-size: 13px;
-        }
-
-
-        .notice p {
-            margin: 0;
-
-            color: #929bad;
-
-            font-size: 12px;
-
-            line-height: 1.6;
-        }
-
-
-        /* ==========================================
-           HOW IT WORKS
-        ========================================== */
-
-        .section {
-            margin-top: 34px;
-        }
-
-
-        .section-heading {
-            display: flex;
-
-            align-items: center;
-
-            gap: 12px;
-
-            margin-bottom: 16px;
-        }
-
-
-        .section-heading h2 {
-            margin: 0;
-
-            font-size: 21px;
-        }
-
-
-        .section-line {
-            flex: 1;
-
-            height: 1px;
-
-            background:
-                rgba(255,255,255,0.08);
-        }
-
-
-        .steps {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 15px;
-        }
-
-
-        .step {
-            padding: 22px;
-
-            border-radius: 18px;
-
-            background:
-                rgba(12,16,29,0.82);
-
-            border:
-                1px solid rgba(255,255,255,0.07);
-
             transition: 0.25s;
         }
 
-
-        .step:hover {
-            transform:
-                translateY(-4px);
-
-            border-color:
-                rgba(255,193,7,0.20);
+        .scan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(229,195,91,0.18);
         }
 
+        /* ================= ERROR ================= */
 
-        .step-number {
-            width: 38px;
-            height: 38px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 11px;
-
-            margin-bottom: 15px;
-
-            color: #ffc107;
-
-            background:
-                rgba(255,193,7,0.08);
-
-            border:
-                1px solid rgba(255,193,7,0.16);
-
-            font-weight: 900;
-        }
-
-
-        .step h3 {
-            margin:
-                0 0 8px;
-
-            font-size: 16px;
-        }
-
-
-        .step p {
-            margin: 0;
-
-            color: #858ea0;
-
-            font-size: 12px;
-
-            line-height: 1.65;
-        }
-
-
-        /* ==========================================
-           SECURITY FEATURES
-        ========================================== */
-
-        .feature-box {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 14px;
-        }
-
-
-        .feature {
-            padding: 19px;
-
-            border-radius: 16px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(92,54,150,0.10),
-                    rgba(255,193,7,0.035)
-                );
-
-            border:
-                1px solid rgba(126,84,187,0.14);
-        }
-
-
-        .feature-title {
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            margin-bottom: 7px;
-
-            font-weight: 800;
-
+        .error {
+            margin-bottom: 22px;
+            padding: 14px 17px;
+            border-radius: 12px;
+            background: rgba(220,53,69,0.10);
+            border: 1px solid rgba(220,53,69,0.30);
+            color: #ff8e99;
             font-size: 14px;
+            line-height: 1.5;
         }
 
+        /* ================= NOTICE ================= */
 
-        .feature-title span {
-            color: #ffc107;
-        }
-
-
-        .feature p {
-            margin: 0;
-
-            color: #858ea0;
-
-            font-size: 12px;
-
+        .notice {
+            max-width: 700px;
+            margin: 25px auto 0;
+            padding: 17px 20px;
+            border-radius: 14px;
+            background: rgba(123,63,170,0.08);
+            border: 1px solid rgba(123,63,170,0.20);
+            color: #aeb0bd;
+            font-size: 13px;
             line-height: 1.6;
         }
 
-
-        /* ==========================================
-           FOOTER
-        ========================================== */
-
-        .footer {
-            text-align: center;
-
-            margin-top: 36px;
-
-            color: #5f6879;
-
-            font-size: 11px;
+        .notice strong {
+            color: #c18bea;
         }
 
+        /* ================= FEATURES ================= */
 
-        /* ==========================================
-           MOBILE
-        ========================================== */
+        .section-title {
+            text-align: center;
+            margin: 65px 0 25px;
+        }
+
+        .section-title h2 {
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .section-title p {
+            color: #858895;
+            font-size: 14px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .feature {
+            padding: 25px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .feature h3 {
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        .feature p {
+            color: #888b98;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ================= FOOTER ================= */
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #666a77;
+            font-size: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ================= MOBILE ================= */
 
         @media (max-width: 800px) {
 
             .topbar {
-                padding: 0 18px;
+                padding: 15px 4%;
             }
 
-
-            .nav-area > .nav-btn {
-                display: none;
+            .nav {
+                gap: 3px;
             }
 
+            .nav a {
+                padding: 8px 9px;
+                font-size: 12px;
+            }
 
             .container {
-                width:
-                    calc(100% - 20px);
-
-                margin-top: 27px;
+                width: 92%;
+                padding-top: 40px;
             }
-
-
-            .hero h1 {
-                font-size: 31px;
-            }
-
 
             .scanner-card {
-                padding: 18px;
+                padding: 25px 18px;
             }
 
-
-            .steps {
+            .feature-grid {
                 grid-template-columns: 1fr;
             }
-
-
-            .feature-box {
-                grid-template-columns: 1fr;
-            }
-
         }
 
+        @media (max-width: 520px) {
 
-        @media (max-width: 480px) {
+            .brand-name {
+                font-size: 17px;
+            }
 
-            .profile-button span {
+            .shield {
+                width: 35px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .nav a:nth-child(2) {
                 display: none;
             }
 
-
-            .hero p {
-                font-size: 13px;
+            .hero h1 {
+                font-size: 34px;
             }
-
-
-            .upload-area {
-                min-height: 290px;
-            }
-
-
-            .upload-area h2 {
-                font-size: 20px;
-            }
-
         }
-
     </style>
-
 </head>
-
 
 <body>
 
+    <!-- ================= TOPBAR ================= -->
 
-<!-- ==========================================
-     TOP BAR
-========================================== -->
+    <header class="topbar">
 
-<header class="topbar">
+        <a href="{{ url_for('index') }}" class="brand">
 
-
-    <div class="brand">
-
-        <div class="shield">
-            🛡
-        </div>
-
-        QR<span>Guard</span>
-
-    </div>
-
-
-    <div class="nav-area">
-
-
-        <a
-            href="{{ url_for('dashboard') }}"
-            class="nav-btn"
-        >
-            Dashboard
-        </a>
-
-
-        <a
-            href="{{ url_for('history') }}"
-            class="nav-btn"
-        >
-            History
-        </a>
-
-
-        <!-- PROFILE -->
-
-        <div class="profile">
-
-            <button class="profile-button">
-
-                <div class="profile-icon">
-                    👤
-                </div>
-
-                <span>
-                    Profile
-                </span>
-
-                ▼
-
-            </button>
-
-
-            <div class="profile-menu">
-
-
-                <div class="profile-name">
-
-                    <strong>
-                        {{ session.get("username", "User") }}
-                    </strong>
-
-                    <small>
-                        {{ session.get("email", "") }}
-                    </small>
-
-                </div>
-
-
-                <a
-                    href="{{ url_for('dashboard') }}"
-                    class="profile-link"
-                >
-                    📊 Dashboard
-                </a>
-
-
-                <a
-                    href="{{ url_for('index') }}"
-                    class="profile-link"
-                >
-                    🔍 QR Scanner
-                </a>
-
-
-                <a
-                    href="{{ url_for('history') }}"
-                    class="profile-link"
-                >
-                    🕘 Scan History
-                </a>
-
-
-                <a
-                    href="{{ url_for('logout') }}"
-                    class="profile-link logout"
-                >
-                    🚪 Logout
-                </a>
-
+            <div class="shield">
+                Q
             </div>
 
-        </div>
+            <div class="brand-name">
+                QR<span>Guard</span>
+            </div>
 
-    </div>
+        </a>
 
-</header>
+        <nav class="nav">
 
+            <a href="{{ url_for('index') }}">
+                Scanner
+            </a>
 
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
 
-<!-- ==========================================
-     MAIN
-========================================== -->
+            <a href="{{ url_for('history') }}">
+                History
+            </a>
 
-<main class="container">
+            <a href="{{ url_for('logout') }}" class="logout">
+                Logout
+            </a>
 
+        </nav>
 
-    <!-- HERO -->
-
-    <section class="hero">
-
-        <div class="eyebrow">
-            Secure QR Analysis
-        </div>
-
-
-        <h1>
-            Scan. <span>Analyze.</span> Protect.
-        </h1>
-
-
-        <p>
-            Upload a QR-code image and QRGuard will extract the
-            encoded URL and perform a static security analysis
-            using predefined phishing detection indicators.
-        </p>
-
-    </section>
+    </header>
 
 
+    <!-- ================= MAIN ================= -->
 
-    <!-- ======================================
-         SCANNER CARD
-    ====================================== -->
+    <main class="container">
 
-    <section class="scanner-card">
+        <section class="hero">
+
+            <div class="hero-badge">
+                CYBER SECURITY • QR ANALYSIS
+            </div>
+
+            <h1>
+                Scan. <span>Analyze. Protect.</span>
+            </h1>
+
+            <p>
+                QRGuard analyzes QR-code URLs using static security
+                heuristics and identifies suspicious indicators
+                without automatically opening the destination website.
+            </p>
+
+        </section>
 
 
-        <form
-            action="{{ url_for('index') }}"
-            method="POST"
-            enctype="multipart/form-data"
-        >
+        <!-- ================= SCANNER ================= -->
 
+        <section class="scanner-card">
 
-            <div class="upload-area">
-
-
-                <div class="upload-icon">
-                    📷
-                </div>
-
+            <div class="scanner-title">
 
                 <h2>
-                    Upload QR Code
+                    QR Security Scanner
                 </h2>
 
-
                 <p>
-                    Select a clear QR-code image for security analysis
+                    Upload a QR image to begin security analysis.
                 </p>
 
-
-                <label
-                    for="qr_file"
-                    class="browse-btn"
-                >
-                    Choose QR Image
-                </label>
-
-
-                <input
-                    type="file"
-                    id="qr_file"
-                    name="qr_file"
-                    accept=".png,.jpg,.jpeg,.webp,.bmp"
-                    required
-                >
-
-
-                <div
-                    id="fileName"
-                    class="file-name"
-                ></div>
-
-
             </div>
-
-
-
-            <!-- FILE INFORMATION -->
-
-            <div class="file-info">
-
-                <div class="info-pill">
-                    PNG
-                </div>
-
-                <div class="info-pill">
-                    JPG
-                </div>
-
-                <div class="info-pill">
-                    JPEG
-                </div>
-
-                <div class="info-pill">
-                    WEBP
-                </div>
-
-                <div class="info-pill">
-                    BMP
-                </div>
-
-                <div class="info-pill">
-                    MAX 5 MB
-                </div>
-
-            </div>
-
 
 
             {% if error %}
 
-                <div class="error">
-                    ⚠ {{ error }}
-                </div>
+            <div class="error">
+                {{ error }}
+            </div>
 
             {% endif %}
 
 
+            <!-- IMPORTANT: POST /scan -->
 
-            <button
-                type="submit"
-                class="scan-button"
+            <form
+                method="POST"
+                action="{{ url_for('scan') }}"
+                enctype="multipart/form-data"
             >
-                🛡 Analyze QR Code
-            </button>
+
+                <div class="upload-area">
+
+                    <div class="upload-icon">
+                        📱
+                    </div>
+
+                    <h3>
+                        Upload QR Code
+                    </h3>
+
+                    <p>
+                        Select a clear QR-code image from your device.
+                    </p>
 
 
-        </form>
+                    <label
+                        for="qr_file"
+                        class="file-label"
+                    >
+                        Choose QR Image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="qr_file"
+                        name="qr_file"
+                        accept=".png,.jpg,.jpeg,.webp,.bmp,image/png,image/jpeg,image/webp,image/bmp"
+                        required
+                    >
+
+                    <div id="file-name">
+                        No file selected
+                    </div>
+
+                    <div class="formats">
+                        PNG • JPG • JPEG • WEBP • BMP
+                        <br>
+                        Maximum file size: 5 MB
+                    </div>
+
+                </div>
 
 
+                <button
+                    type="submit"
+                    class="scan-btn"
+                >
+                    🔍 Scan QR Code
+                </button>
 
-        <!-- SECURITY NOTICE -->
+            </form>
+
+        </section>
+
+
+        <!-- ================= PRIVACY NOTICE ================= -->
 
         <div class="notice">
 
-            <div class="notice-icon">
-                🔐
-            </div>
+            <strong>🔒 Security & Privacy:</strong>
 
-
-            <div>
-
-                <strong>
-                    Privacy & Security
-                </strong>
-
-
-                <p>
-                    QRGuard extracts the URL from the uploaded QR image
-                    and performs static analysis. The extracted website
-                    is not automatically opened or visited.
-                </p>
-
-            </div>
+            QRGuard performs static URL analysis.
+            The extracted website is not automatically opened or visited.
+            Uploaded QR images are processed temporarily and are not
+            permanently stored by the scanner.
 
         </div>
 
 
-    </section>
+        <!-- ================= HOW IT WORKS ================= -->
 
+        <section>
 
+            <div class="section-title">
 
-    <!-- ======================================
-         HOW IT WORKS
-    ====================================== -->
-
-    <section class="section">
-
-
-        <div class="section-heading">
-
-            <h2>
-                How QRGuard Works
-            </h2>
-
-            <div class="section-line"></div>
-
-        </div>
-
-
-        <div class="steps">
-
-
-            <div class="step">
-
-                <div class="step-number">
-                    01
-                </div>
-
-                <h3>
-                    Upload QR
-                </h3>
+                <h2>
+                    How QRGuard Works
+                </h2>
 
                 <p>
-                    Upload a clear QR-code image in one of the
-                    supported image formats.
+                    A simple defensive cybersecurity analysis workflow.
                 </p>
 
             </div>
 
 
-            <div class="step">
+            <div class="feature-grid">
 
-                <div class="step-number">
-                    02
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        📷
+                    </div>
+
+                    <h3>
+                        01. QR Detection
+                    </h3>
+
+                    <p>
+                        The uploaded QR image is decoded locally
+                        to extract its embedded data.
+                    </p>
+
                 </div>
 
-                <h3>
-                    Extract & Analyze
-                </h3>
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🔎
+                    </div>
+
+                    <h3>
+                        02. URL Analysis
+                    </h3>
+
+                    <p>
+                        The extracted URL is checked for suspicious
+                        security indicators using predefined rules.
+                    </p>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🛡️
+                    </div>
+
+                    <h3>
+                        03. Risk Assessment
+                    </h3>
+
+                    <p>
+                        Indicators receive weighted points and the
+                        final result is classified as LOW, MEDIUM,
+                        or HIGH risk.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CHECKS ================= -->
+
+        <section>
+
+            <div class="section-title">
+
+                <h2>
+                    What QRGuard Checks
+                </h2>
 
                 <p>
-                    QRGuard extracts the encoded URL and checks
-                    it against predefined security indicators.
+                    Multiple URL characteristics are examined.
                 </p>
 
             </div>
 
 
-            <div class="step">
+            <div class="feature-grid">
 
-                <div class="step-number">
-                    03
-                </div>
+                <div class="feature">
 
-                <h3>
-                    Risk Assessment
-                </h3>
+                    <div class="feature-icon">
+                        🌐
+                    </div>
 
-                <p>
-                    Detected indicators are converted into a
-                    risk score and LOW, MEDIUM or HIGH classification.
-                </p>
+                    <h3>
+                        URL Structure
+                    </h3>
 
-            </div>
-
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ======================================
-         SECURITY FEATURES
-    ====================================== -->
-
-    <section class="section">
-
-
-        <div class="section-heading">
-
-            <h2>
-                What QRGuard Checks
-            </h2>
-
-            <div class="section-line"></div>
-
-        </div>
-
-
-        <div class="feature-box">
-
-
-            <div class="feature">
-
-                <div class="feature-title">
-
-                    <span>◆</span>
-
-                    URL Structure
+                    <p>
+                        HTTPS usage, URL length, hostname structure,
+                        ports and unusual URL patterns.
+                    </p>
 
                 </div>
 
-                <p>
-                    Checks URL length, hostname structure,
-                    paths and query parameters.
-                </p>
 
-            </div>
+                <div class="feature">
 
+                    <div class="feature-icon">
+                        ⚠️
+                    </div>
 
-            <div class="feature">
+                    <h3>
+                        Suspicious Indicators
+                    </h3>
 
-                <div class="feature-title">
-
-                    <span>◆</span>
-
-                    Domain Indicators
-
-                </div>
-
-                <p>
-                    Identifies IP-based URLs, multiple subdomains,
-                    unusual digits and suspicious hostname patterns.
-                </p>
-
-            </div>
-
-
-            <div class="feature">
-
-                <div class="feature-title">
-
-                    <span>◆</span>
-
-                    Suspicious Keywords
+                    <p>
+                        IP addresses, suspicious keywords, punycode,
+                        encoded characters and unusual domains.
+                    </p>
 
                 </div>
 
-                <p>
-                    Looks for security-related keywords commonly
-                    associated with account and verification pages.
-                </p>
 
-            </div>
+                <div class="feature">
 
+                    <div class="feature-icon">
+                        📊
+                    </div>
 
-            <div class="feature">
+                    <h3>
+                        Risk Score
+                    </h3>
 
-                <div class="feature-title">
-
-                    <span>◆</span>
-
-                    URL Security
+                    <p>
+                        Each detected indicator contributes weighted
+                        points to the overall security score.
+                    </p>
 
                 </div>
 
-                <p>
-                    Checks HTTPS usage, unusual ports, encoded
-                    characters, Punycode and suspicious extensions.
-                </p>
-
             </div>
 
+        </section>
 
-        </div>
-
-    </section>
-
+    </main>
 
 
-    <!-- FOOTER -->
+    <!-- ================= FOOTER ================= -->
 
-    <div class="footer">
+    <footer>
 
-        QRGuard © 2026 ·
-        QR-Code Phishing Detection System
+        QRGuard © 2026 | QR-Code Phishing Detection System
 
-    </div>
-
-
-</main>
+    </footer>
 
 
+    <!-- ================= FILE NAME SCRIPT ================= -->
 
-<!-- ==========================================
-     FILE NAME SCRIPT
-========================================== -->
+    <script>
 
-<script>
+        const fileInput = document.getElementById("qr_file");
+        const fileName = document.getElementById("file-name");
 
-    const fileInput =
-        document.getElementById("qr_file");
+        fileInput.addEventListener("change", function () {
 
-    const fileName =
-        document.getElementById("fileName");
-
-
-    fileInput.addEventListener(
-        "change",
-        function () {
-
-            if (this.files.length > 0) {
+            if (this.files && this.files.length > 0) {
 
                 fileName.textContent =
-                    "Selected: " +
-                    this.files[0].name;
+                    "Selected: " + this.files[0].name;
 
             } else {
 
-                fileName.textContent = "";
+                fileName.textContent =
+                    "No file selected";
 
             }
 
-        }
-    );
+        });
 
-</script>
-
+    </script>
 
 </body>
 </html>
