@@ -4,31 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QRGuard | Scan Result</title>
+    <title>QRGuard | Security Analysis</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
     <style>
-        body {
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
             background:
-                radial-gradient(circle at 15% 20%, rgba(110, 60, 180, 0.18), transparent 35%),
-                radial-gradient(circle at 85% 15%, rgba(255, 193, 7, 0.10), transparent 30%),
-                linear-gradient(135deg, #05070d, #0a1020 55%, #08050f);
-            color: #f5f5f5;
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(116, 61, 173, 0.18),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(212, 175, 55, 0.08),
+                    transparent 30%
+                ),
+                #05070d;
+            color: #ffffff;
         }
 
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ==================================================
+           TOP BAR
+        ================================================== */
+
         .topbar {
-            height: 72px;
+            height: 76px;
+            padding: 0 6%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 42px;
-            background: rgba(5, 8, 17, 0.90);
-            border-bottom: 1px solid rgba(255, 193, 7, 0.20);
+
+            background: rgba(5, 7, 13, 0.88);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+
             backdrop-filter: blur(18px);
+
             position: sticky;
             top: 0;
             z-index: 100;
@@ -38,195 +65,352 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
         }
 
         .shield {
             width: 40px;
-            height: 40px;
+            height: 46px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            background: linear-gradient(145deg, #17152c, #090914);
-            border: 1px solid rgba(255, 193, 7, 0.45);
-            box-shadow: 0 0 22px rgba(126, 87, 194, 0.25);
-            color: #ffc107;
-            font-size: 20px;
-        }
 
-        .brand span {
-            color: #ffc107;
-        }
-
-        .top-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-btn {
-            text-decoration: none;
-            color: #ddd;
-            padding: 10px 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.035);
-            font-size: 14px;
-            transition: 0.2s;
-        }
-
-        .nav-btn:hover {
-            color: #ffc107;
-            border-color: rgba(255,193,7,0.35);
-            transform: translateY(-1px);
-        }
-
-        .container {
-            width: min(1100px, calc(100% - 32px));
-            margin: 40px auto 70px;
-        }
-
-        .page-heading {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .page-heading .small {
-            color: #ffc107;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .page-heading h1 {
-            margin: 8px 0;
-            font-size: 38px;
-        }
-
-        .page-heading p {
-            margin: 0;
-            color: #9da5b5;
-        }
-
-        .result-card {
-            background: rgba(12, 16, 29, 0.82);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow:
-                0 25px 80px rgba(0,0,0,0.45),
-                0 0 45px rgba(93, 53, 155, 0.10);
-            backdrop-filter: blur(20px);
-        }
-
-        .risk-area {
-            display: grid;
-            grid-template-columns: 230px 1fr;
-            gap: 30px;
-            align-items: center;
-        }
-
-        .score-box {
-            width: 190px;
-            height: 190px;
-            margin: auto;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
             background:
-                radial-gradient(circle, #151827 55%, transparent 56%),
-                conic-gradient(#ffc107 {{ result.score }}%, #242838 0);
-            box-shadow:
-                0 0 35px rgba(255,193,7,0.14),
-                inset 0 0 30px rgba(0,0,0,0.6);
-        }
+                linear-gradient(
+                    145deg,
+                    #f4d77a,
+                    #9a7218
+                );
 
-        .score-number {
-            font-size: 48px;
+            clip-path: polygon(
+                50% 0%,
+                90% 15%,
+                90% 60%,
+                50% 100%,
+                10% 60%,
+                10% 15%
+            );
+
+            color: #08090d;
             font-weight: 900;
-            color: #ffc107;
+            font-size: 18px;
         }
 
-        .score-label {
-            color: #aeb5c4;
-            font-size: 13px;
-            margin-top: -5px;
-        }
-
-        .risk-info h2 {
-            margin: 0 0 12px;
-            font-size: 30px;
-        }
-
-        .risk-badge {
-            display: inline-block;
-            padding: 9px 16px;
-            border-radius: 999px;
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            background: rgba(255,193,7,0.12);
-            color: #ffc107;
-            border: 1px solid rgba(255,193,7,0.30);
-            margin-bottom: 18px;
-        }
-
-        .risk-description {
-            color: #aeb5c4;
-            line-height: 1.7;
-            max-width: 650px;
-        }
-
-        .url-card {
-            margin-top: 28px;
-            padding: 20px;
-            border-radius: 16px;
-            background: rgba(0,0,0,0.25);
-            border: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .url-title {
-            color: #ffc107;
-            font-size: 12px;
+        .brand-name {
+            font-size: 21px;
             font-weight: 800;
             letter-spacing: 1px;
-            margin-bottom: 9px;
         }
 
-        .url-value {
-            color: #e9edf5;
-            word-break: break-all;
-            font-family: Consolas, monospace;
+        .brand-name span {
+            color: #e6c45c;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav a {
+            padding: 10px 14px;
+            border-radius: 9px;
+            color: #aaaeba;
+            font-size: 13px;
+            transition: 0.25s;
+        }
+
+        .nav a:hover {
+            background: rgba(255,255,255,0.06);
+            color: white;
+        }
+
+        .logout {
+            border: 1px solid rgba(229,195,91,0.25);
+            color: #e6c45c !important;
+        }
+
+        /* ==================================================
+           PAGE
+        ================================================== */
+
+        .page {
+            width: 92%;
+            max-width: 1180px;
+            margin: auto;
+            padding: 48px 0 70px;
+        }
+
+        /* ==================================================
+           ANALYSIS HEADER
+        ================================================== */
+
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .eyebrow {
+            color: #b47ce2;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .analysis-header h1 {
+            font-size: clamp(30px, 4vw, 48px);
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+
+        .analysis-header h1 span {
+            color: #e5c35b;
+        }
+
+        .analysis-header p {
+            color: #858996;
             font-size: 14px;
             line-height: 1.6;
         }
 
-        .section {
-            margin-top: 30px;
+        .scan-id {
+            padding: 12px 16px;
+            border-radius: 10px;
+
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.08);
+
+            color: #858996;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
-        .section-title {
+        .scan-id strong {
+            color: #e5c35b;
+        }
+
+        /* ==================================================
+           MAIN ANALYSIS GRID
+        ================================================== */
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        /* ==================================================
+           SCORE PANEL
+        ================================================== */
+
+        .score-panel {
+            position: relative;
+            overflow: hidden;
+
+            padding: 32px;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.075),
+                    rgba(255,255,255,0.025)
+                );
+
+            border: 1px solid rgba(255,255,255,0.09);
+
+            box-shadow:
+                0 25px 70px rgba(0,0,0,0.35);
+        }
+
+        .score-panel::before {
+            content: "";
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            right: -80px;
+            top: -80px;
+
+            border-radius: 50%;
+
+            background: rgba(160,88,213,0.12);
+
+            filter: blur(25px);
+        }
+
+        .score-label {
+            color: #858996;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+        }
+
+        .score-ring {
+            width: 220px;
+            height: 220px;
+
+            margin: 28px auto;
+
+            border-radius: 50%;
+
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #080b12 58%,
+                    transparent 59%
+                ),
+                conic-gradient(
+                    #e5c35b
+                    {{ result.score }}%,
+                    rgba(255,255,255,0.07)
+                    {{ result.score }}%
+                );
+
+            box-shadow:
+                0 0 45px rgba(229,195,91,0.10);
         }
 
-        .section-title h3 {
-            margin: 0;
-            font-size: 20px;
+        .score-number {
+            text-align: center;
         }
 
-        .section-title .line {
-            flex: 1;
-            height: 1px;
-            background: rgba(255,255,255,0.08);
+        .score-number strong {
+            display: block;
+            font-size: 50px;
+            line-height: 1;
+        }
+
+        .score-number small {
+            color: #7f8390;
+            font-size: 12px;
+        }
+
+        /* ==================================================
+           RISK STATUS
+        ================================================== */
+
+        .risk-status {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+
+            padding: 9px 20px;
+
+            border-radius: 50px;
+
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+
+            {% if result.risk == "LOW RISK" %}
+                background: rgba(25,135,84,0.13);
+                border: 1px solid rgba(25,135,84,0.4);
+                color: #54d89b;
+            {% elif result.risk == "MEDIUM RISK" %}
+                background: rgba(211,158,0,0.13);
+                border: 1px solid rgba(211,158,0,0.4);
+                color: #f0c84c;
+            {% else %}
+                background: rgba(220,53,69,0.13);
+                border: 1px solid rgba(220,53,69,0.4);
+                color: #ff7180;
+            {% endif %}
+        }
+
+        .score-note {
+            color: #777b87;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 14px;
+        }
+
+        /* ==================================================
+           URL PANEL
+        ================================================== */
+
+        .url-panel {
+            padding: 30px;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.055),
+                    rgba(255,255,255,0.018)
+                );
+
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+
+        .panel-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .panel-title h2 {
+            font-size: 18px;
+        }
+
+        .panel-tag {
+            color: #b47ce2;
+            font-size: 10px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .url-box {
+            padding: 18px;
+
+            border-radius: 14px;
+
+            background: #070a10;
+
+            border: 1px solid rgba(229,195,91,0.16);
+
+            word-break: break-all;
+
+            color: #d8dbe4;
+
+            font-family: Consolas, monospace;
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+        .url-prefix {
+            color: #e5c35b;
+        }
+
+        /* ==================================================
+           INDICATORS
+        ================================================== */
+
+        .indicator-section {
+            margin-top: 28px;
+        }
+
+        .indicator-section h3 {
+            font-size: 16px;
+            margin-bottom: 14px;
         }
 
         .indicator-list {
@@ -235,318 +419,356 @@
         }
 
         .indicator {
-            display: flex;
+            display: grid;
+            grid-template-columns: 34px 1fr auto;
+            gap: 12px;
             align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 15px 17px;
+
+            padding: 14px;
+
             border-radius: 13px;
-            background: rgba(255,255,255,0.035);
+
+            background: rgba(255,255,255,0.025);
             border: 1px solid rgba(255,255,255,0.06);
         }
 
-        .indicator-text {
-            color: #dfe4ed;
-            line-height: 1.5;
-        }
+        .indicator-icon {
+            width: 30px;
+            height: 30px;
 
-        .points {
-            min-width: 55px;
-            text-align: center;
-            padding: 6px 9px;
-            border-radius: 8px;
-            color: #ffc107;
-            background: rgba(255,193,7,0.10);
-            border: 1px solid rgba(255,193,7,0.20);
-            font-size: 12px;
-            font-weight: 800;
-        }
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-        .explain-box {
-            padding: 22px;
-            border-radius: 16px;
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(104, 63, 173, 0.13),
-                    rgba(255,193,7,0.05)
-                );
-            border: 1px solid rgba(137, 92, 205, 0.20);
-        }
+            border-radius: 9px;
 
-        .explain-box p {
-            color: #b9c0cf;
-            line-height: 1.75;
-            margin: 0;
-        }
+            background: rgba(180,124,226,0.10);
 
-        .notice {
-            margin-top: 25px;
-            padding: 17px;
-            border-radius: 13px;
-            background: rgba(255,193,7,0.07);
-            border: 1px solid rgba(255,193,7,0.20);
-            color: #c9cfd9;
-            line-height: 1.6;
+            color: #c18be9;
             font-size: 13px;
         }
 
-        .actions {
-            margin-top: 30px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+        .indicator-text {
+            color: #c9cbd4;
+            font-size: 13px;
+            line-height: 1.4;
         }
 
-        .action-btn {
-            flex: 1;
-            min-width: 190px;
-            text-align: center;
-            text-decoration: none;
-            padding: 14px 18px;
-            border-radius: 12px;
-            font-weight: 800;
-            transition: 0.2s;
-        }
-
-        .primary {
-            color: #090b12;
-            background: linear-gradient(135deg, #ffc107, #e8a900);
-            box-shadow: 0 8px 25px rgba(255,193,7,0.18);
-        }
-
-        .secondary {
-            color: #e9edf5;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.10);
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .footer {
-            text-align: center;
-            color: #697184;
+        .points {
+            color: #e5c35b;
             font-size: 12px;
-            margin-top: 35px;
+            font-weight: bold;
         }
 
-        @media (max-width: 760px) {
-            .topbar {
-                padding: 0 18px;
-            }
+        /* ==================================================
+           SECURITY MESSAGE
+        ================================================== */
 
-            .top-actions .nav-btn:nth-child(1) {
-                display: none;
-            }
+        .security-message {
+            margin-top: 20px;
 
-            .container {
-                width: min(100% - 20px, 1100px);
-                margin-top: 25px;
-            }
+            padding: 18px;
 
-            .result-card {
-                padding: 20px;
-            }
+            border-radius: 15px;
 
-            .risk-area {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(229,195,91,0.055),
+                    rgba(180,124,226,0.045)
+                );
+
+            border: 1px solid rgba(229,195,91,0.12);
+        }
+
+        .security-message strong {
+            display: block;
+            color: #e5c35b;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .security-message p {
+            color: #9699a5;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* ==================================================
+           ACTION BAR
+        ================================================== */
+
+        .actions {
+            margin-top: 20px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action {
+            min-height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            border: 1px solid rgba(255,255,255,0.09);
+
+            background: rgba(255,255,255,0.035);
+
+            color: #d8dae2;
+
+            transition: 0.25s;
+        }
+
+        .action:hover {
+            transform: translateY(-2px);
+            border-color: rgba(229,195,91,0.3);
+        }
+
+        .action.primary {
+            background:
+                linear-gradient(
+                    135deg,
+                    #e5c35b,
+                    #a67b1c
+                );
+
+            color: #08090d;
+
+            border: none;
+        }
+
+        .action.primary:hover {
+            box-shadow:
+                0 10px 28px rgba(229,195,91,0.16);
+        }
+
+        .action.purple {
+            border-color: rgba(180,124,226,0.25);
+            color: #c18be9;
+        }
+
+        /* ==================================================
+           FOOTER NOTICE
+        ================================================== */
+
+        .footer-notice {
+            margin-top: 25px;
+
+            text-align: center;
+
+            color: #646874;
+
+            font-size: 11px;
+
+            line-height: 1.7;
+        }
+
+        /* ==================================================
+           MOBILE
+        ================================================== */
+
+        @media (max-width: 900px) {
+
+            .analysis-grid {
                 grid-template-columns: 1fr;
             }
 
-            .page-heading h1 {
-                font-size: 30px;
+            .score-panel {
+                max-width: 600px;
+                width: 100%;
+                margin: auto;
             }
 
-            .indicator {
-                align-items: flex-start;
+        }
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                padding: 0 4%;
+            }
+
+            .nav a {
+                padding: 8px;
+                font-size: 11px;
+            }
+
+            .nav a:nth-child(2) {
+                display: none;
+            }
+
+            .page {
+                width: 94%;
+                padding-top: 35px;
+            }
+
+            .analysis-header {
+                display: block;
+            }
+
+            .scan-id {
+                display: inline-block;
+                margin-top: 15px;
+            }
+
+            .score-panel,
+            .url-panel {
+                padding: 22px;
+            }
+
+            .score-ring {
+                width: 190px;
+                height: 190px;
             }
 
             .actions {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
+
         }
+
     </style>
 </head>
 
+
 <body>
 
-    <!-- TOP NAVIGATION -->
+    <!-- ==================================================
+         TOPBAR
+    ================================================== -->
+
     <header class="topbar">
 
-        <div class="brand">
-            <div class="shield">🛡</div>
-            QR<span>Guard</span>
-        </div>
+        <a href="{{ url_for('index') }}" class="brand">
 
-        <div class="top-actions">
+            <div class="shield">
+                Q
+            </div>
 
-            <a href="{{ url_for('dashboard') }}" class="nav-btn">
+            <div class="brand-name">
+                QR<span>Guard</span>
+            </div>
+
+        </a>
+
+
+        <nav class="nav">
+
+            <a href="{{ url_for('index') }}">
+                Scanner
+            </a>
+
+            <a href="{{ url_for('dashboard') }}">
                 Dashboard
             </a>
 
-            <a href="{{ url_for('history') }}" class="nav-btn">
+            <a href="{{ url_for('history') }}">
                 History
             </a>
 
-            <a href="{{ url_for('logout') }}" class="nav-btn">
+            <a href="{{ url_for('logout') }}" class="logout">
                 Logout
             </a>
 
-        </div>
+        </nav>
 
     </header>
 
 
-    <main class="container">
+    <!-- ==================================================
+         PAGE
+    ================================================== -->
 
-        <!-- PAGE HEADING -->
-        <div class="page-heading">
+    <main class="page">
 
-            <div class="small">
-                Security Analysis
+
+        <!-- ==================================================
+             HEADER
+        ================================================== -->
+
+        <section class="analysis-header">
+
+            <div>
+
+                <div class="eyebrow">
+                    QR SECURITY ENGINE / ANALYSIS COMPLETE
+                </div>
+
+                <h1>
+                    Security <span>Analysis</span>
+                </h1>
+
+                <p>
+                    QRGuard completed a static inspection of the
+                    extracted destination URL.
+                </p>
+
             </div>
 
-            <h1>QR Scan Result</h1>
 
-            <p>
-                QRGuard has completed the static analysis of the extracted URL.
-            </p>
+            <div class="scan-id">
 
-        </div>
+                Scan ID:
+                <strong>
+                    #{{ result.id }}
+                </strong>
+
+            </div>
+
+        </section>
 
 
-        <!-- MAIN RESULT -->
-        <section class="result-card">
+        <!-- ==================================================
+             MAIN GRID
+        ================================================== -->
 
-            <!-- RISK AREA -->
-            <div class="risk-area">
+        <section class="analysis-grid">
 
-                <div class="score-box">
+
+            <!-- ==================================================
+                 SCORE PANEL
+            ================================================== -->
+
+            <div class="score-panel">
+
+                <div class="score-label">
+                    SECURITY RISK SCORE
+                </div>
+
+
+                <div class="score-ring">
 
                     <div class="score-number">
-                        {{ result.score }}
-                    </div>
 
-                    <div class="score-label">
-                        RISK SCORE / 100
+                        <strong>
+                            {{ result.score }}
+                        </strong>
+
+                        <small>
+                            OUT OF 100
+                        </small>
+
                     </div>
 
                 </div>
 
 
-                <div class="risk-info">
+                <div class="risk-status">
 
                     <div class="risk-badge">
                         {{ result.risk }}
                     </div>
 
-                    {% if result.risk == "LOW RISK" %}
-
-                        <h2>Low Risk Detected</h2>
-
-                        <p class="risk-description">
-                            QRGuard did not identify many suspicious indicators
-                            in this URL. However, automated analysis cannot
-                            guarantee that a website is completely safe.
-                        </p>
-
-                    {% elif result.risk == "MEDIUM RISK" %}
-
-                        <h2>Medium Risk Detected</h2>
-
-                        <p class="risk-description">
-                            QRGuard detected several indicators that require
-                            caution. Avoid entering sensitive information unless
-                            you have independently verified the website.
-                        </p>
-
-                    {% else %}
-
-                        <h2>High Risk Detected</h2>
-
-                        <p class="risk-description">
-                            QRGuard detected multiple suspicious URL indicators.
-                            Treat this link with caution and verify the destination
-                            through a trusted source before interacting with it.
-                        </p>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-
-            <!-- URL -->
-            <div class="url-card">
-
-                <div class="url-title">
-                    EXTRACTED URL
-                </div>
-
-                <div class="url-value">
-                    {{ result.url }}
-                </div>
-
-            </div>
-
-
-            <!-- DETECTION INDICATORS -->
-            <div class="section">
-
-                <div class="section-title">
-
-                    <h3>Detection Indicators</h3>
-
-                    <div class="line"></div>
-
-                </div>
-
-
-                <div class="indicator-list">
-
-                    {% for detail in result.details %}
-
-                        <div class="indicator">
-
-                            <div class="indicator-text">
-                                {{ detail.indicator }}
-                            </div>
-
-                            <div class="points">
-                                +{{ detail.points }}
-                            </div>
-
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-            </div>
-
-
-            <!-- EXPLANATION -->
-            <div class="section">
-
-                <div class="section-title">
-
-                    <h3>Security Explanation</h3>
-
-                    <div class="line"></div>
-
-                </div>
-
-
-                <div class="explain-box">
-
-                    <p>
-                        QRGuard uses rule-based URL analysis to identify
-                        potentially suspicious characteristics such as unusual
-                        URL structures, IP-based destinations, suspicious
-                        keywords, encoded characters, unusual ports, long
-                        hostnames and other security indicators.
+                    <p class="score-note">
+                        This score is generated from QRGuard's
+                        predefined URL security heuristics.
                     </p>
 
                 </div>
@@ -554,54 +776,157 @@
             </div>
 
 
-            <!-- NOTICE -->
-            <div class="notice">
+            <!-- ==================================================
+                 URL + INDICATORS
+            ================================================== -->
 
-                <strong>⚠ Security Notice:</strong>
-
-                QRGuard performs static URL analysis only.
-                The extracted website is <strong>not automatically opened or visited</strong>.
-                A risk score is an automated security assessment and should
-                not be treated as absolute proof that a website is malicious
-                or completely safe.
-
-            </div>
+            <div class="url-panel">
 
 
-            <!-- ACTIONS -->
-            <div class="actions">
+                <div class="panel-title">
 
-                <a
-                    href="{{ url_for('report', scan_id=result.id) }}"
-                    class="action-btn primary"
-                >
-                    📄 Download PDF Report
-                </a>
+                    <h2>
+                        Extracted Destination
+                    </h2>
 
-                <a
-                    href="{{ url_for('index') }}"
-                    class="action-btn secondary"
-                >
-                    🔍 Scan Another QR
-                </a>
+                    <div class="panel-tag">
+                        STATIC ANALYSIS
+                    </div>
 
-                <a
-                    href="{{ url_for('history') }}"
-                    class="action-btn secondary"
-                >
-                    🕘 View Scan History
-                </a>
+                </div>
+
+
+                <div class="url-box">
+
+                    <span class="url-prefix">
+                        URL →
+                    </span>
+
+                    {{ result.url }}
+
+                </div>
+
+
+                <!-- ==============================================
+                     INDICATORS
+                =============================================== -->
+
+                <div class="indicator-section">
+
+                    <h3>
+                        Detection Indicators
+                    </h3>
+
+
+                    <div class="indicator-list">
+
+                        {% for detail in result.details %}
+
+                        <div class="indicator">
+
+                            <div class="indicator-icon">
+                                {% if detail.points > 0 %}
+                                    !
+                                {% else %}
+                                    ✓
+                                {% endif %}
+                            </div>
+
+
+                            <div class="indicator-text">
+
+                                {{ detail.indicator }}
+
+                            </div>
+
+
+                            <div class="points">
+
+                                +{{ detail.points }}
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==============================================
+                     SECURITY MESSAGE
+                =============================================== -->
+
+                <div class="security-message">
+
+                    <strong>
+                        🛡️ QRGuard Security Note
+                    </strong>
+
+                    <p>
+                        QRGuard performs static URL analysis only.
+                        The destination website has not been automatically
+                        opened or visited during this scan. A risk score is
+                        an automated assessment and should not be treated
+                        as absolute proof that a website is malicious or safe.
+                    </p>
+
+                </div>
+
 
             </div>
 
         </section>
 
 
-        <div class="footer">
-            QRGuard © 2026 · QR-Code Phishing Detection System
+        <!-- ==================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="actions">
+
+            <a
+                href="{{ url_for('report', scan_id=result.id) }}"
+                class="action primary"
+            >
+                📄 Download PDF Report
+            </a>
+
+
+            <a
+                href="{{ url_for('index') }}"
+                class="action purple"
+            >
+                🔍 Scan Another QR
+            </a>
+
+
+            <a
+                href="{{ url_for('history') }}"
+                class="action"
+            >
+                🕘 View Scan History
+            </a>
+
         </div>
 
+
+        <!-- ==================================================
+             FOOTER NOTICE
+        ================================================== -->
+
+        <div class="footer-notice">
+
+            QRGuard uses rule-based static URL analysis for
+            defensive cybersecurity research and educational purposes.
+
+        </div>
+
+
     </main>
+
 
 </body>
 </html>
