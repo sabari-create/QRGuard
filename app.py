@@ -5,7 +5,15 @@ import sqlite3
 
 import cv2
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    send_file
+)
 
 
 # =========================================================
@@ -35,7 +43,9 @@ else:
 
 
 def init_db():
+
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -68,7 +78,9 @@ def analyze_url(url):
 
     # HTTP check
     if url_lower.startswith("http://"):
+
         score += 15
+
         reasons.append(
             "URL is using HTTP instead of HTTPS."
         )
@@ -77,7 +89,9 @@ def analyze_url(url):
     ip_pattern = r"https?://(?:\d{1,3}\.){3}\d{1,3}"
 
     if re.search(ip_pattern, url_lower):
+
         score += 25
+
         reasons.append(
             "URL uses an IP address instead of a domain name."
         )
@@ -99,11 +113,17 @@ def analyze_url(url):
     found_words = []
 
     for word in suspicious_words:
+
         if word in url_lower:
+
             found_words.append(word)
 
     if found_words:
-        score += min(len(found_words) * 5, 25)
+
+        score += min(
+            len(found_words) * 5,
+            25
+        )
 
         reasons.append(
             "Suspicious keywords detected: "
@@ -112,42 +132,60 @@ def analyze_url(url):
 
     # Long URL
     if len(url) > 100:
+
         score += 10
+
         reasons.append(
             "URL is unusually long."
         )
 
     # @ symbol
     if "@" in url:
+
         score += 20
+
         reasons.append(
             "URL contains '@', which can hide the real destination."
         )
 
     # Multiple subdomains
     try:
-        domain_part = url.split("://", 1)[1].split("/", 1)[0]
+
+        domain_part = (
+            url.split("://", 1)[1]
+            .split("/", 1)[0]
+        )
 
         if domain_part.count(".") >= 3:
+
             score += 10
+
             reasons.append(
                 "URL contains multiple subdomains."
             )
 
     except Exception:
+
         pass
+
+    # Limit score
+    score = min(score, 100)
 
     # Risk level
     if score >= 50:
+
         risk_level = "HIGH"
 
     elif score >= 25:
+
         risk_level = "MEDIUM"
 
     else:
+
         risk_level = "LOW"
 
     if not reasons:
+
         reasons.append(
             "No major suspicious URL patterns detected."
         )
@@ -176,6 +214,7 @@ def decode_qr(file_bytes):
         )
 
         if image is None:
+
             return None
 
         detector = cv2.QRCodeDetector()
@@ -184,9 +223,12 @@ def decode_qr(file_bytes):
         # Attempt 1 - Normal image
         # -------------------------------------------------
 
-        data, points, _ = detector.detectAndDecode(image)
+        data, points, _ = detector.detectAndDecode(
+            image
+        )
 
         if data:
+
             return data.strip()
 
         # -------------------------------------------------
@@ -209,11 +251,14 @@ def decode_qr(file_bytes):
                 new_size
             )
 
-            data, points, _ = detector.detectAndDecode(
-                resized
+            data, points, _ = (
+                detector.detectAndDecode(
+                    resized
+                )
             )
 
             if data:
+
                 return data.strip()
 
         # -------------------------------------------------
@@ -225,11 +270,14 @@ def decode_qr(file_bytes):
             cv2.COLOR_BGR2GRAY
         )
 
-        data, points, _ = detector.detectAndDecode(
-            gray
+        data, points, _ = (
+            detector.detectAndDecode(
+                gray
+            )
         )
 
         if data:
+
             return data.strip()
 
         # -------------------------------------------------
@@ -243,11 +291,14 @@ def decode_qr(file_bytes):
             cv2.THRESH_BINARY + cv2.THRESH_OTSU
         )
 
-        data, points, _ = detector.detectAndDecode(
-            threshold
+        data, points, _ = (
+            detector.detectAndDecode(
+                threshold
+            )
         )
 
         if data:
+
             return data.strip()
 
     except Exception as error:
@@ -270,6 +321,7 @@ def decode_qr(file_bytes):
 def home():
 
     if "username" not in session:
+
         return redirect(
             url_for("login")
         )
@@ -347,12 +399,15 @@ def logout():
 def scan():
 
     if "username" not in session:
+
         return redirect(
             url_for("login")
         )
 
-    # IMPORTANT:
-    # index.html input name is "qr_file"
+    # -----------------------------------------------------
+    # Get uploaded QR file
+    # -----------------------------------------------------
+
     uploaded_file = request.files.get(
         "qr_file"
     )
@@ -371,7 +426,10 @@ def scan():
             error="Please select a QR image."
         )
 
-    # Read uploaded file into memory
+    # -----------------------------------------------------
+    # Read file into memory
+    # -----------------------------------------------------
+
     file_bytes = uploaded_file.read()
 
     if not file_bytes:
@@ -381,7 +439,10 @@ def scan():
             error="Uploaded file is empty."
         )
 
+    # -----------------------------------------------------
     # Decode QR
+    # -----------------------------------------------------
+
     url = decode_qr(
         file_bytes
     )
@@ -393,16 +454,26 @@ def scan():
             error="Could not detect a URL from this QR image."
         )
 
+    # -----------------------------------------------------
     # Analyze URL
+    # -----------------------------------------------------
+
     risk_level, score, reasons = analyze_url(
         url
     )
+
+    # -----------------------------------------------------
+    # Save reasons
+    # -----------------------------------------------------
 
     reasons_text = " | ".join(
         reasons
     )
 
-    # Save scan
+    # -----------------------------------------------------
+    # Save scan to database
+    # -----------------------------------------------------
+
     conn = sqlite3.connect(
         DB_PATH
     )
@@ -423,11 +494,33 @@ def scan():
     scan_id = cursor.lastrowid
 
     conn.commit()
+
     conn.close()
 
+    # =====================================================
+    # IMPORTANT FIX
+    # result.html expects "result"
+    # =====================================================
+
+    result = {
+        "id": scan_id,
+        "url": url,
+        "risk": risk_level,
+        "risk_level": risk_level,
+        "score": score,
+        "reasons": reasons
+    }
+
+    # -----------------------------------------------------
     # Display result
+    # -----------------------------------------------------
+
     return render_template(
         "result.html",
+        result=result,
+
+        # Also keep individual variables
+        # in case result.html uses them
         scan_id=scan_id,
         url=url,
         risk_level=risk_level,
@@ -444,6 +537,7 @@ def scan():
 def dashboard():
 
     if "username" not in session:
+
         return redirect(
             url_for("login")
         )
@@ -487,8 +581,6 @@ def dashboard():
 
     conn.close()
 
-    # dashboard.html expects stats.total,
-    # stats.high, stats.medium and stats.low
     stats = {
         "total": total_scans,
         "high": high_risk,
@@ -510,6 +602,7 @@ def dashboard():
 def history():
 
     if "username" not in session:
+
         return redirect(
             url_for("login")
         )
@@ -551,6 +644,7 @@ def history():
 def report(scan_id):
 
     if "username" not in session:
+
         return redirect(
             url_for("login")
         )
@@ -579,9 +673,13 @@ def report(scan_id):
     conn.close()
 
     if scan is None:
+
         return "Scan not found", 404
 
+    # -----------------------------------------------------
     # ReportLab
+    # -----------------------------------------------------
+
     from reportlab.pdfgen import canvas
 
     pdf_buffer = io.BytesIO()
