@@ -1,5 +1,4 @@
 import os
-import re
 import io
 import sqlite3
 import ipaddress
@@ -32,15 +31,11 @@ app.secret_key = os.environ.get("SECRET_KEY", "qrgurad-secret-key")
 # =========================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 
-# Vercel filesystem is read-only except /tmp
 if os.environ.get("VERCEL"):
     DB_PATH = "/tmp/qrgurad.db"
-    PDF_DIR = "/tmp"
 else:
     DB_PATH = os.path.join(BASE_DIR, "qrgurad.db")
-    PDF_DIR = BASE_DIR
 
 
 # =========================================================
@@ -67,8 +62,10 @@ def init_db():
         )
     """)
 
-    # Migration for older database versions
-    columns = conn.execute("PRAGMA table_info(scans)").fetchall()
+    columns = conn.execute(
+        "PRAGMA table_info(scans)"
+    ).fetchall()
+
     column_names = [column["name"] for column in columns]
 
     if "created_at" not in column_names:
@@ -94,68 +91,67 @@ init_db()
 # =========================================================
 
 def decode_qr_image(image_bytes):
-    """
-    Decode QR code directly from uploaded bytes.
-    No permanent upload folder is required.
-    """
 
     if not image_bytes:
         return None
 
     try:
-        # Convert uploaded bytes into numpy array
-        np_data = np.frombuffer(image_bytes, np.uint8)
 
-        # Decode image in memory
-        image = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
+        np_data = np.frombuffer(
+            image_bytes,
+            np.uint8
+        )
+
+        image = cv2.imdecode(
+            np_data,
+            cv2.IMREAD_COLOR
+        )
 
         if image is None:
             return None
 
         detector = cv2.QRCodeDetector()
 
-        # ---------------------------------------------
-        # Attempt 1 - normal detection
-        # ---------------------------------------------
+        # Attempt 1
         data, points, _ = detector.detectAndDecode(image)
 
         if data:
             return data.strip()
 
-        # ---------------------------------------------
-        # Attempt 2 - resize image
-        # ---------------------------------------------
+        # Attempt 2 - resize
         height, width = image.shape[:2]
 
         if width > 0 and height > 0:
-            scale = 2
 
             resized = cv2.resize(
                 image,
                 None,
-                fx=scale,
-                fy=scale,
+                fx=2,
+                fy=2,
                 interpolation=cv2.INTER_CUBIC
             )
 
-            data, points, _ = detector.detectAndDecode(resized)
+            data, points, _ = detector.detectAndDecode(
+                resized
+            )
 
             if data:
                 return data.strip()
 
-        # ---------------------------------------------
         # Attempt 3 - grayscale
-        # ---------------------------------------------
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(
+            image,
+            cv2.COLOR_BGR2GRAY
+        )
 
-        data, points, _ = detector.detectAndDecode(gray)
+        data, points, _ = detector.detectAndDecode(
+            gray
+        )
 
         if data:
             return data.strip()
 
-        # ---------------------------------------------
         # Attempt 4 - adaptive threshold
-        # ---------------------------------------------
         threshold = cv2.adaptiveThreshold(
             gray,
             255,
@@ -165,7 +161,9 @@ def decode_qr_image(image_bytes):
             2
         )
 
-        data, points, _ = detector.detectAndDecode(threshold)
+        data, points, _ = detector.detectAndDecode(
+            threshold
+        )
 
         if data:
             return data.strip()
@@ -173,7 +171,9 @@ def decode_qr_image(image_bytes):
         return None
 
     except Exception as e:
+
         print("QR Decode Error:", e)
+
         return None
 
 
@@ -182,6 +182,7 @@ def decode_qr_image(image_bytes):
 # =========================================================
 
 def validate_url(url):
+
     if not url:
         return False
 
@@ -192,7 +193,10 @@ def validate_url(url):
 
     parsed = urlparse(url)
 
-    if parsed.scheme not in ("http", "https"):
+    if parsed.scheme not in (
+        "http",
+        "https"
+    ):
         return False
 
     if not parsed.netloc:
@@ -216,57 +220,57 @@ def analyze_url(url):
     path = parsed.path or ""
     query = parsed.query or ""
 
-    # -----------------------------------------------------
-    # 1. Very long URL
-    # -----------------------------------------------------
+    # 1. Long URL
     if len(url) > 100:
+
         score += 15
+
         reasons.append(
             "URL is unusually long."
         )
 
-    # -----------------------------------------------------
-    # 2. HTTP instead of HTTPS
-    # -----------------------------------------------------
+    # 2. HTTP
     if parsed.scheme.lower() != "https":
+
         score += 15
+
         reasons.append(
             "URL does not use HTTPS."
         )
 
-    # -----------------------------------------------------
-    # 3. IP address as hostname
-    # -----------------------------------------------------
+    # 3. IP address
     try:
+
         ipaddress.ip_address(hostname)
+
         score += 25
+
         reasons.append(
             "URL uses an IP address instead of a normal domain name."
         )
+
     except ValueError:
         pass
 
-    # -----------------------------------------------------
-    # 4. Embedded username/password
-    # -----------------------------------------------------
+    # 4. Username/password
     if parsed.username or parsed.password:
+
         score += 20
+
         reasons.append(
             "URL contains embedded username or password information."
         )
 
-    # -----------------------------------------------------
     # 5. @ symbol
-    # -----------------------------------------------------
     if "@" in url:
+
         score += 10
+
         reasons.append(
             "URL contains '@', which can be used to disguise the real host."
         )
 
-    # -----------------------------------------------------
     # 6. Suspicious keywords
-    # -----------------------------------------------------
     suspicious_keywords = [
         "login",
         "verify",
@@ -280,105 +284,112 @@ def analyze_url(url):
         "signin"
     ]
 
-    found_keywords = []
-
     lower_url = url.lower()
 
+    found_keywords = []
+
     for keyword in suspicious_keywords:
+
         if keyword in lower_url:
             found_keywords.append(keyword)
 
     if found_keywords:
+
         score += 10
+
         reasons.append(
             "URL contains suspicious security/account-related keywords."
         )
 
-    # -----------------------------------------------------
-    # 7. Too many dots
-    # -----------------------------------------------------
+    # 7. Many subdomains
     if hostname.count(".") >= 3:
+
         score += 10
+
         reasons.append(
             "Hostname contains many subdomains."
         )
 
-    # -----------------------------------------------------
     # 8. Hyphen
-    # -----------------------------------------------------
     if "-" in hostname:
+
         score += 5
+
         reasons.append(
             "Hostname contains hyphens."
         )
 
-    # -----------------------------------------------------
-    # 9. Many digits
-    # -----------------------------------------------------
-    digit_count = sum(char.isdigit() for char in hostname)
+    # 9. Digits
+    digit_count = sum(
+        char.isdigit()
+        for char in hostname
+    )
 
     if digit_count >= 3:
+
         score += 5
+
         reasons.append(
             "Hostname contains several digits."
         )
 
-    # -----------------------------------------------------
     # 10. Long hostname
-    # -----------------------------------------------------
     if len(hostname) > 30:
+
         score += 10
+
         reasons.append(
             "Hostname is unusually long."
         )
 
-    # -----------------------------------------------------
     # 11. Special characters
-    # -----------------------------------------------------
     if "%" in url or "_" in hostname:
+
         score += 5
+
         reasons.append(
             "URL contains unusual encoding or hostname characters."
         )
 
-    # -----------------------------------------------------
-    # 12. URL encoding changes
-    # -----------------------------------------------------
+    # 12. URL encoding
     try:
+
         decoded_url = unquote(url)
 
         if decoded_url != url:
+
             score += 10
+
             reasons.append(
                 "URL contains encoded characters."
             )
+
     except Exception:
         pass
 
-    # -----------------------------------------------------
     # 13. Long path
-    # -----------------------------------------------------
     if len(path) > 60:
+
         score += 10
+
         reasons.append(
             "URL path is unusually long."
         )
 
-    # -----------------------------------------------------
-    # 14. Many query parameters
-    # -----------------------------------------------------
+    # 14. Query parameters
     if query:
+
         parameter_count = query.count("&") + 1
 
         if parameter_count >= 4:
+
             score += 10
+
             reasons.append(
                 "URL contains many query parameters."
             )
 
-    # -----------------------------------------------------
     # 15. Dangerous file extensions
-    # -----------------------------------------------------
     dangerous_extensions = (
         ".exe",
         ".scr",
@@ -387,82 +398,95 @@ def analyze_url(url):
         ".apk"
     )
 
-    if path.lower().endswith(dangerous_extensions):
+    if path.lower().endswith(
+        dangerous_extensions
+    ):
+
         score += 15
+
         reasons.append(
             "URL points to a potentially dangerous executable file type."
         )
 
-    # -----------------------------------------------------
-    # 16. Punycode / IDN
-    # -----------------------------------------------------
+    # 16. Punycode
     if "xn--" in hostname.lower():
+
         score += 15
+
         reasons.append(
             "Hostname uses Punycode/IDN encoding."
         )
 
-    # -----------------------------------------------------
     # 17. Multiple hyphens
-    # -----------------------------------------------------
     if hostname.count("-") >= 3:
+
         score += 10
+
         reasons.append(
             "Hostname contains multiple hyphens."
         )
 
-    # -----------------------------------------------------
     # 18. Non-standard port
-    # -----------------------------------------------------
     try:
+
         port = parsed.port
 
-        if port and port not in (80, 443):
+        if port and port not in (
+            80,
+            443
+        ):
+
             score += 10
+
             reasons.append(
                 "URL uses a non-standard network port."
             )
 
     except ValueError:
+
         score += 10
+
         reasons.append(
             "URL contains an invalid port value."
         )
 
-    # -----------------------------------------------------
-    # 19. Very long hostname label
-    # -----------------------------------------------------
+    # 19. Long hostname label
     labels = hostname.split(".")
 
     for label in labels:
+
         if len(label) > 25:
+
             score += 5
+
             reasons.append(
                 "Hostname contains an unusually long domain label."
             )
+
             break
 
-    # -----------------------------------------------------
     # Limit score
-    # -----------------------------------------------------
     score = min(score, 100)
 
-    # -----------------------------------------------------
     # Risk classification
-    # -----------------------------------------------------
     if score <= 30:
+
         risk = "LOW RISK"
 
     elif score <= 60:
+
         risk = "MEDIUM RISK"
 
     else:
+
         risk = "HIGH RISK"
 
-    # Remove duplicate reasons
-    reasons = list(dict.fromkeys(reasons))
+    reasons = list(
+        dict.fromkeys(reasons)
+    )
 
     if not reasons:
+
         reasons.append(
             "No major suspicious URL characteristics were detected."
         )
@@ -474,7 +498,12 @@ def analyze_url(url):
 # SAVE SCAN
 # =========================================================
 
-def save_scan(url, score, risk, reasons):
+def save_scan(
+    url,
+    score,
+    risk,
+    reasons
+):
 
     conn = get_db()
 
@@ -500,23 +529,42 @@ def save_scan(url, score, risk, reasons):
 # LOGIN
 # =========================================================
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route(
+    "/login",
+    methods=["GET", "POST"]
+)
 def login():
 
     if request.method == "POST":
 
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
 
-        # Keep your existing admin credentials
-        if username == "admin" and password == "qrgurad123":
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        if (
+            username == "admin"
+            and password == "qrgurad123"
+        ):
 
             session["logged_in"] = True
-            return redirect(url_for("index"))
 
-        flash("Invalid username or password.")
+            return redirect(
+                url_for("index")
+            )
 
-    return render_template("login.html")
+        flash(
+            "Invalid username or password."
+        )
+
+    return render_template(
+        "login.html"
+    )
 
 
 @app.route("/logout")
@@ -524,76 +572,110 @@ def logout():
 
     session.clear()
 
-    return redirect(url_for("login"))
+    return redirect(
+        url_for("login")
+    )
 
-
-# =========================================================
-# LOGIN PROTECTION
-# =========================================================
 
 def require_login():
 
-    return session.get("logged_in") is True
+    return session.get(
+        "logged_in"
+    ) is True
 
 
 # =========================================================
-# HOME / SCANNER
+# HOME
 # =========================================================
 
 @app.route("/")
 def index():
 
     if not require_login():
-        return redirect(url_for("login"))
 
-    return render_template("index.html")
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "index.html"
+    )
 
 
 # =========================================================
 # QR SCAN
 # =========================================================
 
-@app.route("/scan", methods=["POST"])
+@app.route(
+    "/scan",
+    methods=["POST"]
+)
 def scan():
 
     if not require_login():
-        return redirect(url_for("login"))
 
-    uploaded_file = request.files.get("qr_image")
+        return redirect(
+            url_for("login")
+        )
+
+    uploaded_file = request.files.get(
+        "qr_image"
+    )
 
     if not uploaded_file:
-        flash("Please select a QR image.")
-        return redirect(url_for("index"))
+
+        flash(
+            "Please select a QR image."
+        )
+
+        return redirect(
+            url_for("index")
+        )
 
     try:
+
         image_bytes = uploaded_file.read()
 
         if not image_bytes:
-            flash("Uploaded image is empty.")
-            return redirect(url_for("index"))
 
-        # Decode QR directly from memory
-        url = decode_qr_image(image_bytes)
+            flash(
+                "Uploaded image is empty."
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+        url = decode_qr_image(
+            image_bytes
+        )
 
         if not url:
+
             flash(
                 "QR code could not be detected. "
                 "Try a clear PNG/JPG image."
             )
-            return redirect(url_for("index"))
 
-        # Validate decoded content
+            return redirect(
+                url_for("index")
+            )
+
         if not validate_url(url):
+
             flash(
                 "QR code was detected, but it does not contain "
                 "a valid HTTP/HTTPS URL."
             )
-            return redirect(url_for("index"))
 
-        # Analyze URL
-        score, risk, reasons = analyze_url(url)
+            return redirect(
+                url_for("index")
+            )
 
-        # Save result
+        score, risk, reasons = analyze_url(
+            url
+        )
+
         save_scan(
             url,
             score,
@@ -611,13 +693,18 @@ def scan():
 
     except Exception as e:
 
-        print("Scan Error:", e)
+        print(
+            "Scan Error:",
+            e
+        )
 
         flash(
             "An error occurred while processing the QR image."
         )
 
-        return redirect(url_for("index"))
+        return redirect(
+            url_for("index")
+        )
 
 
 # =========================================================
@@ -628,7 +715,10 @@ def scan():
 def dashboard():
 
     if not require_login():
-        return redirect(url_for("login"))
+
+        return redirect(
+            url_for("login")
+        )
 
     conn = get_db()
 
@@ -637,15 +727,18 @@ def dashboard():
     ).fetchone()["count"]
 
     low = conn.execute(
-        "SELECT COUNT(*) AS count FROM scans WHERE risk = 'LOW RISK'"
+        "SELECT COUNT(*) AS count FROM scans "
+        "WHERE risk = 'LOW RISK'"
     ).fetchone()["count"]
 
     medium = conn.execute(
-        "SELECT COUNT(*) AS count FROM scans WHERE risk = 'MEDIUM RISK'"
+        "SELECT COUNT(*) AS count FROM scans "
+        "WHERE risk = 'MEDIUM RISK'"
     ).fetchone()["count"]
 
     high = conn.execute(
-        "SELECT COUNT(*) AS count FROM scans WHERE risk = 'HIGH RISK'"
+        "SELECT COUNT(*) AS count FROM scans "
+        "WHERE risk = 'HIGH RISK'"
     ).fetchone()["count"]
 
     recent_scans = conn.execute(
@@ -677,10 +770,20 @@ def dashboard():
 def history():
 
     if not require_login():
-        return redirect(url_for("login"))
 
-    search = request.args.get("search", "").strip()
-    risk_filter = request.args.get("risk", "").strip()
+        return redirect(
+            url_for("login")
+        )
+
+    search = request.args.get(
+        "search",
+        ""
+    ).strip()
+
+    risk_filter = request.args.get(
+        "risk",
+        ""
+    ).strip()
 
     conn = get_db()
 
@@ -693,16 +796,24 @@ def history():
     params = []
 
     if search:
+
         query += " AND url LIKE ?"
-        params.append("%" + search + "%")
+
+        params.append(
+            "%" + search + "%"
+        )
 
     if risk_filter in (
         "LOW RISK",
         "MEDIUM RISK",
         "HIGH RISK"
     ):
+
         query += " AND risk = ?"
-        params.append(risk_filter)
+
+        params.append(
+            risk_filter
+        )
 
     query += " ORDER BY id DESC"
 
@@ -716,15 +827,18 @@ def history():
     ).fetchone()["count"]
 
     low = conn.execute(
-        "SELECT COUNT(*) AS count FROM scans WHERE risk='LOW RISK'"
+        "SELECT COUNT(*) AS count FROM scans "
+        "WHERE risk='LOW RISK'"
     ).fetchone()["count"]
 
     medium = conn.execute(
-        "SELECT COUNT(*) AS count FROM scans WHERE risk='MEDIUM RISK'"
+        "SELECT COUNT(*) AS count FROM scans "
+        "WHERE risk='MEDIUM RISK'"
     ).fetchone()["count"]
 
     high = conn.execute(
-        "SELECT COUNT(*) AS count FROM scans WHERE risk='HIGH RISK'"
+        "SELECT COUNT(*) AS count FROM scans "
+        "WHERE risk='HIGH RISK'"
     ).fetchone()["count"]
 
     conn.close()
@@ -745,11 +859,16 @@ def history():
 # PDF REPORT
 # =========================================================
 
-@app.route("/report/<int:scan_id>")
+@app.route(
+    "/report/<int:scan_id>"
+)
 def report(scan_id):
 
     if not require_login():
-        return redirect(url_for("login"))
+
+        return redirect(
+            url_for("login")
+        )
 
     conn = get_db()
 
@@ -761,10 +880,15 @@ def report(scan_id):
     conn.close()
 
     if not scan:
-        flash("Scan record not found.")
-        return redirect(url_for("history"))
 
-    # Generate PDF in memory
+        flash(
+            "Scan record not found."
+        )
+
+        return redirect(
+            url_for("history")
+        )
+
     pdf_buffer = io.BytesIO()
 
     pdf = canvas.Canvas(
@@ -776,7 +900,6 @@ def report(scan_id):
 
     y = height - 60
 
-    # Title
     pdf.setFont(
         "Helvetica-Bold",
         20
@@ -829,7 +952,6 @@ def report(scan_id):
         10
     )
 
-    # Wrap URL
     url_text = scan["url"]
 
     max_chars = 90
@@ -843,7 +965,9 @@ def report(scan_id):
         pdf.drawString(
             50,
             y,
-            url_text[i:i + max_chars]
+            url_text[
+                i:i + max_chars
+            ]
         )
 
         y -= 16
@@ -884,13 +1008,18 @@ def report(scan_id):
         10
     )
 
-    reasons = (scan["reasons"] or "").split("\n")
+    reasons = (
+        scan["reasons"] or ""
+    ).split("\n")
 
     for reason in reasons:
 
         if y < 60:
+
             pdf.showPage()
+
             y = height - 60
+
             pdf.setFont(
                 "Helvetica",
                 10
@@ -899,7 +1028,7 @@ def report(scan_id):
         pdf.drawString(
             60,
             y,
-            "• " + reason
+            "- " + reason
         )
 
         y -= 18
