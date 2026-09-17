@@ -1,12 +1,19 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification"
+          content="bdFd29_fwLQDwspw717PsfaTVk0j3h4SZpwQvOM57-Q" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QRGuard | QR Scanner</title>
+    <title>QRGuard | QR Security Scanner</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
     <style>
         * {
@@ -19,28 +26,21 @@
             min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
             background:
-                radial-gradient(circle at top right, rgba(123, 63, 170, 0.25), transparent 35%),
-                radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.12), transparent 35%),
-                #05070d;
+                radial-gradient(circle at 15% 20%, rgba(126, 87, 194, 0.18), transparent 30%),
+                radial-gradient(circle at 85% 80%, rgba(212, 175, 55, 0.12), transparent 30%),
+                #05060a;
             color: #ffffff;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* ================= TOPBAR ================= */
-
         .topbar {
-            width: 100%;
-            padding: 18px 6%;
+            height: 76px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 6%;
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            background: rgba(5,7,13,0.92);
-            backdrop-filter: blur(15px);
+            background: rgba(5,6,10,0.88);
+            backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -50,136 +50,114 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            text-decoration: none;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
         }
 
         .shield {
             width: 42px;
-            height: 48px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(145deg, #f3d36b, #9b7417);
-            clip-path: polygon(
-                50% 0%,
-                90% 15%,
-                90% 60%,
-                50% 100%,
-                10% 60%,
-                10% 15%
-            );
-            color: #08090d;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .brand-name {
+            border: 1px solid #d4af37;
+            border-radius: 12px;
+            color: #d4af37;
             font-size: 21px;
-            font-weight: 800;
-            letter-spacing: 1px;
+            box-shadow: 0 0 22px rgba(212,175,55,0.18);
         }
 
-        .brand-name span {
-            color: #e5c35b;
+        .brand span {
+            color: #d4af37;
         }
 
         .nav {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 22px;
         }
 
         .nav a {
-            padding: 10px 15px;
-            border-radius: 10px;
-            color: #d7d7df;
+            color: #c8c8d0;
+            text-decoration: none;
             font-size: 14px;
-            transition: 0.25s;
+            transition: 0.2s;
         }
 
         .nav a:hover {
-            color: #ffffff;
-            background: rgba(255,255,255,0.07);
+            color: #d4af37;
         }
 
         .logout {
-            border: 1px solid rgba(229,195,91,0.35);
-            color: #e5c35b !important;
+            padding: 10px 16px;
+            border: 1px solid rgba(212,175,55,0.45);
+            border-radius: 10px;
         }
 
-        /* ================= MAIN ================= */
-
         .container {
-            width: 90%;
-            max-width: 1150px;
-            margin: auto;
-            padding: 55px 0 70px;
+            width: min(1120px, 92%);
+            margin: 0 auto;
+            padding: 70px 0;
         }
 
         .hero {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 45px;
         }
 
-        .hero-badge {
+        .badge {
             display: inline-block;
-            padding: 7px 15px;
+            padding: 8px 16px;
             border-radius: 30px;
-            border: 1px solid rgba(229,195,91,0.35);
-            background: rgba(229,195,91,0.08);
-            color: #e5c35b;
+            border: 1px solid rgba(212,175,55,0.35);
+            background: rgba(212,175,55,0.08);
+            color: #d4af37;
             font-size: 12px;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(38px, 6vw, 68px);
+            line-height: 1.05;
             margin-bottom: 18px;
         }
 
-        .hero h1 {
-            font-size: clamp(32px, 5vw, 55px);
-            margin-bottom: 15px;
-            line-height: 1.1;
-        }
-
-        .hero h1 span {
-            background: linear-gradient(
-                90deg,
-                #ffffff,
-                #e5c35b,
-                #a56de2
-            );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        h1 span {
+            color: #d4af37;
         }
 
         .hero p {
             max-width: 680px;
             margin: auto;
-            color: #a9acb8;
+            color: #a9a9b4;
             line-height: 1.7;
-            font-size: 15px;
+            font-size: 16px;
         }
 
-        /* ================= SCANNER CARD ================= */
-
         .scanner-card {
-            max-width: 700px;
-            margin: auto;
+            max-width: 760px;
+            margin: 0 auto;
             padding: 38px;
             border-radius: 24px;
+            border: 1px solid rgba(212,175,55,0.22);
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,255,255,0.075),
-                    rgba(255,255,255,0.025)
+                    rgba(255,255,255,0.055),
+                    rgba(255,255,255,0.018)
                 );
-            border: 1px solid rgba(255,255,255,0.10);
             box-shadow:
-                0 25px 80px rgba(0,0,0,0.45),
-                0 0 60px rgba(123,63,170,0.08);
+                0 30px 90px rgba(0,0,0,0.45),
+                0 0 45px rgba(106,76,147,0.08);
             backdrop-filter: blur(18px);
         }
 
         .scanner-title {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 25px;
         }
 
         .scanner-title h2 {
@@ -188,28 +166,27 @@
         }
 
         .scanner-title p {
-            color: #9295a2;
+            color: #8f8f9b;
             font-size: 14px;
         }
 
-        /* ================= UPLOAD ================= */
-
         .upload-area {
-            border: 2px dashed rgba(229,195,91,0.35);
+            border: 2px dashed rgba(212,175,55,0.35);
             border-radius: 18px;
-            padding: 38px 20px;
+            padding: 42px 20px;
             text-align: center;
-            background: rgba(229,195,91,0.025);
-            transition: 0.3s;
+            cursor: pointer;
+            background: rgba(212,175,55,0.025);
+            transition: 0.25s;
         }
 
         .upload-area:hover {
-            border-color: rgba(229,195,91,0.75);
-            background: rgba(229,195,91,0.055);
+            border-color: #d4af37;
+            background: rgba(212,175,55,0.055);
         }
 
         .upload-icon {
-            font-size: 45px;
+            font-size: 48px;
             margin-bottom: 15px;
         }
 
@@ -218,573 +195,45 @@
         }
 
         .upload-area p {
-            color: #9295a2;
+            color: #858592;
             font-size: 13px;
-            margin-bottom: 20px;
         }
 
-        .file-label {
-            display: inline-block;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            background: linear-gradient(
-                135deg,
-                #e5c35b,
-                #a47b19
-            );
-            color: #090a0f;
-            font-weight: bold;
-            font-size: 14px;
-            transition: 0.25s;
-        }
-
-        .file-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(229,195,91,0.18);
-        }
-
-        #qr_file {
+        input[type="file"] {
             display: none;
         }
 
-        #file-name {
+        .file-name {
             margin-top: 15px;
-            color: #e5c35b;
+            color: #d4af37;
             font-size: 13px;
-            word-break: break-word;
+            min-height: 18px;
         }
-
-        .formats {
-            margin-top: 18px;
-            color: #777b88;
-            font-size: 12px;
-        }
-
-        /* ================= BUTTON ================= */
 
         .scan-btn {
             width: 100%;
-            margin-top: 25px;
-            padding: 15px;
+            margin-top: 24px;
+            padding: 16px;
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            background: linear-gradient(
-                135deg,
-                #e5c35b,
-                #b48724
-            );
-            color: #08090d;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
-            letter-spacing: 0.3px;
-            transition: 0.25s;
+            color: #08090c;
+            background: linear-gradient(135deg, #d4af37, #f1d77a);
+            box-shadow: 0 10px 30px rgba(212,175,55,0.18);
+            transition: 0.2s;
         }
 
         .scan-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(229,195,91,0.18);
+            box-shadow: 0 14px 35px rgba(212,175,55,0.28);
         }
-
-        /* ================= ERROR ================= */
 
         .error {
-            margin-bottom: 22px;
-            padding: 14px 17px;
+            margin: 20px auto 0;
+            max-width: 760px;
+            padding: 14px 18px;
             border-radius: 12px;
-            background: rgba(220,53,69,0.10);
-            border: 1px solid rgba(220,53,69,0.30);
-            color: #ff8e99;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        /* ================= NOTICE ================= */
-
-        .notice {
-            max-width: 700px;
-            margin: 25px auto 0;
-            padding: 17px 20px;
-            border-radius: 14px;
-            background: rgba(123,63,170,0.08);
-            border: 1px solid rgba(123,63,170,0.20);
-            color: #aeb0bd;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .notice strong {
-            color: #c18bea;
-        }
-
-        /* ================= FEATURES ================= */
-
-        .section-title {
-            text-align: center;
-            margin: 65px 0 25px;
-        }
-
-        .section-title h2 {
-            font-size: 27px;
-            margin-bottom: 8px;
-        }
-
-        .section-title p {
-            color: #858895;
-            font-size: 14px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-        }
-
-        .feature {
-            padding: 25px;
-            border-radius: 18px;
-            background: rgba(255,255,255,0.035);
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .feature-icon {
-            font-size: 28px;
-            margin-bottom: 15px;
-        }
-
-        .feature h3 {
-            margin-bottom: 8px;
-            font-size: 17px;
-        }
-
-        .feature p {
-            color: #888b98;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        /* ================= FOOTER ================= */
-
-        footer {
-            text-align: center;
-            padding: 25px;
-            color: #666a77;
-            font-size: 12px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
-
-        /* ================= MOBILE ================= */
-
-        @media (max-width: 800px) {
-
-            .topbar {
-                padding: 15px 4%;
-            }
-
-            .nav {
-                gap: 3px;
-            }
-
-            .nav a {
-                padding: 8px 9px;
-                font-size: 12px;
-            }
-
-            .container {
-                width: 92%;
-                padding-top: 40px;
-            }
-
-            .scanner-card {
-                padding: 25px 18px;
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 520px) {
-
-            .brand-name {
-                font-size: 17px;
-            }
-
-            .shield {
-                width: 35px;
-                height: 40px;
-                font-size: 16px;
-            }
-
-            .nav a:nth-child(2) {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 34px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- ================= TOPBAR ================= -->
-
-    <header class="topbar">
-
-        <a href="{{ url_for('index') }}" class="brand">
-
-            <div class="shield">
-                Q
-            </div>
-
-            <div class="brand-name">
-                QR<span>Guard</span>
-            </div>
-
-        </a>
-
-        <nav class="nav">
-
-            <a href="{{ url_for('index') }}">
-                Scanner
-            </a>
-
-            <a href="{{ url_for('dashboard') }}">
-                Dashboard
-            </a>
-
-            <a href="{{ url_for('history') }}">
-                History
-            </a>
-
-            <a href="{{ url_for('logout') }}" class="logout">
-                Logout
-            </a>
-
-        </nav>
-
-    </header>
-
-
-    <!-- ================= MAIN ================= -->
-
-    <main class="container">
-
-        <section class="hero">
-
-            <div class="hero-badge">
-                CYBER SECURITY • QR ANALYSIS
-            </div>
-
-            <h1>
-                Scan. <span>Analyze. Protect.</span>
-            </h1>
-
-            <p>
-                QRGuard analyzes QR-code URLs using static security
-                heuristics and identifies suspicious indicators
-                without automatically opening the destination website.
-            </p>
-
-        </section>
-
-
-        <!-- ================= SCANNER ================= -->
-
-        <section class="scanner-card">
-
-            <div class="scanner-title">
-
-                <h2>
-                    QR Security Scanner
-                </h2>
-
-                <p>
-                    Upload a QR image to begin security analysis.
-                </p>
-
-            </div>
-
-
-            {% if error %}
-
-            <div class="error">
-                {{ error }}
-            </div>
-
-            {% endif %}
-
-
-            <!-- IMPORTANT: POST /scan -->
-
-            <form
-                method="POST"
-                action="{{ url_for('scan') }}"
-                enctype="multipart/form-data"
-            >
-
-                <div class="upload-area">
-
-                    <div class="upload-icon">
-                        📱
-                    </div>
-
-                    <h3>
-                        Upload QR Code
-                    </h3>
-
-                    <p>
-                        Select a clear QR-code image from your device.
-                    </p>
-
-
-                    <label
-                        for="qr_file"
-                        class="file-label"
-                    >
-                        Choose QR Image
-                    </label>
-
-                    <input
-                        type="file"
-                        id="qr_file"
-                        name="qr_file"
-                        accept=".png,.jpg,.jpeg,.webp,.bmp,image/png,image/jpeg,image/webp,image/bmp"
-                        required
-                    >
-
-                    <div id="file-name">
-                        No file selected
-                    </div>
-
-                    <div class="formats">
-                        PNG • JPG • JPEG • WEBP • BMP
-                        <br>
-                        Maximum file size: 5 MB
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="scan-btn"
-                >
-                    🔍 Scan QR Code
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- ================= PRIVACY NOTICE ================= -->
-
-        <div class="notice">
-
-            <strong>🔒 Security & Privacy:</strong>
-
-            QRGuard performs static URL analysis.
-            The extracted website is not automatically opened or visited.
-            Uploaded QR images are processed temporarily and are not
-            permanently stored by the scanner.
-
-        </div>
-
-
-        <!-- ================= HOW IT WORKS ================= -->
-
-        <section>
-
-            <div class="section-title">
-
-                <h2>
-                    How QRGuard Works
-                </h2>
-
-                <p>
-                    A simple defensive cybersecurity analysis workflow.
-                </p>
-
-            </div>
-
-
-            <div class="feature-grid">
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        📷
-                    </div>
-
-                    <h3>
-                        01. QR Detection
-                    </h3>
-
-                    <p>
-                        The uploaded QR image is decoded locally
-                        to extract its embedded data.
-                    </p>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        🔎
-                    </div>
-
-                    <h3>
-                        02. URL Analysis
-                    </h3>
-
-                    <p>
-                        The extracted URL is checked for suspicious
-                        security indicators using predefined rules.
-                    </p>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        🛡️
-                    </div>
-
-                    <h3>
-                        03. Risk Assessment
-                    </h3>
-
-                    <p>
-                        Indicators receive weighted points and the
-                        final result is classified as LOW, MEDIUM,
-                        or HIGH risk.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= CHECKS ================= -->
-
-        <section>
-
-            <div class="section-title">
-
-                <h2>
-                    What QRGuard Checks
-                </h2>
-
-                <p>
-                    Multiple URL characteristics are examined.
-                </p>
-
-            </div>
-
-
-            <div class="feature-grid">
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        🌐
-                    </div>
-
-                    <h3>
-                        URL Structure
-                    </h3>
-
-                    <p>
-                        HTTPS usage, URL length, hostname structure,
-                        ports and unusual URL patterns.
-                    </p>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        ⚠️
-                    </div>
-
-                    <h3>
-                        Suspicious Indicators
-                    </h3>
-
-                    <p>
-                        IP addresses, suspicious keywords, punycode,
-                        encoded characters and unusual domains.
-                    </p>
-
-                </div>
-
-
-                <div class="feature">
-
-                    <div class="feature-icon">
-                        📊
-                    </div>
-
-                    <h3>
-                        Risk Score
-                    </h3>
-
-                    <p>
-                        Each detected indicator contributes weighted
-                        points to the overall security score.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer>
-
-        QRGuard © 2026 | QR-Code Phishing Detection System
-
-    </footer>
-
-
-    <!-- ================= FILE NAME SCRIPT ================= -->
-
-    <script>
-
-        const fileInput = document.getElementById("qr_file");
-        const fileName = document.getElementById("file-name");
-
-        fileInput.addEventListener("change", function () {
-
-            if (this.files && this.files.length > 0) {
-
-                fileName.textContent =
-                    "Selected: " + this.files[0].name;
-
-            } else {
-
-                fileName.textContent =
-                    "No file selected";
-
-            }
-
-        });
-
-    </script>
-
-</body>
-</html>
+            border: 1p
+```
