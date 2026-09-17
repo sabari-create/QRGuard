@@ -9,7 +9,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 
 
 # =========================================================
-# FLASK APP
+# QRGuard Flask Application
 # =========================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +36,6 @@ else:
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
-
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -67,12 +66,14 @@ def analyze_url(url):
 
     url_lower = url.lower()
 
-    # HTTP
+    # HTTP check
     if url_lower.startswith("http://"):
         score += 15
-        reasons.append("URL is using HTTP instead of HTTPS.")
+        reasons.append(
+            "URL is using HTTP instead of HTTPS."
+        )
 
-    # IP address
+    # IP address check
     ip_pattern = r"https?://(?:\d{1,3}\.){3}\d{1,3}"
 
     if re.search(ip_pattern, url_lower):
@@ -112,7 +113,9 @@ def analyze_url(url):
     # Long URL
     if len(url) > 100:
         score += 10
-        reasons.append("URL is unusually long.")
+        reasons.append(
+            "URL is unusually long."
+        )
 
     # @ symbol
     if "@" in url:
@@ -123,7 +126,6 @@ def analyze_url(url):
 
     # Multiple subdomains
     try:
-
         domain_part = url.split("://", 1)[1].split("/", 1)[0]
 
         if domain_part.count(".") >= 3:
@@ -161,11 +163,13 @@ def decode_qr(file_bytes):
 
     try:
 
+        # Convert uploaded bytes to NumPy array
         np_array = np.frombuffer(
             file_bytes,
             np.uint8
         )
 
+        # Decode image in memory
         image = cv2.imdecode(
             np_array,
             cv2.IMREAD_COLOR
@@ -177,7 +181,7 @@ def decode_qr(file_bytes):
         detector = cv2.QRCodeDetector()
 
         # -------------------------------------------------
-        # Normal image
+        # Attempt 1 - Normal image
         # -------------------------------------------------
 
         data, points, _ = detector.detectAndDecode(image)
@@ -186,7 +190,7 @@ def decode_qr(file_bytes):
             return data.strip()
 
         # -------------------------------------------------
-        # Resize
+        # Attempt 2 - Resize
         # -------------------------------------------------
 
         height, width = image.shape[:2]
@@ -213,7 +217,7 @@ def decode_qr(file_bytes):
                 return data.strip()
 
         # -------------------------------------------------
-        # Grayscale
+        # Attempt 3 - Grayscale
         # -------------------------------------------------
 
         gray = cv2.cvtColor(
@@ -221,13 +225,15 @@ def decode_qr(file_bytes):
             cv2.COLOR_BGR2GRAY
         )
 
-        data, points, _ = detector.detectAndDecode(gray)
+        data, points, _ = detector.detectAndDecode(
+            gray
+        )
 
         if data:
             return data.strip()
 
         # -------------------------------------------------
-        # Threshold
+        # Attempt 4 - Threshold
         # -------------------------------------------------
 
         _, threshold = cv2.threshold(
@@ -246,7 +252,10 @@ def decode_qr(file_bytes):
 
     except Exception as error:
 
-        print("QR Decode Error:", error)
+        print(
+            "QR Decode Error:",
+            error
+        )
 
         return None
 
@@ -254,23 +263,30 @@ def decode_qr(file_bytes):
 
 
 # =========================================================
-# HOME
+# HOME / SCANNER
 # =========================================================
 
 @app.route("/")
 def home():
 
     if "username" not in session:
-        return redirect(url_for("login"))
+        return redirect(
+            url_for("login")
+        )
 
-    return render_template("index.html")
+    return render_template(
+        "index.html"
+    )
 
 
 # =========================================================
 # LOGIN
 # =========================================================
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route(
+    "/login",
+    methods=["GET", "POST"]
+)
 def login():
 
     if request.method == "POST":
@@ -292,14 +308,18 @@ def login():
 
             session["username"] = username
 
-            return redirect(url_for("home"))
+            return redirect(
+                url_for("home")
+            )
 
         return render_template(
             "login.html",
             error="Invalid username or password"
         )
 
-    return render_template("login.html")
+    return render_template(
+        "login.html"
+    )
 
 
 # =========================================================
@@ -311,22 +331,31 @@ def logout():
 
     session.clear()
 
-    return redirect(url_for("login"))
+    return redirect(
+        url_for("login")
+    )
 
 
 # =========================================================
-# SCAN QR
+# SCAN QR CODE
 # =========================================================
 
-@app.route("/scan", methods=["POST"])
+@app.route(
+    "/scan",
+    methods=["POST"]
+)
 def scan():
 
     if "username" not in session:
-        return redirect(url_for("login"))
+        return redirect(
+            url_for("login")
+        )
 
     # IMPORTANT:
-    # index.html uses name="qr_file"
-    uploaded_file = request.files.get("qr_file")
+    # index.html input name is "qr_file"
+    uploaded_file = request.files.get(
+        "qr_file"
+    )
 
     if uploaded_file is None:
 
@@ -342,6 +371,7 @@ def scan():
             error="Please select a QR image."
         )
 
+    # Read uploaded file into memory
     file_bytes = uploaded_file.read()
 
     if not file_bytes:
@@ -352,7 +382,9 @@ def scan():
         )
 
     # Decode QR
-    url = decode_qr(file_bytes)
+    url = decode_qr(
+        file_bytes
+    )
 
     if not url:
 
@@ -362,12 +394,18 @@ def scan():
         )
 
     # Analyze URL
-    risk_level, score, reasons = analyze_url(url)
+    risk_level, score, reasons = analyze_url(
+        url
+    )
 
-    reasons_text = " | ".join(reasons)
+    reasons_text = " | ".join(
+        reasons
+    )
 
-    # Save result
-    conn = sqlite3.connect(DB_PATH)
+    # Save scan
+    conn = sqlite3.connect(
+        DB_PATH
+    )
 
     cursor = conn.cursor()
 
@@ -387,7 +425,7 @@ def scan():
     conn.commit()
     conn.close()
 
-    # Show result
+    # Display result
     return render_template(
         "result.html",
         scan_id=scan_id,
@@ -406,18 +444,24 @@ def scan():
 def dashboard():
 
     if "username" not in session:
-        return redirect(url_for("login"))
+        return redirect(
+            url_for("login")
+        )
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(
+        DB_PATH
+    )
 
     cursor = conn.cursor()
 
+    # Total scans
     cursor.execute(
         "SELECT COUNT(*) FROM scans"
     )
 
     total_scans = cursor.fetchone()[0]
 
+    # High risk
     cursor.execute(
         "SELECT COUNT(*) FROM scans "
         "WHERE risk_level = 'HIGH'"
@@ -425,6 +469,7 @@ def dashboard():
 
     high_risk = cursor.fetchone()[0]
 
+    # Medium risk
     cursor.execute(
         "SELECT COUNT(*) FROM scans "
         "WHERE risk_level = 'MEDIUM'"
@@ -432,6 +477,7 @@ def dashboard():
 
     medium_risk = cursor.fetchone()[0]
 
+    # Low risk
     cursor.execute(
         "SELECT COUNT(*) FROM scans "
         "WHERE risk_level = 'LOW'"
@@ -441,12 +487,18 @@ def dashboard():
 
     conn.close()
 
+    # dashboard.html expects stats.total,
+    # stats.high, stats.medium and stats.low
+    stats = {
+        "total": total_scans,
+        "high": high_risk,
+        "medium": medium_risk,
+        "low": low_risk
+    }
+
     return render_template(
         "dashboard.html",
-        total_scans=total_scans,
-        high_risk=high_risk,
-        medium_risk=medium_risk,
-        low_risk=low_risk
+        stats=stats
     )
 
 
@@ -458,9 +510,13 @@ def dashboard():
 def history():
 
     if "username" not in session:
-        return redirect(url_for("login"))
+        return redirect(
+            url_for("login")
+        )
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(
+        DB_PATH
+    )
 
     cursor = conn.cursor()
 
@@ -489,13 +545,19 @@ def history():
 # PDF REPORT
 # =========================================================
 
-@app.route("/report/<int:scan_id>")
+@app.route(
+    "/report/<int:scan_id>"
+)
 def report(scan_id):
 
     if "username" not in session:
-        return redirect(url_for("login"))
+        return redirect(
+            url_for("login")
+        )
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(
+        DB_PATH
+    )
 
     cursor = conn.cursor()
 
@@ -508,7 +570,9 @@ def report(scan_id):
             reasons
         FROM scans
         WHERE id = ?
-    """, (scan_id,))
+    """, (
+        scan_id,
+    ))
 
     scan = cursor.fetchone()
 
@@ -517,11 +581,14 @@ def report(scan_id):
     if scan is None:
         return "Scan not found", 404
 
+    # ReportLab
     from reportlab.pdfgen import canvas
 
     pdf_buffer = io.BytesIO()
 
-    pdf = canvas.Canvas(pdf_buffer)
+    pdf = canvas.Canvas(
+        pdf_buffer
+    )
 
     pdf.setTitle(
         "QRGuard Scan Report"
@@ -604,7 +671,7 @@ def health():
 
 
 # =========================================================
-# LOCAL SERVER
+# LOCAL DEVELOPMENT
 # =========================================================
 
 if __name__ == "__main__":
