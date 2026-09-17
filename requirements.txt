@@ -3,3 +3,4 @@ Werkzeug
 opencv-python-headless
 numpy
 reportlab
+Authlib
