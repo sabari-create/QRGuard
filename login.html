@@ -1,882 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>QRGuard | Login</title>
 
     <style>
-
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Arial, sans-serif;
         }
 
-
         body {
-
             min-height: 100vh;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            padding: 25px;
-
+            font-family: Arial, Helvetica, sans-serif;
             color: #ffffff;
 
             background:
                 radial-gradient(
-                    circle at 15% 20%,
-                    rgba(124, 58, 237, 0.30),
+                    circle at 20% 20%,
+                    rgba(116, 43, 255, 0.35),
                     transparent 35%
                 ),
-
                 radial-gradient(
-                    circle at 85% 80%,
-                    rgba(212, 175, 55, 0.16),
+                    circle at 80% 80%,
+                    rgba(255, 193, 7, 0.16),
                     transparent 35%
                 ),
-
                 linear-gradient(
                     135deg,
-                    #02040a,
-                    #080b18 50%,
-                    #12091f
+                    #050509,
+                    #090b18,
+                    #110b20,
+                    #050509
                 );
 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
         }
-
-
-        /* ================= MAIN ================= */
 
         .login-wrapper {
-
             width: 100%;
-            max-width: 430px;
-
+            max-width: 460px;
         }
-
-
-        /* ================= BRAND ================= */
 
         .brand {
-
             text-align: center;
-
             margin-bottom: 25px;
-
         }
 
-
-        .logo {
-
-            width: 78px;
-            height: 78px;
-
-            margin: 0 auto 15px;
+        .shield {
+            width: 76px;
+            height: 86px;
+            margin: auto;
 
             display: flex;
             align-items: center;
             justify-content: center;
-
-            border-radius: 24px;
-
-            font-size: 40px;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(212, 175, 55, 0.22),
-                    rgba(124, 58, 237, 0.30)
+                    #171124,
+                    #09090f
                 );
 
-            border:
-                1px solid
-                rgba(212, 175, 55, 0.45);
+            border: 2px solid #d4af37;
+
+            clip-path: polygon(
+                50% 0%,
+                92% 16%,
+                92% 57%,
+                78% 78%,
+                50% 100%,
+                22% 78%,
+                8% 57%,
+                8% 16%
+            );
 
             box-shadow:
-                0 0 45px
-                rgba(124, 58, 237, 0.30),
-
-                inset 0 0 25px
-                rgba(212, 175, 55, 0.08);
-
+                0 0 25px rgba(212, 175, 55, 0.35),
+                0 0 45px rgba(123, 63, 255, 0.25);
         }
 
+        .shield span {
+            font-size: 34px;
+        }
 
         .brand h1 {
-
-            font-size: 31px;
-
-            font-weight: 850;
-
-            letter-spacing: 1px;
+            margin-top: 14px;
+            font-size: 32px;
+            letter-spacing: 2px;
 
             background:
                 linear-gradient(
                     90deg,
-                    #f5d76e,
                     #ffffff,
-                    #b794f4
+                    #d4af37,
+                    #ffffff
                 );
 
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-
         }
-
 
         .brand p {
-
             margin-top: 7px;
-
-            color: #8993aa;
-
-            font-size: 13px;
-
+            color: #aaa6b7;
+            font-size: 14px;
         }
-
-
-        /* ================= CARD ================= */
 
         .login-card {
-
-            padding: 34px;
-
-            border-radius: 25px;
-
-            background:
-                rgba(10, 14, 30, 0.82);
-
-            border:
-                1px solid
-                rgba(139, 92, 246, 0.30);
-
-            box-shadow:
-
-                0 30px 90px
-                rgba(0, 0, 0, 0.55),
-
-                0 0 40px
-                rgba(124, 58, 237, 0.10);
-
-            backdrop-filter: blur(20px);
-
-        }
-
-
-        .login-title {
-
-            text-align: center;
-
-            margin-bottom: 25px;
-
-        }
-
-
-        .login-title h2 {
-
-            font-size: 24px;
-
-            color: #ffffff;
-
-        }
-
-
-        .login-title p {
-
-            margin-top: 7px;
-
-            color: #7f8ba3;
-
-            font-size: 13px;
-
-        }
-
-
-        /* ================= SUCCESS ================= */
-
-        .success {
-
-            padding: 12px 15px;
-
-            margin-bottom: 18px;
-
-            border-radius: 10px;
-
-            background:
-                rgba(34, 197, 94, 0.10);
-
-            border:
-                1px solid
-                rgba(34, 197, 94, 0.30);
-
-            color: #86efac;
-
-            font-size: 13px;
-
-            text-align: center;
-
-        }
-
-
-        /* ================= ERROR ================= */
-
-        .error {
-
-            padding: 12px 15px;
-
-            margin-bottom: 18px;
-
-            border-radius: 10px;
-
-            background:
-                rgba(220, 38, 38, 0.12);
-
-            border:
-                1px solid
-                rgba(248, 113, 113, 0.35);
-
-            color: #fca5a5;
-
-            font-size: 13px;
-
-            text-align: center;
-
-        }
-
-
-        /* ================= FORM ================= */
-
-        .form-group {
-
-            margin-bottom: 17px;
-
-        }
-
-
-        .form-group label {
-
-            display: block;
-
-            margin-bottom: 8px;
-
-            color: #cbd5e1;
-
-            font-size: 13px;
-
-            font-weight: 600;
-
-        }
-
-
-        .input-box {
-
-            position: relative;
-
-        }
-
-
-        .input-icon {
-
-            position: absolute;
-
-            left: 14px;
-
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            font-size: 16px;
-
-            opacity: 0.8;
-
-        }
-
-
-        .input-box input {
-
-            width: 100%;
-
-            padding: 13px 14px 13px 43px;
-
-            border-radius: 11px;
-
-            outline: none;
-
-            border:
-                1px solid
-                rgba(255, 255, 255, 0.10);
-
-            background:
-                rgba(255, 255, 255, 0.045);
-
-            color: #ffffff;
-
-            font-size: 14px;
-
-            transition: 0.25s;
-
-        }
-
-
-        .input-box input::placeholder {
-
-            color: #667085;
-
-        }
-
-
-        .input-box input:focus {
-
-            border-color:
-                rgba(212, 175, 55, 0.65);
-
-            background:
-                rgba(255, 255, 255, 0.065);
-
-            box-shadow:
-                0 0 0 3px
-                rgba(212, 175, 55, 0.08);
-
-        }
-
-
-        /* ================= LOGIN BUTTON ================= */
-
-        .login-btn {
-
-            width: 100%;
-
-            padding: 14px;
-
-            margin-top: 5px;
-
-            border: none;
-
-            border-radius: 11px;
-
-            cursor: pointer;
-
-            color: #080a10;
-
-            font-size: 15px;
-
-            font-weight: 800;
+            padding: 32px;
 
             background:
                 linear-gradient(
-                    135deg,
-                    #f5d76e,
+                    145deg,
+                    rgba(25, 20, 42, 0.88),
+                    rgba(8, 9, 18, 0.92)
+                );
+
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 22px;
+
+            box-shadow:
+                0 20px 70px rgba(0, 0, 0, 0.55),
+                inset 0 0 35px rgba(115, 63, 255, 0.06);
+
+            backdrop-filter: blur(18px);
+        }
+
+        .login-card h2 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .login-card .subtitle {
+            text-align: center;
+            color: #aaa6b7;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        .error {
+            background: rgba(220, 53, 69, 0.12);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #ff8f9a;
+            padding: 11px 13px;
+            border-radius: 10px;
+            margin-bottom: 17px;
+            font-size: 13px;
+        }
+
+        .success {
+            background: rgba(25, 135, 84, 0.13);
+            border: 1px solid rgba(25, 135, 84, 0.45);
+            color: #75e0ad;
+            padding: 11px 13px;
+            border-radius: 10px;
+            margin-bottom: 17px;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd8e8;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+
+            border-radius: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+
+            background: rgba(0, 0, 0, 0.35);
+            color: white;
+
+            outline: none;
+            font-size: 14px;
+
+            transition: 0.25s;
+        }
+
+        input:focus {
+            border-color: #d4af37;
+
+            box-shadow:
+                0 0 0 3px rgba(212, 175, 55, 0.08),
+                0 0 20px rgba(123, 63, 255, 0.15);
+        }
+
+        input::placeholder {
+            color: #777282;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+
+            border: none;
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #8b5cf6,
                     #d4af37
                 );
 
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 15px;
+
+            cursor: pointer;
+
             box-shadow:
-                0 12px 30px
-                rgba(212, 175, 55, 0.18);
+                0 8px 25px rgba(123, 63, 255, 0.22);
 
             transition: 0.25s;
-
         }
 
-
         .login-btn:hover {
-
             transform: translateY(-2px);
 
             box-shadow:
-                0 15px 35px
-                rgba(212, 175, 55, 0.32);
-
+                0 12px 30px rgba(123, 63, 255, 0.35);
         }
-
-
-        /* ================= DIVIDER ================= */
 
         .divider {
-
             display: flex;
-
             align-items: center;
-
             gap: 12px;
 
-            margin: 23px 0;
+            margin: 22px 0;
 
-            color: #667085;
-
+            color: #777282;
             font-size: 12px;
-
         }
-
 
         .divider::before,
         .divider::after {
-
             content: "";
-
             flex: 1;
-
             height: 1px;
-
-            background:
-                rgba(255, 255, 255, 0.08);
-
+            background: rgba(255, 255, 255, 0.1);
         }
 
-
-        /* ================= GOOGLE ================= */
-
         .google-btn {
-
             width: 100%;
-
             padding: 13px;
 
             border-radius: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
 
-            border:
-                1px solid
-                rgba(255, 255, 255, 0.12);
-
-            background:
-                rgba(255, 255, 255, 0.045);
-
+            background: rgba(255, 255, 255, 0.05);
             color: #ffffff;
 
             font-size: 14px;
-
-            font-weight: 650;
+            font-weight: bold;
 
             cursor: pointer;
 
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             gap: 10px;
 
+            text-decoration: none;
+
             transition: 0.25s;
-
         }
-
 
         .google-btn:hover {
-
-            background:
-                rgba(255, 255, 255, 0.08);
-
-            border-color:
-                rgba(255, 255, 255, 0.20);
-
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(212, 175, 55, 0.5);
         }
 
-
         .google-icon {
-
             width: 20px;
             height: 20px;
+
+            border-radius: 50%;
+            background: white;
+
+            color: #4285f4;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 50%;
-
-            background: #ffffff;
-
-            color: #4285f4;
-
-            font-size: 14px;
-
-            font-weight: 900;
-
-        }
-
-
-        /* ================= GOOGLE NOTE ================= */
-
-        .google-note {
-
-            text-align: center;
-
-            margin-top: 9px;
-
-            color: #59657b;
-
-            font-size: 10px;
-
-        }
-
-
-        /* ================= REGISTER ================= */
-
-        .register-text {
-
-            text-align: center;
-
-            margin-top: 23px;
-
-            color: #7f8ba3;
-
             font-size: 13px;
-
+            font-weight: bold;
         }
 
-
-        .register-text a {
-
-            color: #f5d76e;
-
-            text-decoration: none;
-
-            font-weight: 700;
-
-        }
-
-
-        .register-text a:hover {
-
-            text-decoration: underline;
-
-        }
-
-
-        /* ================= SECURITY ================= */
-
-        .security {
-
-            margin-top: 20px;
-
-            padding: 13px;
-
-            border-radius: 12px;
-
+        .register-link {
             text-align: center;
-
-            background:
-                rgba(124, 58, 237, 0.07);
-
-            border:
-                1px solid
-                rgba(124, 58, 237, 0.15);
-
-            color: #8993aa;
-
-            font-size: 11px;
-
-            line-height: 1.6;
-
+            margin-top: 23px;
+            color: #aaa6b7;
+            font-size: 13px;
         }
 
-
-        .security span {
-
+        .register-link a {
             color: #d4af37;
-
+            text-decoration: none;
+            font-weight: bold;
         }
 
+        .register-link a:hover {
+            text-decoration: underline;
+        }
 
-        /* ================= FOOTER ================= */
+        .security-note {
+            margin-top: 20px;
+            padding: 12px;
 
-        .footer {
+            border-radius: 11px;
 
-            text-align: center;
+            background: rgba(123, 63, 255, 0.07);
+            border: 1px solid rgba(123, 63, 255, 0.16);
 
-            margin-top: 22px;
-
-            color: #505b70;
-
-            font-size: 10px;
-
+            color: #aaa6b7;
+            font-size: 11px;
             line-height: 1.6;
-
+            text-align: center;
         }
-
-
-        .footer strong {
-
-            color: #8b5cf6;
-
-        }
-
-
-        /* ================= MOBILE ================= */
 
         @media (max-width: 500px) {
 
             body {
-
-                padding: 18px;
-
+                padding: 16px;
             }
-
 
             .login-card {
-
-                padding: 25px 20px;
-
+                padding: 24px 20px;
             }
-
-
-            .logo {
-
-                width: 68px;
-                height: 68px;
-
-                font-size: 34px;
-
-            }
-
 
             .brand h1 {
-
                 font-size: 27px;
-
             }
-
         }
-
     </style>
-
 </head>
-
 
 <body>
 
+    <div class="login-wrapper">
 
-<div class="login-wrapper">
+        <div class="brand">
 
+            <div class="shield">
+                <span>🛡️</span>
+            </div>
 
-    <!-- ================= BRAND ================= -->
-
-    <div class="brand">
-
-        <div class="logo">
-            🛡️
-        </div>
-
-        <h1>
-            QRGuard
-        </h1>
-
-        <p>
-            QR-Code Phishing Detection System
-        </p>
-
-    </div>
-
-
-    <!-- ================= LOGIN CARD ================= -->
-
-    <div class="login-card">
-
-
-        <div class="login-title">
-
-            <h2>
-                Welcome Back
-            </h2>
+            <h1>QRGuard</h1>
 
             <p>
-                Sign in to continue to QRGuard
+                QR-Code Phishing Detection System
             </p>
 
         </div>
 
 
-        {% if request.args.get("registered") %}
+        <div class="login-card">
 
-        <div class="success">
+            <h2>Welcome Back</h2>
 
-            ✓ Account created successfully.
-            Please login to continue.
-
-        </div>
-
-        {% endif %}
+            <p class="subtitle">
+                Sign in to access your security dashboard
+            </p>
 
 
-        {% if error %}
+            {% if error %}
 
-        <div class="error">
+                <div class="error">
+                    {{ error }}
+                </div>
 
-            ⚠️ {{ error }}
-
-        </div>
-
-        {% endif %}
+            {% endif %}
 
 
-        <!-- ================= LOGIN FORM ================= -->
+            {% if registered %}
 
-        <form
-            action="/login"
-            method="POST"
-        >
+                <div class="success">
+                    Account created successfully.
+                    Please sign in.
+                </div>
+
+            {% endif %}
 
 
-            <div class="form-group">
+            <form
+                action="{{ url_for('login') }}"
+                method="POST"
+            >
 
-                <label for="username">
-                    Username or Email
-                </label>
+                <div class="form-group">
 
-                <div class="input-box">
-
-                    <span class="input-icon">
-                        👤
-                    </span>
+                    <label for="username">
+                        Username or Email
+                    </label>
 
                     <input
                         type="text"
                         id="username"
                         name="username"
                         placeholder="Enter username or email"
-                        autocomplete="username"
                         required
+                        autocomplete="username"
                     >
 
                 </div>
 
-            </div>
 
+                <div class="form-group">
 
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <div class="input-box">
-
-                    <span class="input-icon">
-                        🔒
-                    </span>
+                    <label for="password">
+                        Password
+                    </label>
 
                     <input
                         type="password"
                         id="password"
                         name="password"
                         placeholder="Enter your password"
-                        autocomplete="current-password"
                         required
+                        autocomplete="current-password"
                     >
 
                 </div>
 
+
+                <button
+                    type="submit"
+                    class="login-btn"
+                >
+                    Secure Login
+                </button>
+
+            </form>
+
+
+            <div class="divider">
+                OR
             </div>
 
 
-            <button
-                type="submit"
-                class="login-btn"
+            <a
+                href="{{ url_for('google_login') }}"
+                class="google-btn"
             >
-                🛡️ Secure Login
-            </button>
 
+                <span class="google-icon">
+                    G
+                </span>
 
-        </form>
+                Continue with Google
 
-
-        <!-- ================= DIVIDER ================= -->
-
-        <div class="divider">
-            OR
-        </div>
-
-
-        <!-- ================= GOOGLE BUTTON ================= -->
-
-        <button
-            type="button"
-            class="google-btn"
-            onclick="googleLogin()"
-        >
-
-            <span class="google-icon">
-                G
-            </span>
-
-            Continue with Google
-
-        </button>
-
-
-        <div class="google-note">
-            Google authentication will be connected through OAuth.
-        </div>
-
-
-        <!-- ================= REGISTER ================= -->
-
-        <div class="register-text">
-
-            Don't have an account?
-
-            <a href="/register">
-                Create Account
             </a>
 
+
+            <div class="register-link">
+
+                Don't have an account?
+
+                <a href="{{ url_for('register') }}">
+                    Create Account
+                </a>
+
+            </div>
+
+
+            <div class="security-note">
+
+                🔐 Your password is securely hashed.
+                QRGuard does not store your Google password.
+                Google authentication is handled through OAuth.
+
+            </div>
+
         </div>
 
-
-        <!-- ================= SECURITY ================= -->
-
-        <div class="security">
-
-            <span>🔐</span>
-
-            Your QRGuard account is protected with
-            secure password hashing.
-
-        </div>
-
-
     </div>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <div class="footer">
-
-        © 2026 <strong>QRGuard</strong>
-
-        <br>
-
-        Cybersecurity Academic Project
-
-    </div>
-
-
-</div>
-
-
-<script>
-
-    function googleLogin() {
-
-        alert(
-            "Google Sign-In will be connected using Google OAuth in the next step."
-        );
-
-    }
-
-</script>
-
 
 </body>
-
 </html>
