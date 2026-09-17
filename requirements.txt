@@ -1,0 +1,5 @@
+Flask
+Werkzeug
+opencv-python-headless
+numpy
+reportlab
