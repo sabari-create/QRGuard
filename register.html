@@ -1,374 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>QRGuard | Create Account</title>
 
     <style>
+
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
         }
 
         body {
-            min-height: 100vh;
-            font-family: "Segoe UI", Arial, sans-serif;
 
-            background:
-                radial-gradient(
-                    circle at top left,
-                    rgba(124, 58, 237, 0.30),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at bottom right,
-                    rgba(245, 158, 11, 0.18),
-                    transparent 35%
-                ),
-                linear-gradient(
-                    135deg,
-                    #050816,
-                    #0b1026,
-                    #11152f
-                );
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 25px;
 
             color: #ffffff;
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(124, 58, 237, 0.30),
+                    transparent 35%
+                ),
 
-            padding: 30px;
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(212, 175, 55, 0.16),
+                    transparent 35%
+                ),
+
+                linear-gradient(
+                    135deg,
+                    #02040a,
+                    #080b18 50%,
+                    #12091f
+                );
+
         }
 
-        .container {
+        .register-wrapper {
+
             width: 100%;
-            max-width: 460px;
+            max-width: 440px;
+
         }
+
+        /* ================= BRAND ================= */
 
         .brand {
+
             text-align: center;
-            margin-bottom: 22px;
+            margin-bottom: 25px;
+
         }
 
-        .brand-icon {
-            width: 72px;
-            height: 72px;
+        .logo {
 
-            margin: auto;
-            margin-bottom: 14px;
+            width: 78px;
+            height: 78px;
 
-            border-radius: 22px;
+            margin: 0 auto 15px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 38px;
+            border-radius: 24px;
+
+            font-size: 40px;
 
             background:
                 linear-gradient(
-                    135deg,
-                    #7c3aed,
-                    #4f46e5
+                    145deg,
+                    rgba(212, 175, 55, 0.22),
+                    rgba(124, 58, 237, 0.30)
                 );
 
-            border: 1px solid rgba(255,255,255,0.18);
+            border:
+                1px solid
+                rgba(212, 175, 55, 0.45);
 
             box-shadow:
-                0 0 25px rgba(124,58,237,0.55),
-                0 0 60px rgba(124,58,237,0.20);
+                0 0 45px
+                rgba(124, 58, 237, 0.30),
+
+                inset 0 0 25px
+                rgba(212, 175, 55, 0.08);
+
         }
 
         .brand h1 {
-            font-size: 32px;
+
+            font-size: 31px;
+
+            font-weight: 850;
+
             letter-spacing: 1px;
 
             background:
                 linear-gradient(
                     90deg,
+                    #f5d76e,
                     #ffffff,
-                    #d8b4fe,
-                    #fbbf24
+                    #b794f4
                 );
 
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+
         }
 
         .brand p {
-            margin-top: 6px;
-            color: #aab2d5;
-            font-size: 14px;
+
+            margin-top: 7px;
+
+            color: #8993aa;
+
+            font-size: 13px;
+
         }
 
-        .card {
+        /* ================= CARD ================= */
+
+        .register-card {
+
+            padding: 34px;
+
+            border-radius: 25px;
+
             background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,0.10),
-                    rgba(255,255,255,0.035)
-                );
+                rgba(10, 14, 30, 0.82);
 
-            border: 1px solid rgba(255,255,255,0.14);
+            border:
+                1px solid
+                rgba(139, 92, 246, 0.30);
 
-            border-radius: 24px;
+            box-shadow:
 
-            padding: 32px;
+                0 30px 90px
+                rgba(0, 0, 0, 0.55),
+
+                0 0 40px
+                rgba(124, 58, 237, 0.10);
 
             backdrop-filter: blur(20px);
 
-            box-shadow:
-                0 25px 80px rgba(0,0,0,0.45),
-                0 0 35px rgba(124,58,237,0.12);
         }
 
-        .card-title {
+        .register-title {
+
             text-align: center;
+
             margin-bottom: 25px;
+
         }
 
-        .card-title h2 {
-            font-size: 23px;
-            margin-bottom: 7px;
+        .register-title h2 {
+
+            font-size: 24px;
+
+            color: #ffffff;
+
         }
 
-        .card-title p {
-            color: #929abd;
+        .register-title p {
+
+            margin-top: 7px;
+
+            color: #7f8ba3;
+
             font-size: 13px;
+
         }
+
+        /* ================= ERROR ================= */
 
         .error {
-            background: rgba(239,68,68,0.12);
 
-            border: 1px solid rgba(239,68,68,0.45);
-
-            color: #fca5a5;
-
-            padding: 12px 14px;
-
-            border-radius: 12px;
+            padding: 12px 15px;
 
             margin-bottom: 18px;
 
+            border-radius: 10px;
+
+            background:
+                rgba(220, 38, 38, 0.12);
+
+            border:
+                1px solid
+                rgba(248, 113, 113, 0.35);
+
+            color: #fca5a5;
+
             font-size: 13px;
 
             text-align: center;
+
         }
+
+        /* ================= FORM ================= */
 
         .form-group {
-            margin-bottom: 17px;
+
+            margin-bottom: 16px;
+
         }
 
-        label {
+        .form-group label {
+
             display: block;
 
             margin-bottom: 8px;
 
-            color: #d9def5;
+            color: #cbd5e1;
 
             font-size: 13px;
 
             font-weight: 600;
+
         }
 
         .input-box {
+
             position: relative;
+
         }
 
         .input-icon {
+
             position: absolute;
 
             left: 14px;
+
             top: 50%;
 
             transform: translateY(-50%);
 
-            font-size: 17px;
+            font-size: 16px;
 
-            opacity: 0.75;
+            opacity: 0.8;
+
         }
 
-        input {
+        .input-box input {
+
             width: 100%;
 
-            padding: 14px 15px 14px 44px;
+            padding: 13px 14px 13px 43px;
 
-            border-radius: 12px;
-
-            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 11px;
 
             outline: none;
 
-            background: rgba(5,8,22,0.65);
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.10);
+
+            background:
+                rgba(255, 255, 255, 0.045);
 
             color: #ffffff;
 
             font-size: 14px;
 
             transition: 0.25s;
+
         }
 
-        input::placeholder {
-            color: #70789b;
+        .input-box input::placeholder {
+
+            color: #667085;
+
         }
 
-        input:focus {
-            border-color: #a78bfa;
+        .input-box input:focus {
+
+            border-color:
+                rgba(212, 175, 55, 0.65);
+
+            background:
+                rgba(255, 255, 255, 0.065);
 
             box-shadow:
-                0 0 0 3px rgba(124,58,237,0.14),
-                0 0 20px rgba(124,58,237,0.16);
+                0 0 0 3px
+                rgba(212, 175, 55, 0.08);
+
         }
 
-        .password-note {
-            margin-top: 6px;
+        /* ================= CREATE BUTTON ================= */
 
-            font-size: 11px;
+        .create-btn {
 
-            color: #737c9f;
-        }
-
-        .register-btn {
             width: 100%;
-
-            border: none;
-
-            border-radius: 13px;
 
             padding: 14px;
 
-            margin-top: 7px;
+            margin-top: 5px;
+
+            border: none;
+
+            border-radius: 11px;
 
             cursor: pointer;
 
-            color: white;
+            color: #080a10;
 
             font-size: 15px;
 
-            font-weight: 700;
-
-            letter-spacing: 0.3px;
+            font-weight: 800;
 
             background:
                 linear-gradient(
-                    90deg,
-                    #6d28d9,
-                    #7c3aed,
-                    #9333ea
+                    135deg,
+                    #f5d76e,
+                    #d4af37
                 );
 
             box-shadow:
-                0 8px 25px rgba(124,58,237,0.35);
+                0 12px 30px
+                rgba(212, 175, 55, 0.18);
 
             transition: 0.25s;
+
         }
 
-        .register-btn:hover {
+        .create-btn:hover {
+
             transform: translateY(-2px);
 
             box-shadow:
-                0 12px 35px rgba(124,58,237,0.48);
+                0 15px 35px
+                rgba(212, 175, 55, 0.32);
+
         }
 
-        .login-link {
+        /* ================= LOGIN ================= */
+
+        .login-text {
+
             text-align: center;
 
-            margin-top: 22px;
+            margin-top: 23px;
 
-            color: #8f97b8;
+            color: #7f8ba3;
 
             font-size: 13px;
+
         }
 
-        .login-link a {
-            color: #c4b5fd;
+        .login-text a {
+
+            color: #f5d76e;
 
             text-decoration: none;
 
             font-weight: 700;
+
         }
 
-        .login-link a:hover {
-            color: #fbbf24;
+        .login-text a:hover {
+
+            text-decoration: underline;
+
         }
+
+        /* ================= SECURITY ================= */
 
         .security {
-            margin-top: 22px;
-
-            padding-top: 18px;
-
-            border-top: 1px solid rgba(255,255,255,0.08);
-
-            display: flex;
-
-            justify-content: center;
-
-            gap: 8px;
-
-            color: #777f9f;
-
-            font-size: 11px;
-        }
-
-        .security span {
-            color: #fbbf24;
-        }
-
-        .footer {
-            text-align: center;
 
             margin-top: 20px;
 
-            color: #555d7c;
+            padding: 13px;
+
+            border-radius: 12px;
+
+            text-align: center;
+
+            background:
+                rgba(124, 58, 237, 0.07);
+
+            border:
+                1px solid
+                rgba(124, 58, 237, 0.15);
+
+            color: #8993aa;
 
             font-size: 11px;
+
+            line-height: 1.6;
+
         }
 
-        @media (max-width: 520px) {
+        .security span {
+
+            color: #d4af37;
+
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 22px;
+
+            color: #505b70;
+
+            font-size: 10px;
+
+            line-height: 1.6;
+
+        }
+
+        .footer strong {
+
+            color: #8b5cf6;
+
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 500px) {
 
             body {
                 padding: 18px;
             }
 
-            .card {
+            .register-card {
                 padding: 25px 20px;
             }
 
-            .brand h1 {
-                font-size: 28px;
+            .logo {
+
+                width: 68px;
+                height: 68px;
+
+                font-size: 34px;
+
             }
+
+            .brand h1 {
+                font-size: 27px;
+            }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
-<div class="container">
 
-    <!-- BRAND -->
+<div class="register-wrapper">
+
+
+    <!-- ================= BRAND ================= -->
+
     <div class="brand">
 
-        <div class="brand-icon">
+        <div class="logo">
             🛡️
         </div>
 
-        <h1>QRGuard</h1>
+        <h1>
+            QRGuard
+        </h1>
 
-        <p>QR-Code Phishing Detection System</p>
+        <p>
+            QR-Code Phishing Detection System
+        </p>
 
     </div>
 
 
-    <!-- REGISTER CARD -->
-    <div class="card">
+    <!-- ================= REGISTER CARD ================= -->
 
-        <div class="card-title">
+    <div class="register-card">
 
-            <h2>Create Your Account</h2>
+
+        <div class="register-title">
+
+            <h2>
+                Create Account
+            </h2>
 
             <p>
                 Join QRGuard and protect your QR scans
@@ -377,23 +511,27 @@
         </div>
 
 
-        <!-- ERROR -->
         {% if error %}
 
         <div class="error">
+
             ⚠️ {{ error }}
+
         </div>
 
         {% endif %}
 
 
-        <!-- REGISTER FORM -->
+        <!-- ================= REGISTER FORM ================= -->
+
         <form
             action="/register"
             method="POST"
         >
 
+
             <!-- USERNAME -->
+
             <div class="form-group">
 
                 <label for="username">
@@ -410,7 +548,7 @@
                         type="text"
                         id="username"
                         name="username"
-                        placeholder="Enter your username"
+                        placeholder="Choose a username"
                         minlength="3"
                         maxlength="50"
                         autocomplete="username"
@@ -423,6 +561,7 @@
 
 
             <!-- EMAIL -->
+
             <div class="form-group">
 
                 <label for="email">
@@ -432,7 +571,7 @@
                 <div class="input-box">
 
                     <span class="input-icon">
-                        ✉️
+                        📧
                     </span>
 
                     <input
@@ -451,6 +590,7 @@
 
 
             <!-- PASSWORD -->
+
             <div class="form-group">
 
                 <label for="password">
@@ -460,7 +600,7 @@
                 <div class="input-box">
 
                     <span class="input-icon">
-                        🔐
+                        🔒
                     </span>
 
                     <input
@@ -475,14 +615,11 @@
 
                 </div>
 
-                <div class="password-note">
-                    Minimum 6 characters
-                </div>
-
             </div>
 
 
             <!-- CONFIRM PASSWORD -->
+
             <div class="form-group">
 
                 <label for="confirm_password">
@@ -492,14 +629,14 @@
                 <div class="input-box">
 
                     <span class="input-icon">
-                        🔒
+                        🔐
                     </span>
 
                     <input
                         type="password"
                         id="confirm_password"
                         name="confirm_password"
-                        placeholder="Re-enter your password"
+                        placeholder="Confirm your password"
                         minlength="6"
                         autocomplete="new-password"
                         required
@@ -510,48 +647,62 @@
             </div>
 
 
-            <!-- BUTTON -->
+            <!-- CREATE -->
+
             <button
                 type="submit"
-                class="register-btn"
+                class="create-btn"
             >
-                ✨ Create Account
+                👑 Create Secure Account
             </button>
+
 
         </form>
 
 
-        <!-- LOGIN -->
-        <div class="login-link">
+        <!-- ================= LOGIN ================= -->
+
+        <div class="login-text">
 
             Already have an account?
 
             <a href="/login">
-                Login
+                Sign In
             </a>
 
         </div>
 
 
-        <!-- SECURITY -->
+        <!-- ================= SECURITY ================= -->
+
         <div class="security">
 
-            <span>🛡️</span>
+            <span>🔐</span>
 
-            QRGuard Secure Account System
+            QRGuard protects account passwords using
+            secure password hashing.
 
         </div>
 
+
     </div>
 
+
+    <!-- ================= FOOTER ================= -->
 
     <div class="footer">
 
-        QRGuard © 2026 | Cyber Security Project
+        © 2026 <strong>QRGuard</strong>
+
+        <br>
+
+        Cybersecurity Academic Project
 
     </div>
+
 
 </div>
 
 </body>
+
 </html>
