@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- Google Search Console Verification -->
     <meta name="google-site-verification"
           content="bdFd29_fwLQDwspw717PsfaTVk0j3h4SZpwQvOM57-Q">
 
@@ -24,32 +23,29 @@
         }
 
         :root {
-            --bg: #04040a;
-            --bg-soft: #090711;
+            --black: #020205;
+            --navy: #070a16;
+            --panel: rgba(12, 15, 30, 0.82);
 
             --gold: #d4af37;
-            --gold-light: #ffe58a;
-            --gold-dark: #a77b18;
+            --gold-light: #ffe99a;
 
             --purple: #8b5cf6;
-            --purple-light: #b99aff;
-            --purple-dark: #5b21b6;
+            --purple-light: #c4a7ff;
+
+            --cyan: #62e6ff;
 
             --white: #ffffff;
-            --text: #f6f4fb;
-            --muted: #9e9aaa;
-            --muted-2: #777382;
-
-            --glass: rgba(18, 14, 31, 0.78);
-            --glass-light: rgba(255,255,255,0.045);
+            --text: #f7f5ff;
+            --muted: #9a98a8;
+            --muted-dark: #666575;
 
             --border: rgba(212,175,55,0.22);
         }
 
-
-        /* ==================================================
-           BODY
-        ================================================== */
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             min-height: 100vh;
@@ -63,33 +59,32 @@
 
             background:
                 radial-gradient(
-                    circle at 10% 10%,
-                    rgba(139,92,246,0.18),
+                    circle at 8% 8%,
+                    rgba(139,92,246,0.20),
+                    transparent 27%
+                ),
+                radial-gradient(
+                    circle at 92% 12%,
+                    rgba(212,175,55,0.11),
+                    transparent 25%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(98,230,255,0.07),
                     transparent 30%
-                ),
-                radial-gradient(
-                    circle at 90% 15%,
-                    rgba(212,175,55,0.09),
-                    transparent 28%
-                ),
-                radial-gradient(
-                    circle at 50% 90%,
-                    rgba(91,33,182,0.14),
-                    transparent 34%
                 ),
                 linear-gradient(
                     135deg,
-                    #030309,
-                    #070511,
-                    #04040a
+                    #010104,
+                    #070713 48%,
+                    #03040b
                 );
 
             overflow-x: hidden;
         }
 
-
         /* ==================================================
-           BACKGROUND GRID
+           CYBER GRID
         ================================================== */
 
         body::before {
@@ -100,7 +95,7 @@
 
             pointer-events: none;
 
-            opacity: 0.18;
+            opacity: 0.17;
 
             background-image:
                 linear-gradient(
@@ -113,32 +108,61 @@
                     transparent 1px
                 );
 
-            background-size: 45px 45px;
+            background-size: 44px 44px;
 
             mask-image:
                 linear-gradient(
                     to bottom,
                     black,
-                    transparent 85%
+                    transparent 88%
                 );
+
+            z-index: -3;
+        }
+
+        /* ==================================================
+           AMBIENT GLOW
+        ================================================== */
+
+        body::after {
+            content: "";
+
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            left: 50%;
+            top: 48%;
+
+            transform: translate(-50%, -50%);
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(139,92,246,0.055),
+                    transparent 68%
+                );
+
+            pointer-events: none;
 
             z-index: -2;
         }
 
-
         /* ==================================================
-           TOP NAVIGATION
+           NAVBAR
         ================================================== */
 
         .topbar {
-
-            min-height: 78px;
+            min-height: 76px;
 
             display: flex;
             align-items: center;
             justify-content: space-between;
 
-            padding: 14px 6%;
+            padding: 12px 6%;
 
             position: sticky;
             top: 0;
@@ -146,41 +170,32 @@
             z-index: 1000;
 
             background:
-                rgba(4,4,10,0.86);
+                rgba(2,2,7,0.86);
 
             border-bottom:
                 1px solid
                 rgba(255,255,255,0.07);
 
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
 
-
-        /* ==================================================
-           BRAND
-        ================================================== */
-
         .brand {
-
             display: flex;
             align-items: center;
 
             gap: 12px;
 
             color: white;
-
             text-decoration: none;
 
             font-size: 23px;
             font-weight: 900;
 
-            letter-spacing: -0.5px;
+            letter-spacing: -0.6px;
         }
 
-
         .shield {
-
             width: 48px;
             height: 52px;
 
@@ -192,13 +207,13 @@
 
             border:
                 1px solid
-                rgba(212,175,55,0.58);
+                rgba(212,175,55,0.52);
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(139,92,246,0.20),
-                    rgba(212,175,55,0.07)
+                    rgba(139,92,246,0.23),
+                    rgba(212,175,55,0.08)
                 );
 
             color: var(--gold-light);
@@ -207,7 +222,7 @@
 
             box-shadow:
                 0 0 30px
-                rgba(139,92,246,0.16),
+                rgba(139,92,246,0.15),
 
                 inset 0 0 20px
                 rgba(212,175,55,0.05);
@@ -217,50 +232,42 @@
                 box-shadow 0.25s;
         }
 
-
         .brand:hover .shield {
-
             transform: translateY(-2px);
 
             box-shadow:
-                0 0 38px
-                rgba(139,92,246,0.25),
+                0 0 42px
+                rgba(139,92,246,0.30),
 
-                inset 0 0 24px
-                rgba(212,175,55,0.08);
+                inset 0 0 25px
+                rgba(212,175,55,0.09);
         }
-
 
         .brand span {
             color: var(--gold-light);
         }
 
-
         /* ==================================================
-           NAV
+           NAV LINKS
         ================================================== */
 
         .nav {
-
             display: flex;
             align-items: center;
-
-            gap: 6px;
+            gap: 5px;
         }
 
-
         .nav a {
-
             position: relative;
 
             padding: 10px 14px;
 
-            color: #aaa6b5;
+            color: #aaa7b7;
 
             text-decoration: none;
 
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 800;
 
             border-radius: 11px;
 
@@ -270,21 +277,46 @@
                 transform 0.2s;
         }
 
+        .nav a::after {
+            content: "";
+
+            position: absolute;
+
+            left: 50%;
+            bottom: 4px;
+
+            width: 0;
+            height: 2px;
+
+            transform: translateX(-50%);
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--gold),
+                    var(--purple)
+                );
+
+            transition: width 0.2s;
+        }
 
         .nav a:hover {
-
             color: white;
 
             background:
-                rgba(139,92,246,0.10);
+                rgba(139,92,246,0.09);
 
             transform:
                 translateY(-1px);
         }
 
+        .nav a:hover::after {
+            width: 24px;
+        }
 
         .nav .logout {
-
             color: var(--gold-light);
 
             border:
@@ -295,45 +327,37 @@
                 rgba(212,175,55,0.045);
         }
 
-
         .nav .logout:hover {
-
             background:
                 rgba(212,175,55,0.12);
         }
-
 
         /* ==================================================
            MAIN
         ================================================== */
 
         .container {
-
             width:
                 min(1120px, 92%);
 
-            margin:
-                auto;
+            margin: auto;
 
             padding:
-                68px 0 45px;
+                64px 0 48px;
         }
-
 
         /* ==================================================
            HERO
         ================================================== */
 
         .hero {
-
             text-align: center;
 
-            margin-bottom: 40px;
+            margin-bottom:
+                38px;
         }
 
-
         .badge {
-
             display: inline-flex;
             align-items: center;
 
@@ -343,7 +367,7 @@
                 9px 17px;
 
             margin-bottom:
-                22px;
+                21px;
 
             border-radius:
                 50px;
@@ -356,29 +380,27 @@
                 linear-gradient(
                     135deg,
                     rgba(212,175,55,0.09),
-                    rgba(139,92,246,0.08)
+                    rgba(139,92,246,0.09)
                 );
 
             color:
                 var(--gold-light);
 
             font-size:
-                11px;
+                10px;
 
             font-weight:
                 900;
 
             letter-spacing:
-                2px;
+                2.2px;
 
             box-shadow:
-                0 0 28px
+                0 0 30px
                 rgba(212,175,55,0.06);
         }
 
-
         .badge::before {
-
             content: "";
 
             width: 7px;
@@ -390,29 +412,40 @@
                 #8cffb0;
 
             box-shadow:
-                0 0 12px
-                rgba(140,255,176,0.80);
+                0 0 14px
+                rgba(140,255,176,0.85);
+
+            animation:
+                pulse 1.8s infinite;
         }
 
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.55;
+                transform: scale(0.75);
+            }
+        }
 
         h1 {
-
             font-size:
-                clamp(44px, 7vw, 78px);
+                clamp(45px, 7vw, 78px);
 
             line-height:
                 0.98;
 
             letter-spacing:
-                -3px;
+                -3.2px;
 
             margin-bottom:
-                21px;
+                20px;
         }
 
-
         h1 span {
-
             background:
                 linear-gradient(
                     90deg,
@@ -431,9 +464,7 @@
                 transparent;
         }
 
-
         .hero p {
-
             max-width:
                 690px;
 
@@ -444,19 +475,17 @@
                 #aaa7b5;
 
             font-size:
-                16px;
+                15px;
 
             line-height:
                 1.75;
         }
-
 
         /* ==================================================
            ERROR
         ================================================== */
 
         .error {
-
             width:
                 min(760px, 100%);
 
@@ -467,17 +496,21 @@
                 15px 18px;
 
             border-radius:
-                14px;
+                15px;
 
             border:
                 1px solid
-                rgba(255,75,75,0.38);
+                rgba(255,75,75,0.40);
 
             background:
-                rgba(255,55,55,0.08);
+                linear-gradient(
+                    135deg,
+                    rgba(255,55,55,0.10),
+                    rgba(255,55,55,0.045)
+                );
 
             color:
-                #ffbcbc;
+                #ffc4c4;
 
             text-align:
                 center;
@@ -486,17 +519,15 @@
                 1.5;
 
             box-shadow:
-                0 12px 35px
-                rgba(0,0,0,0.20);
+                0 14px 40px
+                rgba(0,0,0,0.24);
         }
-
 
         /* ==================================================
            SCANNER CARD
         ================================================== */
 
         .scanner-card {
-
             position:
                 relative;
 
@@ -507,7 +538,7 @@
                 auto;
 
             padding:
-                42px;
+                40px;
 
             border-radius:
                 30px;
@@ -519,95 +550,108 @@
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,255,255,0.065),
-                    rgba(255,255,255,0.015)
+                    rgba(20,19,36,0.88),
+                    rgba(7,7,15,0.78)
                 );
 
             box-shadow:
+                0 40px 110px
+                rgba(0,0,0,0.58),
 
-                0 40px 100px
-                rgba(0,0,0,0.52),
-
-                0 0 75px
-                rgba(139,92,246,0.08),
+                0 0 80px
+                rgba(139,92,246,0.075),
 
                 inset 0 1px 0
-                rgba(255,255,255,0.05);
+                rgba(255,255,255,0.055);
 
             backdrop-filter:
-                blur(24px);
+                blur(25px);
 
             -webkit-backdrop-filter:
-                blur(24px);
+                blur(25px);
 
             overflow:
                 hidden;
         }
 
-
         .scanner-card::before {
-
             content: "";
 
             position: absolute;
 
             top: 0;
-            left: 12%;
+            left: 10%;
 
-            width: 76%;
+            width: 80%;
             height: 1px;
 
             background:
                 linear-gradient(
                     90deg,
                     transparent,
-                    rgba(212,175,55,0.65),
-                    rgba(139,92,246,0.55),
+                    rgba(212,175,55,0.78),
+                    rgba(139,92,246,0.70),
                     transparent
                 );
         }
 
+        .scanner-card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 190px;
+            height: 190px;
+
+            right: -110px;
+            bottom: -110px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid
+                rgba(139,92,246,0.10);
+
+            box-shadow:
+                0 0 0 25px rgba(139,92,246,0.025),
+                0 0 0 50px rgba(139,92,246,0.018);
+
+            pointer-events: none;
+        }
 
         /* ==================================================
-           SCANNER TITLE
+           SCANNER HEADER
         ================================================== */
 
         .scanner-title {
-
             text-align:
                 center;
 
             margin-bottom:
-                28px;
+                27px;
         }
 
-
         .scanner-title h2 {
-
             font-size:
                 28px;
 
             margin-bottom:
-                9px;
+                8px;
         }
 
-
         .scanner-title p {
-
             color:
                 var(--muted);
 
             font-size:
-                14px;
+                13px;
         }
-
 
         /* ==================================================
            UPLOAD AREA
         ================================================== */
 
         .upload-area {
-
             position:
                 relative;
 
@@ -627,7 +671,7 @@
                 275px;
 
             padding:
-                40px 24px;
+                38px 24px;
 
             border-radius:
                 23px;
@@ -637,13 +681,11 @@
                 rgba(212,175,55,0.28);
 
             background:
-
                 radial-gradient(
                     circle at center,
-                    rgba(139,92,246,0.11),
+                    rgba(139,92,246,0.12),
                     transparent 62%
                 ),
-
                 rgba(255,255,255,0.018);
 
             cursor:
@@ -659,13 +701,10 @@
                 box-shadow 0.25s;
         }
 
-
         .upload-area::before {
-
             content: "";
 
-            position:
-                absolute;
+            position: absolute;
 
             inset:
                 12px;
@@ -681,46 +720,69 @@
                 none;
         }
 
+        .upload-area::after {
+            content: "";
 
-        .upload-area:hover {
+            position: absolute;
 
-            border-color:
-                rgba(212,175,55,0.78);
+            top: -100%;
+            left: 0;
+
+            width: 100%;
+            height: 55%;
 
             background:
+                linear-gradient(
+                    to bottom,
+                    transparent,
+                    rgba(139,92,246,0.055),
+                    transparent
+                );
 
+            pointer-events: none;
+
+            transition:
+                top 0.55s ease;
+        }
+
+        .upload-area:hover {
+            border-color:
+                rgba(212,175,55,0.80);
+
+            background:
                 radial-gradient(
                     circle at center,
-                    rgba(139,92,246,0.17),
+                    rgba(139,92,246,0.18),
                     transparent 64%
                 ),
-
                 rgba(212,175,55,0.025);
 
             transform:
                 translateY(-3px);
 
             box-shadow:
+                0 22px 50px
+                rgba(0,0,0,0.30),
 
-                0 20px 48px
-                rgba(0,0,0,0.28),
-
-                0 0 38px
-                rgba(139,92,246,0.12);
+                0 0 42px
+                rgba(139,92,246,0.13);
         }
 
+        .upload-area:hover::after {
+            top:
+                110%;
+        }
 
         /* ==================================================
            UPLOAD ICON
         ================================================== */
 
         .upload-icon {
-
             width:
-                82px;
+                84px;
 
             height:
-                82px;
+                84px;
 
             display:
                 flex;
@@ -732,19 +794,19 @@
                 center;
 
             margin-bottom:
-                18px;
+                17px;
 
             border-radius:
-                23px;
+                24px;
 
             border:
                 1px solid
-                rgba(212,175,55,0.34);
+                rgba(212,175,55,0.36);
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(139,92,246,0.18),
+                    rgba(139,92,246,0.20),
                     rgba(212,175,55,0.08)
                 );
 
@@ -755,38 +817,39 @@
                 42px;
 
             box-shadow:
+                0 0 40px
+                rgba(139,92,246,0.13),
 
-                0 0 38px
-                rgba(139,92,246,0.12),
-
-                inset 0 0 20px
-                rgba(212,175,55,0.04);
+                inset 0 0 22px
+                rgba(212,175,55,0.045);
 
             transition:
-                transform 0.25s;
+                transform 0.25s,
+                box-shadow 0.25s;
         }
-
 
         .upload-area:hover .upload-icon {
-
             transform:
-                translateY(-4px)
-                scale(1.03);
+                translateY(-5px)
+                scale(1.04);
+
+            box-shadow:
+                0 0 50px
+                rgba(139,92,246,0.23),
+
+                inset 0 0 24px
+                rgba(212,175,55,0.07);
         }
 
-
         .upload-area h3 {
-
             font-size:
                 21px;
 
             margin-bottom:
-                9px;
+                8px;
         }
 
-
         .upload-area p {
-
             color:
                 #858290;
 
@@ -797,24 +860,21 @@
                 center;
         }
 
-
         input[type="file"] {
             display:
                 none;
         }
-
 
         /* ==================================================
            FILE NAME
         ================================================== */
 
         .file-name {
-
             min-height:
                 20px;
 
             margin-top:
-                16px;
+                15px;
 
             color:
                 var(--gold-light);
@@ -832,13 +892,11 @@
                 break-word;
         }
 
-
         /* ==================================================
            SCAN BUTTON
         ================================================== */
 
         .scan-btn {
-
             position:
                 relative;
 
@@ -846,7 +904,7 @@
                 100%;
 
             margin-top:
-                22px;
+                21px;
 
             padding:
                 17px 20px;
@@ -859,6 +917,9 @@
 
             cursor:
                 pointer;
+
+            overflow:
+                hidden;
 
             color:
                 #08070a;
@@ -881,8 +942,8 @@
                 );
 
             box-shadow:
-                0 13px 38px
-                rgba(212,175,55,0.17);
+                0 14px 40px
+                rgba(212,175,55,0.18);
 
             transition:
                 transform 0.2s,
@@ -890,30 +951,55 @@
                 filter 0.2s;
         }
 
+        .scan-btn::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: -100%;
+
+            width: 60%;
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,255,255,0.35),
+                    transparent
+                );
+
+            transform:
+                skewX(-20deg);
+
+            transition:
+                left 0.55s;
+        }
 
         .scan-btn:hover {
-
             transform:
                 translateY(-2px);
 
             filter:
-                brightness(1.07);
+                brightness(1.08);
 
             box-shadow:
-                0 18px 45px
-                rgba(212,175,55,0.30);
+                0 20px 48px
+                rgba(212,175,55,0.31);
         }
 
+        .scan-btn:hover::before {
+            left:
+                140%;
+        }
 
         .scan-btn:active {
-
             transform:
                 translateY(0);
         }
 
-
         .scan-btn:disabled {
-
             opacity:
                 0.60;
 
@@ -927,18 +1013,16 @@
                 none;
         }
 
-
         /* ==================================================
-           INFO GRID
+           SECURITY FEATURE GRID
         ================================================== */
 
         .info-grid {
-
             width:
                 min(800px, 100%);
 
             margin:
-                22px auto 0;
+                21px auto 0;
 
             display:
                 grid;
@@ -950,20 +1034,18 @@
                 14px;
         }
 
-
         .info-box {
-
             position:
                 relative;
 
             min-height:
-                135px;
+                140px;
 
             padding:
-                23px 17px;
+                24px 17px;
 
             border-radius:
-                18px;
+                19px;
 
             border:
                 1px solid
@@ -972,7 +1054,7 @@
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,255,255,0.038),
+                    rgba(255,255,255,0.040),
                     rgba(255,255,255,0.012)
                 );
 
@@ -986,33 +1068,29 @@
                 box-shadow 0.2s;
         }
 
-
         .info-box:hover {
-
             transform:
                 translateY(-4px);
 
             border-color:
-                rgba(139,92,246,0.30);
+                rgba(139,92,246,0.33);
 
             background:
-                rgba(139,92,246,0.05);
+                rgba(139,92,246,0.055);
 
             box-shadow:
-                0 15px 35px
-                rgba(0,0,0,0.22);
+                0 17px 38px
+                rgba(0,0,0,0.25);
         }
 
-
         .info-box::before {
-
             content: "";
 
             display:
                 block;
 
             width:
-                34px;
+                38px;
 
             height:
                 2px;
@@ -1031,9 +1109,7 @@
                 5px;
         }
 
-
         .info-box strong {
-
             display:
                 block;
 
@@ -1044,15 +1120,13 @@
                 var(--gold-light);
 
             font-size:
-                12px;
+                11px;
 
             letter-spacing:
-                1px;
+                1.3px;
         }
 
-
         .info-box span {
-
             color:
                 #858290;
 
@@ -1063,13 +1137,11 @@
                 1.55;
         }
 
-
         /* ==================================================
            FOOTER
         ================================================== */
 
         .footer {
-
             padding:
                 30px 20px 42px;
 
@@ -1083,7 +1155,6 @@
                 center;
         }
 
-
         /* ==================================================
            MOBILE
         ================================================== */
@@ -1091,7 +1162,6 @@
         @media (max-width: 760px) {
 
             .topbar {
-
                 flex-direction:
                     column;
 
@@ -1102,9 +1172,7 @@
                     14px 4%;
             }
 
-
             .nav {
-
                 width:
                     100%;
 
@@ -1115,9 +1183,7 @@
                     wrap;
             }
 
-
             .nav a {
-
                 font-size:
                     13px;
 
@@ -1125,16 +1191,12 @@
                     9px 11px;
             }
 
-
             .container {
-
                 padding:
                     48px 0 30px;
             }
 
-
             h1 {
-
                 font-size:
                     48px;
 
@@ -1142,9 +1204,7 @@
                     -1.5px;
             }
 
-
             .hero p {
-
                 font-size:
                     14px;
 
@@ -1152,9 +1212,7 @@
                     0 8px;
             }
 
-
             .scanner-card {
-
                 padding:
                     25px 18px;
 
@@ -1162,16 +1220,12 @@
                     23px;
             }
 
-
             .scanner-title h2 {
-
                 font-size:
                     24px;
             }
 
-
             .upload-area {
-
                 min-height:
                     240px;
 
@@ -1179,9 +1233,7 @@
                     32px 18px;
             }
 
-
             .upload-icon {
-
                 width:
                     72px;
 
@@ -1192,26 +1244,20 @@
                     36px;
             }
 
-
             .info-grid {
-
                 grid-template-columns:
                     1fr;
             }
         }
 
-
         @media (max-width: 420px) {
 
             .brand {
-
                 font-size:
                     20px;
             }
 
-
             .shield {
-
                 width:
                     42px;
 
@@ -1219,30 +1265,22 @@
                     46px;
             }
 
-
             h1 {
-
                 font-size:
                     40px;
             }
 
-
             .nav {
-
                 gap:
                     3px;
             }
 
-
             .nav a {
-
                 padding:
-                    8px 8px;
+                    8px;
             }
 
-
             .badge {
-
                 font-size:
                     9px;
 
@@ -1254,9 +1292,7 @@
     </style>
 </head>
 
-
 <body>
-
 
 <header class="topbar">
 
@@ -1270,7 +1306,6 @@
         QR<span>Guard</span>
 
     </a>
-
 
     <nav class="nav">
 
@@ -1295,13 +1330,7 @@
 
 </header>
 
-
 <main class="container">
-
-
-    <!-- ==================================================
-         HERO
-    ================================================== -->
 
     <section class="hero">
 
@@ -1309,26 +1338,20 @@
             QR SECURITY ANALYSIS
         </div>
 
-
         <h1>
             Scan.
             <span>Detect.</span>
             Protect.
         </h1>
 
-
         <p>
             QRGuard analyzes URLs hidden inside QR codes
             using security-focused URL heuristics and
-            provides an automated risk assessment.
+            machine-learning analysis to provide an
+            automated risk assessment.
         </p>
 
     </section>
-
-
-    <!-- ==================================================
-         ERROR
-    ================================================== -->
 
     {% if error %}
 
@@ -1338,13 +1361,7 @@
 
     {% endif %}
 
-
-    <!-- ==================================================
-         SCANNER
-    ================================================== -->
-
     <section class="scanner-card">
-
 
         <div class="scanner-title">
 
@@ -1358,14 +1375,12 @@
 
         </div>
 
-
         <form
             method="POST"
             action="{{ url_for('scan') }}"
             enctype="multipart/form-data"
             id="scanForm"
         >
-
 
             <label
                 for="qr_image"
@@ -1376,17 +1391,14 @@
                     ▣
                 </div>
 
-
                 <h3>
                     Choose QR Image
                 </h3>
-
 
                 <p>
                     Click here to select PNG, JPG, JPEG,
                     WEBP or BMP
                 </p>
-
 
                 <input
                     type="file"
@@ -1398,14 +1410,12 @@
 
             </label>
 
-
             <div
                 class="file-name"
                 id="fileName"
             >
                 No file selected
             </div>
-
 
             <button
                 type="submit"
@@ -1415,18 +1425,11 @@
                 🔍 Scan QR Code
             </button>
 
-
         </form>
 
     </section>
 
-
-    <!-- ==================================================
-         SECURITY FEATURES
-    ================================================== -->
-
     <section class="info-grid">
-
 
         <div class="info-box">
 
@@ -1435,11 +1438,11 @@
             </strong>
 
             <span>
-                QR image is processed by QRGuard.
+                QR image is processed by QRGuard
+                without automatically opening the URL.
             </span>
 
         </div>
-
 
         <div class="info-box">
 
@@ -1448,39 +1451,34 @@
             </strong>
 
             <span>
-                The extracted URL is analyzed
-                without visiting it.
+                URL characteristics are analyzed
+                using security-focused indicators.
             </span>
 
         </div>
-
 
         <div class="info-box">
 
             <strong>
-                RISK SCORE
+                ML RISK ANALYSIS
             </strong>
 
             <span>
-                Security indicators generate
-                a risk classification.
+                A Random Forest model contributes
+                an additional phishing-risk signal.
             </span>
 
         </div>
 
-
     </section>
 
-
 </main>
-
 
 <footer class="footer">
 
     QRGuard © 2026 | Cyber Security Project
 
 </footer>
-
 
 <script>
 
@@ -1537,11 +1535,8 @@
                 !fileInput.files ||
                 fileInput.files.length === 0
             ) {
-
                 return;
-
             }
-
 
             scanButton.disabled = true;
 
@@ -1552,7 +1547,6 @@
     );
 
 </script>
-
 
 </body>
 </html>
