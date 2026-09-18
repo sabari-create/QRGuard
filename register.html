@@ -13,10 +13,21 @@
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --gold: #ffc107;
+            --gold-dark: #d99f00;
+            --purple: #8b5cf6;
+            --purple-dark: #5b21b6;
+            --bg: #03040a;
+            --text: #f5f7fb;
+            --muted: #858da0;
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
 
             font-family:
@@ -24,229 +35,265 @@
                 Helvetica,
                 sans-serif;
 
-            color: #f5f5f5;
+            color: var(--text);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 25px;
+
+            overflow-x: hidden;
 
             background:
                 radial-gradient(
                     circle at 15% 15%,
-                    rgba(112, 67, 190, 0.24),
-                    transparent 35%
+                    rgba(139,92,246,0.18),
+                    transparent 32%
                 ),
                 radial-gradient(
-                    circle at 85% 12%,
-                    rgba(255, 193, 7, 0.12),
-                    transparent 30%
+                    circle at 85% 10%,
+                    rgba(255,193,7,0.10),
+                    transparent 28%
                 ),
                 radial-gradient(
                     circle at 50% 100%,
-                    rgba(84, 44, 140, 0.15),
-                    transparent 42%
+                    rgba(91,33,182,0.16),
+                    transparent 40%
                 ),
                 linear-gradient(
                     135deg,
-                    #03050a,
-                    #080d1b 52%,
-                    #09050f
+                    #020308,
+                    #080b17 50%,
+                    #090510
+                );
+        }
+
+
+        /* =========================
+           BACKGROUND GRID
+        ========================= */
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
                 );
 
-            display: flex;
+            background-size: 45px 45px;
 
-            align-items: center;
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,0.8),
+                    transparent
+                );
 
-            justify-content: center;
+            pointer-events: none;
+        }
 
-            padding: 25px;
+
+        /* =========================
+           GLOW ORBS
+        ========================= */
+
+        .glow {
+            position: fixed;
+
+            border-radius: 50%;
+
+            pointer-events: none;
+
+            filter: blur(5px);
         }
 
 
         .glow-one {
-            position: fixed;
+            width: 330px;
+            height: 330px;
 
-            width: 280px;
-            height: 280px;
-
-            left: -130px;
-            bottom: -120px;
-
-            border-radius: 50%;
+            left: -170px;
+            bottom: -150px;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(255,193,7,0.08),
+                    rgba(255,193,7,0.12),
                     transparent 70%
                 );
-
-            pointer-events: none;
         }
 
 
         .glow-two {
-            position: fixed;
+            width: 320px;
+            height: 320px;
 
-            width: 260px;
-            height: 260px;
-
-            right: -120px;
-            top: -110px;
-
-            border-radius: 50%;
+            right: -150px;
+            top: -150px;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(113,67,190,0.13),
+                    rgba(139,92,246,0.18),
                     transparent 70%
                 );
-
-            pointer-events: none;
         }
 
 
-        /* =========================================
+        /* =========================
            REGISTER CARD
-        ========================================= */
+        ========================= */
 
         .register-card {
-            width: min(450px, 100%);
+            width: min(455px, 100%);
 
-            padding: 34px;
+            padding: 36px;
 
-            border-radius: 25px;
+            position: relative;
+            z-index: 2;
+
+            border-radius: 26px;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(17,20,36,0.96),
-                    rgba(10,8,20,0.96)
+                    rgba(18,20,35,0.97),
+                    rgba(8,8,17,0.97)
                 );
 
             border:
                 1px solid rgba(255,255,255,0.09);
 
             box-shadow:
-                0 35px 90px rgba(0,0,0,0.55),
-                0 0 55px rgba(105,62,175,0.13);
+                0 40px 100px rgba(0,0,0,0.62),
+                0 0 70px rgba(112,67,190,0.14),
+                inset 0 1px 0 rgba(255,255,255,0.05);
 
-            backdrop-filter: blur(22px);
+            backdrop-filter: blur(25px);
 
-            position: relative;
-
-            z-index: 2;
+            overflow: hidden;
         }
 
 
-        /* =========================================
+        .register-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 12%;
+            right: 12%;
+
+            height: 1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,193,7,0.7),
+                    rgba(139,92,246,0.7),
+                    transparent
+                );
+        }
+
+
+        /* =========================
            LOGO
-        ========================================= */
+        ========================= */
 
         .logo-area {
             text-align: center;
 
-            margin-bottom: 25px;
+            margin-bottom: 26px;
         }
 
 
         .logo {
-            width: 66px;
-            height: 66px;
+            width: 74px;
+            height: 74px;
 
-            margin: 0 auto 14px;
+            margin: 0 auto 15px;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
 
-            border-radius: 19px;
+            border-radius: 22px;
 
-            font-size: 32px;
+            font-size: 35px;
 
             background:
                 linear-gradient(
                     145deg,
-                    #1b1834,
-                    #090a12
+                    rgba(139,92,246,0.16),
+                    rgba(255,193,7,0.04)
                 );
 
             border:
                 1px solid rgba(255,193,7,0.42);
 
-            color: #ffc107;
-
             box-shadow:
-                0 0 35px rgba(110,64,180,0.20);
+                0 0 35px rgba(139,92,246,0.20),
+                inset 0 0 25px rgba(255,193,7,0.04);
         }
 
 
         .brand {
-            font-size: 26px;
+            font-size: 28px;
 
             font-weight: 900;
 
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
         }
 
 
         .brand span {
-            color: #ffc107;
+            color: var(--gold);
         }
 
 
         .tagline {
-            margin-top: 6px;
+            margin-top: 7px;
 
-            color: #818a9d;
+            color: #777f91;
 
             font-size: 11px;
+
+            letter-spacing: 0.5px;
         }
 
 
-        /* =========================================
+        /* =========================
            TITLE
-        ========================================= */
+        ========================= */
 
         .title {
             text-align: center;
 
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
 
         .title h1 {
-            margin: 0 0 7px;
+            font-size: 25px;
 
-            font-size: 24px;
+            margin-bottom: 8px;
         }
 
 
         .title p {
-            margin: 0;
-
-            color: #858ea0;
-
-            font-size: 12px;
-        }
-
-
-        /* =========================================
-           ERROR
-        ========================================= */
-
-        .error {
-            margin-bottom: 16px;
-
-            padding: 11px 13px;
-
-            border-radius: 10px;
-
-            color: #ff9ca3;
-
-            background:
-                rgba(220,53,69,0.09);
-
-            border:
-                1px solid rgba(220,53,69,0.23);
+            color: var(--muted);
 
             font-size: 12px;
 
@@ -254,68 +301,133 @@
         }
 
 
-        /* =========================================
+        /* =========================
+           ERROR
+        ========================= */
+
+        .error {
+            margin-bottom: 17px;
+
+            padding: 13px 14px;
+
+            border-radius: 11px;
+
+            color: #ffb0b7;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(220,53,69,0.12),
+                    rgba(220,53,69,0.05)
+                );
+
+            border:
+                1px solid rgba(220,53,69,0.28);
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =========================
            FORM
-        ========================================= */
+        ========================= */
 
         .field {
-            margin-bottom: 14px;
+            margin-bottom: 15px;
         }
 
 
         .field label {
             display: block;
 
-            margin-bottom: 7px;
+            margin-bottom: 8px;
 
-            color: #c9cfda;
+            color: #cbd1dc;
 
             font-size: 12px;
 
-            font-weight: 700;
+            font-weight: 800;
+
+            letter-spacing: 0.2px;
+        }
+
+
+        .input-wrap {
+            position: relative;
+        }
+
+
+        .input-icon {
+            position: absolute;
+
+            left: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            font-size: 14px;
+
+            opacity: 0.68;
+
+            pointer-events: none;
         }
 
 
         .field input {
             width: 100%;
 
-            padding: 12px 14px;
+            padding: 13px 14px 13px 41px;
 
-            border-radius: 11px;
+            border-radius: 12px;
 
             outline: none;
 
-            color: #f0f2f6;
+            color: #f3f5f8;
 
             background:
                 rgba(255,255,255,0.045);
 
             border:
-                1px solid rgba(255,255,255,0.09);
+                1px solid rgba(255,255,255,0.10);
 
             font-size: 13px;
 
-            transition: 0.2s;
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s,
+                background 0.2s;
         }
 
 
         .field input::placeholder {
-            color: #596274;
+            color: #596275;
+        }
+
+
+        .field input:hover {
+            background:
+                rgba(255,255,255,0.055);
         }
 
 
         .field input:focus {
             border-color:
-                rgba(255,193,7,0.45);
+                rgba(255,193,7,0.55);
+
+            background:
+                rgba(255,255,255,0.06);
 
             box-shadow:
-                0 0 0 3px rgba(255,193,7,0.06);
+                0 0 0 3px rgba(255,193,7,0.07),
+                0 0 20px rgba(255,193,7,0.05);
         }
 
 
-        /* =========================================
+        /* =========================
            CREATE BUTTON
-        ========================================= */
+        ========================= */
 
         .create-btn {
             width: 100%;
@@ -326,7 +438,7 @@
 
             margin-top: 4px;
 
-            border-radius: 11px;
+            border-radius: 12px;
 
             cursor: pointer;
 
@@ -335,32 +447,45 @@
             background:
                 linear-gradient(
                     135deg,
+                    #ffd34d,
                     #ffc107,
-                    #dfa300
+                    #dca400
                 );
 
             font-size: 13px;
 
             font-weight: 900;
 
-            box-shadow:
-                0 10px 28px rgba(255,193,7,0.14);
+            letter-spacing: 0.6px;
 
-            transition: 0.2s;
+            box-shadow:
+                0 10px 30px rgba(255,193,7,0.15);
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s,
+                filter 0.2s;
         }
 
 
         .create-btn:hover {
             transform: translateY(-2px);
 
+            filter: brightness(1.05);
+
             box-shadow:
-                0 14px 32px rgba(255,193,7,0.20);
+                0 15px 38px rgba(255,193,7,0.23);
         }
 
 
-        /* =========================================
+        .create-btn:active {
+            transform: translateY(0);
+        }
+
+
+        /* =========================
            DIVIDER
-        ========================================= */
+        ========================= */
 
         .divider {
             display: flex;
@@ -369,7 +494,7 @@
 
             gap: 12px;
 
-            margin: 21px 0;
+            margin: 22px 0;
         }
 
 
@@ -388,18 +513,20 @@
 
             font-size: 10px;
 
-            font-weight: 700;
+            font-weight: 800;
+
+            letter-spacing: 1px;
         }
 
 
-        /* =========================================
-           GOOGLE
-        ========================================= */
+        /* =========================
+           GOOGLE BUTTON
+        ========================= */
 
         .google-btn {
             width: 100%;
 
-            min-height: 46px;
+            min-height: 48px;
 
             display: flex;
 
@@ -407,13 +534,13 @@
 
             justify-content: center;
 
-            gap: 10px;
+            gap: 11px;
 
             text-decoration: none;
 
-            border-radius: 11px;
+            border-radius: 12px;
 
-            color: #e8ebf0;
+            color: #e9ecf2;
 
             background:
                 rgba(255,255,255,0.045);
@@ -425,7 +552,11 @@
 
             font-weight: 800;
 
-            transition: 0.2s;
+            transition:
+                background 0.2s,
+                border-color 0.2s,
+                transform 0.2s,
+                box-shadow 0.2s;
         }
 
 
@@ -434,15 +565,18 @@
                 rgba(255,255,255,0.075);
 
             border-color:
-                rgba(255,193,7,0.25);
+                rgba(255,193,7,0.28);
 
             transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.20);
         }
 
 
         .google-icon {
-            width: 20px;
-            height: 20px;
+            width: 21px;
+            height: 21px;
 
             display: flex;
 
@@ -458,30 +592,33 @@
             font-size: 13px;
 
             font-weight: 900;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.2);
         }
 
 
-        /* =========================================
+        /* =========================
            LOGIN LINK
-        ========================================= */
+        ========================= */
 
         .login-link {
             text-align: center;
 
-            margin-top: 21px;
+            margin-top: 22px;
 
-            color: #737d90;
+            color: #747e91;
 
             font-size: 12px;
         }
 
 
         .login-link a {
-            color: #ffc107;
+            color: var(--gold);
 
             text-decoration: none;
 
-            font-weight: 800;
+            font-weight: 900;
         }
 
 
@@ -490,50 +627,64 @@
         }
 
 
-        /* =========================================
+        /* =========================
            SECURITY
-        ========================================= */
+        ========================= */
 
         .security {
-            display: flex;
+            margin-top: 22px;
 
-            align-items: center;
+            padding: 11px 12px;
 
-            justify-content: center;
+            border-radius: 11px;
 
-            gap: 7px;
+            text-align: center;
 
-            margin-top: 21px;
+            color: #70798b;
 
-            color: #626c7e;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.025),
+                    rgba(139,92,246,0.035)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.06);
 
             font-size: 10px;
 
-            text-align: center;
+            line-height: 1.5;
         }
 
 
-        .security span {
-            color: #ffc107;
+        .security strong {
+            color: #a9b0bf;
         }
 
+
+        /* =========================
+           FOOTER
+        ========================= */
 
         .footer {
-            text-align: center;
+            margin-top: 16px;
 
-            margin-top: 19px;
+            text-align: center;
 
             color: #4f586a;
 
-            font-size: 10px;
+            font-size: 9px;
+
+            letter-spacing: 0.3px;
         }
 
 
-        /* =========================================
+        /* =========================
            MOBILE
-        ========================================= */
+        ========================= */
 
-        @media (max-width: 480px) {
+        @media (max-width: 500px) {
 
             body {
                 padding: 15px;
@@ -541,22 +692,27 @@
 
 
             .register-card {
-                padding: 27px 21px;
+                padding: 30px 22px;
 
                 border-radius: 21px;
             }
 
 
-            .brand {
-                font-size: 23px;
+            .logo {
+                width: 68px;
+                height: 68px;
+
+                font-size: 32px;
             }
 
 
-            .logo {
-                width: 60px;
-                height: 60px;
+            .brand {
+                font-size: 25px;
+            }
 
-                font-size: 29px;
+
+            .title h1 {
+                font-size: 23px;
             }
 
         }
@@ -568,239 +724,264 @@
 
 <body>
 
-
-<div class="glow-one"></div>
-<div class="glow-two"></div>
-
-
-<main class="register-card">
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
 
 
-    <!-- =====================================
-         LOGO
-    ====================================== -->
+    <main class="register-card">
 
-    <div class="logo-area">
 
-        <div class="logo">
-            🛡
+        <!-- =========================
+             BRAND
+        ========================== -->
+
+        <div class="logo-area">
+
+            <div class="logo">
+                🛡️
+            </div>
+
+            <div class="brand">
+                QR<span>Guard</span>
+            </div>
+
+            <div class="tagline">
+                QR-CODE PHISHING DETECTION SYSTEM
+            </div>
+
         </div>
 
 
-        <div class="brand">
-            QR<span>Guard</span>
+        <!-- =========================
+             TITLE
+        ========================== -->
+
+        <div class="title">
+
+            <h1>
+                Create Account
+            </h1>
+
+            <p>
+                Join QRGuard and protect yourself from suspicious QR links
+            </p>
+
         </div>
 
 
-        <div class="tagline">
-            QR-Code Phishing Detection System
-        </div>
+        <!-- =========================
+             ERROR
+        ========================== -->
 
-    </div>
-
-
-
-    <!-- =====================================
-         TITLE
-    ====================================== -->
-
-    <div class="title">
-
-        <h1>
-            Create Account
-        </h1>
-
-        <p>
-            Join QRGuard and protect yourself from suspicious QR links
-        </p>
-
-    </div>
-
-
-
-    <!-- =====================================
-         ERROR
-    ====================================== -->
-
-    {% if error %}
+        {% if error %}
 
         <div class="error">
             ⚠ {{ error }}
         </div>
 
-    {% endif %}
+        {% endif %}
 
 
+        <!-- =========================
+             REGISTER FORM
+        ========================== -->
 
-    <!-- =====================================
-         REGISTER FORM
-    ====================================== -->
-
-    <form
-        method="POST"
-        action="{{ url_for('register') }}"
-    >
-
-
-        <div class="field">
-
-            <label>
-                Username
-            </label>
-
-            <input
-                type="text"
-                name="username"
-                placeholder="Choose a username"
-                autocomplete="username"
-                minlength="3"
-                maxlength="50"
-                required
-            >
-
-        </div>
-
-
-        <div class="field">
-
-            <label>
-                Email Address
-            </label>
-
-            <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                autocomplete="email"
-                required
-            >
-
-        </div>
-
-
-        <div class="field">
-
-            <label>
-                Password
-            </label>
-
-            <input
-                type="password"
-                name="password"
-                placeholder="Create a password"
-                autocomplete="new-password"
-                minlength="6"
-                required
-            >
-
-        </div>
-
-
-        <div class="field">
-
-            <label>
-                Confirm Password
-            </label>
-
-            <input
-                type="password"
-                name="confirm_password"
-                placeholder="Confirm your password"
-                autocomplete="new-password"
-                minlength="6"
-                required
-            >
-
-        </div>
-
-
-        <button
-            type="submit"
-            class="create-btn"
+        <form
+            method="POST"
+            action="{{ url_for('register') }}"
         >
-            👤 Create Account
-        </button>
+
+            <div class="field">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <div class="input-wrap">
+
+                    <span class="input-icon">
+                        👤
+                    </span>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Choose a username"
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="50"
+                        required
+                    >
+
+                </div>
+
+            </div>
 
 
-    </form>
+            <div class="field">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <div class="input-wrap">
+
+                    <span class="input-icon">
+                        ✉️
+                    </span>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+            </div>
 
 
+            <div class="field">
 
-    <!-- =====================================
-         DIVIDER
-    ====================================== -->
+                <label for="password">
+                    Password
+                </label>
 
-    <div class="divider">
+                <div class="input-wrap">
 
-        <div class="divider-line"></div>
+                    <span class="input-icon">
+                        🔐
+                    </span>
 
-        <span>
-            OR
-        </span>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
 
-        <div class="divider-line"></div>
+                </div>
 
-    </div>
+            </div>
 
 
+            <div class="field">
 
-    <!-- =====================================
-         GOOGLE SIGN UP
-    ====================================== -->
+                <label for="confirm_password">
+                    Confirm Password
+                </label>
 
-    <a
-        href="{{ url_for('google_login') }}"
-        class="google-btn"
-    >
+                <div class="input-wrap">
 
-        <div class="google-icon">
-            G
+                    <span class="input-icon">
+                        🔒
+                    </span>
+
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        placeholder="Confirm your password"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="create-btn"
+            >
+                CREATE ACCOUNT
+            </button>
+
+        </form>
+
+
+        <!-- =========================
+             DIVIDER
+        ========================== -->
+
+        <div class="divider">
+
+            <div class="divider-line"></div>
+
+            <span>
+                OR
+            </span>
+
+            <div class="divider-line"></div>
+
         </div>
 
-        Continue with Google
 
-    </a>
+        <!-- =========================
+             GOOGLE
+        ========================== -->
 
+        <a
+            href="{{ url_for('google_login') }}"
+            class="google-btn"
+        >
 
+            <div class="google-icon">
+                G
+            </div>
 
-    <!-- =====================================
-         LOGIN
-    ====================================== -->
+            Continue with Google
 
-    <div class="login-link">
-
-        Already have an account?
-
-        <a href="{{ url_for('login') }}">
-            Sign In
         </a>
 
-    </div>
+
+        <!-- =========================
+             LOGIN
+        ========================== -->
+
+        <div class="login-link">
+
+            Already have an account?
+
+            <a href="{{ url_for('login') }}">
+                Sign In
+            </a>
+
+        </div>
 
 
+        <!-- =========================
+             SECURITY
+        ========================== -->
 
-    <!-- =====================================
-         SECURITY
-    ====================================== -->
+        <div class="security">
 
-    <div class="security">
+            🔒 <strong>Secure Authentication</strong><br>
 
-        <span>🛡</span>
+            Your QRGuard account is protected with
+            secure authentication.
 
-        Secure authentication · QRGuard
-
-    </div>
-
-
-    <div class="footer">
-
-        QRGuard © 2026
-
-    </div>
+        </div>
 
 
-</main>
+        <div class="footer">
 
+            QRGuard © 2026 · Cyber Security Project
+
+        </div>
+
+
+    </main>
 
 </body>
 </html>
+
