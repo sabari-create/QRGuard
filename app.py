@@ -28,7 +28,7 @@ from urllib.parse import urlparse, unquote
 from functools import wraps
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import (
     getSampleStyleSheet,
@@ -40,7 +40,8 @@ from reportlab.platypus import (
     Paragraph,
     Spacer,
     Table,
-    TableStyle
+    TableStyle,
+    KeepTogether
 )
 
 from sklearn.ensemble import RandomForestClassifier
@@ -69,6 +70,7 @@ app.wsgi_app = ProxyFix(
     x_host=1
 )
 
+
 # ============================================================
 # SESSION CONFIGURATION
 # ============================================================
@@ -76,7 +78,6 @@ app.wsgi_app = ProxyFix(
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
-# Secure cookie only on Vercel / HTTPS
 app.config["SESSION_COOKIE_SECURE"] = bool(
     os.environ.get("VERCEL")
 )
@@ -91,8 +92,11 @@ BASE_DIR = os.path.dirname(
 )
 
 if os.environ.get("VERCEL"):
+
     DB_NAME = "/tmp/qrgurad.db"
+
 else:
+
     DB_NAME = os.path.join(
         BASE_DIR,
         "qrgurad.db"
@@ -204,14 +208,10 @@ def init_db():
     ]
 
     user_columns = {
-        "password_hash":
-            "TEXT",
-        "password_salt":
-            "TEXT",
-        "google_id":
-            "TEXT",
-        "display_name":
-            "TEXT"
+        "password_hash": "TEXT",
+        "password_salt": "TEXT",
+        "google_id": "TEXT",
+        "display_name": "TEXT"
     }
 
     for column, datatype in user_columns.items():
@@ -429,79 +429,59 @@ def extract_ml_features(url):
 
     full_url = url.lower()
 
-    # --------------------------------------------------------
-    # Basic numerical URL features
-    # --------------------------------------------------------
-
     features = [
 
-        # URL length
         min(len(url), 300),
 
-        # Hostname length
         min(len(hostname), 100),
 
-        # Path length
         min(len(path), 150),
 
-        # Query length
         min(len(query), 150),
 
-        # Number of dots
         hostname.count("."),
 
-        # Number of hyphens
         hostname.count("-"),
 
-        # Number of digits
         sum(
             char.isdigit()
             for char in hostname
         ),
 
-        # Number of special characters
         sum(
-            char in "@_%=?" 
+            char in "@_%=?"
             for char in url
         ),
 
-        # HTTPS
         int(
             parsed.scheme.lower()
             == "https"
         ),
 
-        # IP address
         int(
             _is_ip_address(hostname)
         ),
 
-        # Punycode
         int(
             "xn--" in hostname
         ),
 
-        # Username
         int(
             parsed.username is not None
         ),
 
-        # Password
         int(
             parsed.password is not None
         ),
 
-        # Query exists
         int(
             bool(query)
         ),
 
-        # Many query parameters
         query.count("&") + 1
         if query
         else 0,
 
-        # Suspicious words
         sum(
             word in full_url
             for word in [
@@ -521,7 +501,6 @@ def extract_ml_features(url):
             ]
         ),
 
-        # Suspicious extensions
         int(
             full_url.endswith(
                 (
@@ -534,17 +513,14 @@ def extract_ml_features(url):
             )
         ),
 
-        # Non-standard port
         int(
             _has_nonstandard_port(parsed)
         ),
 
-        # URL encoding
         int(
             "%" in url
         ),
 
-        # Multiple subdomains
         int(
             hostname.count(".") >= 3
         )
@@ -578,7 +554,6 @@ def _has_nonstandard_port(parsed):
         port = parsed.port
 
         if port is None:
-
             return False
 
         return port not in (
@@ -648,7 +623,6 @@ def build_ml_training_data():
     ]
 
     X = []
-
     y = []
 
     for url in safe_urls:
@@ -755,9 +729,7 @@ def ml_analyze_url(url):
 def analyze_url(url):
 
     score = 0
-
     reasons = []
-
     details = []
 
     parsed = urlparse(url)
@@ -792,7 +764,6 @@ def analyze_url(url):
             "points": points
         })
 
-    # 1
     if len(url) > 100:
 
         add_indicator(
@@ -800,7 +771,6 @@ def analyze_url(url):
             15
         )
 
-    # 2
     if parsed.scheme.lower() != "https":
 
         add_indicator(
@@ -808,7 +778,6 @@ def analyze_url(url):
             15
         )
 
-    # 3
     try:
 
         ipaddress.ip_address(
@@ -824,7 +793,6 @@ def analyze_url(url):
 
         pass
 
-    # 4
     if (
         parsed.username
         or parsed.password
@@ -835,7 +803,6 @@ def analyze_url(url):
             20
         )
 
-    # 5
     if "@" in url:
 
         add_indicator(
@@ -843,7 +810,6 @@ def analyze_url(url):
             10
         )
 
-    # 6
     suspicious_keywords = [
 
         "login",
@@ -876,7 +842,6 @@ def analyze_url(url):
             10
         )
 
-    # 7
     if hostname.count(".") >= 3:
 
         add_indicator(
@@ -884,7 +849,6 @@ def analyze_url(url):
             10
         )
 
-    # 8
     if "-" in hostname:
 
         add_indicator(
@@ -892,7 +856,6 @@ def analyze_url(url):
             5
         )
 
-    # 9
     digit_count = sum(
         character.isdigit()
         for character in hostname
@@ -905,7 +868,6 @@ def analyze_url(url):
             5
         )
 
-    # 10
     if len(hostname) > 30:
 
         add_indicator(
@@ -913,7 +875,6 @@ def analyze_url(url):
             10
         )
 
-    # 11
     if "%" in url or "_" in url:
 
         add_indicator(
@@ -921,7 +882,6 @@ def analyze_url(url):
             5
         )
 
-    # 12
     try:
 
         decoded_url = unquote(
@@ -939,7 +899,6 @@ def analyze_url(url):
 
         pass
 
-    # 13
     if len(path) > 60:
 
         add_indicator(
@@ -947,7 +906,6 @@ def analyze_url(url):
             10
         )
 
-    # 14
     if query:
 
         parameter_count = len(
@@ -961,7 +919,6 @@ def analyze_url(url):
                 10
             )
 
-    # 15
     suspicious_extensions = (
         ".exe",
         ".scr",
@@ -979,7 +936,6 @@ def analyze_url(url):
             15
         )
 
-    # 16
     if "xn--" in hostname.lower():
 
         add_indicator(
@@ -987,15 +943,13 @@ def analyze_url(url):
             15
         )
 
-    # 17
     if hostname.count("-") >= 3:
 
         add_indicator(
-            "Multiple hyphens detected in hostname",
+            "Multiple hyphens detected",
             10
         )
 
-    # 18
     try:
 
         port = parsed.port
@@ -1017,7 +971,6 @@ def analyze_url(url):
             10
         )
 
-    # 19
     hostname_labels = hostname.split(".")
 
     if any(
@@ -1083,10 +1036,6 @@ def combined_analysis(url):
 
     ml_score = ml_result["score"]
 
-    # --------------------------------------------------------
-    # Combined score
-    # --------------------------------------------------------
-
     combined_score = round(
         (rule_score * 0.70)
         +
@@ -1097,10 +1046,6 @@ def combined_analysis(url):
         combined_score,
         100
     )
-
-    # --------------------------------------------------------
-    # Final classification
-    # --------------------------------------------------------
 
     if combined_score <= 30:
 
@@ -1113,10 +1058,6 @@ def combined_analysis(url):
     else:
 
         final_risk = "HIGH RISK"
-
-    # --------------------------------------------------------
-    # Add ML indicator
-    # --------------------------------------------------------
 
     details.append({
         "indicator":
@@ -1720,10 +1661,6 @@ def scan():
                 )
             )
 
-        # ----------------------------------------------------
-        # Read uploaded image directly into memory
-        # ----------------------------------------------------
-
         image_bytes = file.read()
 
         if not image_bytes:
@@ -1733,7 +1670,6 @@ def scan():
                 error="Uploaded image is empty."
             )
 
-        # 5 MB protection
         if len(image_bytes) > 5 * 1024 * 1024:
 
             return render_template(
@@ -1763,10 +1699,6 @@ def scan():
                 )
             )
 
-        # ----------------------------------------------------
-        # QR Detector
-        # ----------------------------------------------------
-
         detector = cv2.QRCodeDetector()
 
         data, points, _ = (
@@ -1787,10 +1719,6 @@ def scan():
 
         url = data.strip()
 
-        # ----------------------------------------------------
-        # URL validation
-        # ----------------------------------------------------
-
         valid, validation_error = (
             validate_url(url)
         )
@@ -1802,17 +1730,9 @@ def scan():
                 error=validation_error
             )
 
-        # ----------------------------------------------------
-        # Combined rule + ML analysis
-        # ----------------------------------------------------
-
         analysis = combined_analysis(
             url
         )
-
-        # ----------------------------------------------------
-        # Save result
-        # ----------------------------------------------------
 
         user_id = session[
             "user_id"
@@ -2067,7 +1987,7 @@ def dashboard():
 
 
 # ============================================================
-# PDF REPORT
+# PREMIUM PDF REPORT
 # ============================================================
 
 @app.route(
@@ -2075,6 +1995,10 @@ def dashboard():
 )
 @login_required
 def report(scan_id):
+
+    # --------------------------------------------------------
+    # Fetch scan belonging to current user
+    # --------------------------------------------------------
 
     connection = get_db()
 
@@ -2108,10 +2032,22 @@ def report(scan_id):
             404
         )
 
+    # --------------------------------------------------------
+    # Stored values
+    # --------------------------------------------------------
+
     url = scan["url"]
 
-    stored_score = scan["score"]
-    stored_risk = scan["risk"]
+    score = (
+        scan["score"]
+        if scan["score"] is not None
+        else 0
+    )
+
+    risk = (
+        scan["risk"]
+        or "UNKNOWN"
+    )
 
     ml_prediction = (
         scan["ml_prediction"]
@@ -2130,80 +2066,141 @@ def report(scan_id):
         else 0
     )
 
-    scanned_at = scan[
-        "scanned_at"
-    ]
-
-    analysis = combined_analysis(
-        url
+    scanned_at = (
+        scan["scanned_at"]
     )
 
-    score = stored_score
-    risk = stored_risk
+    # --------------------------------------------------------
+    # Recalculate rule indicators
+    # --------------------------------------------------------
 
-    details = analysis[
-        "details"
-    ]
+    rule_score, _, rule_reasons, rule_details = (
+        analyze_url(url)
+    )
+
+    # --------------------------------------------------------
+    # Score contributions
+    # --------------------------------------------------------
+
+    rule_contribution = round(
+        rule_score * 0.70,
+        1
+    )
+
+    ml_contribution = round(
+        ml_score * 0.30,
+        1
+    )
+
+    # --------------------------------------------------------
+    # PDF buffer
+    # --------------------------------------------------------
 
     pdf_buffer = io.BytesIO()
 
     document = SimpleDocTemplate(
         pdf_buffer,
         pagesize=A4,
-        rightMargin=18 * mm,
-        leftMargin=18 * mm,
-        topMargin=18 * mm,
-        bottomMargin=18 * mm
+        rightMargin=16 * mm,
+        leftMargin=16 * mm,
+        topMargin=15 * mm,
+        bottomMargin=18 * mm,
+        title="QRGuard Security Analysis Report",
+        author="QRGuard",
+        subject="QR-Code Phishing Detection Security Report"
     )
+
+    # --------------------------------------------------------
+    # Styles
+    # --------------------------------------------------------
 
     styles = getSampleStyleSheet()
 
     title_style = ParagraphStyle(
-        "TitleStyle",
+        "QRTitle",
         parent=styles["Title"],
         alignment=TA_CENTER,
-        fontSize=22,
-        leading=26,
-        spaceAfter=8
+        fontSize=25,
+        leading=29,
+        textColor=colors.HexColor("#0b2239"),
+        spaceAfter=3
     )
 
     subtitle_style = ParagraphStyle(
-        "SubtitleStyle",
+        "QRSubtitle",
         parent=styles["Normal"],
         alignment=TA_CENTER,
-        fontSize=10,
-        leading=14,
-        spaceAfter=18
+        fontSize=9.5,
+        leading=13,
+        textColor=colors.HexColor("#666666"),
+        spaceAfter=10
     )
 
     section_style = ParagraphStyle(
-        "SectionStyle",
+        "QRSection",
         parent=styles["Heading2"],
         fontSize=13,
         leading=16,
-        spaceBefore=10,
-        spaceAfter=8
+        textColor=colors.HexColor("#0b2239"),
+        spaceBefore=9,
+        spaceAfter=7
     )
 
     normal_style = ParagraphStyle(
-        "NormalStyle",
+        "QRNormal",
         parent=styles["Normal"],
-        fontSize=9,
-        leading=13
+        fontSize=8.8,
+        leading=12.5,
+        textColor=colors.HexColor("#222222")
     )
 
     small_style = ParagraphStyle(
-        "SmallStyle",
+        "QRSmall",
         parent=styles["Normal"],
-        fontSize=8,
-        leading=11
+        fontSize=7.8,
+        leading=10.5,
+        textColor=colors.HexColor("#333333")
     )
+
+    white_center_style = ParagraphStyle(
+        "QRWhiteCenter",
+        parent=styles["Normal"],
+        fontSize=8.8,
+        leading=12,
+        textColor=colors.white,
+        alignment=TA_CENTER
+    )
+
+    white_large_style = ParagraphStyle(
+        "QRWhiteLarge",
+        parent=styles["Normal"],
+        fontSize=15,
+        leading=18,
+        textColor=colors.white,
+        alignment=TA_CENTER
+    )
+
+    center_style = ParagraphStyle(
+        "QRCenter",
+        parent=normal_style,
+        alignment=TA_CENTER
+    )
+
+    right_style = ParagraphStyle(
+        "QRRight",
+        parent=small_style,
+        alignment=TA_RIGHT
+    )
+
+    # --------------------------------------------------------
+    # Story
+    # --------------------------------------------------------
 
     story = []
 
-    # --------------------------------------------------------
-    # Header
-    # --------------------------------------------------------
+    # ========================================================
+    # REPORT HEADER
+    # ========================================================
 
     story.append(
         Paragraph(
@@ -2224,12 +2221,15 @@ def report(scan_id):
             [
                 Paragraph(
                     "<b>SECURITY ANALYSIS REPORT</b>",
-                    normal_style
+                    white_center_style
                 )
             ]
         ],
         colWidths=[
-            174 * mm
+            178 * mm
+        ],
+        rowHeights=[
+            13 * mm
         ]
     )
 
@@ -2242,28 +2242,23 @@ def report(scan_id):
                 colors.HexColor("#0b2239")
             ),
             (
-                "TEXTCOLOR",
+                "BOX",
                 (0, 0),
                 (-1, -1),
-                colors.white
+                1,
+                colors.HexColor("#c9a227")
+            ),
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
             ),
             (
                 "ALIGN",
                 (0, 0),
                 (-1, -1),
                 "CENTER"
-            ),
-            (
-                "TOPPADDING",
-                (0, 0),
-                (-1, -1),
-                10
-            ),
-            (
-                "BOTTOMPADDING",
-                (0, 0),
-                (-1, -1),
-                10
             )
         ])
     )
@@ -2273,16 +2268,16 @@ def report(scan_id):
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 9)
     )
 
-    # --------------------------------------------------------
-    # Scan information
-    # --------------------------------------------------------
+    # ========================================================
+    # 1. SCAN SUMMARY
+    # ========================================================
 
     story.append(
         Paragraph(
-            "1. Scan Information",
+            "1. Scan Summary",
             section_style
         )
     )
@@ -2291,49 +2286,60 @@ def report(scan_id):
         url
     )
 
-    scan_data = [
-
+    summary_table = Table(
         [
-            "Scan ID",
-            str(scan["id"])
+            [
+                Paragraph(
+                    "<b>Scan ID</b>",
+                    small_style
+                ),
+                str(scan["id"])
+            ],
+            [
+                Paragraph(
+                    "<b>Scanned URL</b>",
+                    small_style
+                ),
+                Paragraph(
+                    safe_url,
+                    small_style
+                )
+            ],
+            [
+                Paragraph(
+                    "<b>Scanned At</b>",
+                    small_style
+                ),
+                str(scanned_at)
+            ],
+            [
+                Paragraph(
+                    "<b>Analysis Type</b>",
+                    small_style
+                ),
+                "Static QR URL Security Analysis"
+            ]
         ],
-
-        [
-            "Scanned URL",
-            Paragraph(
-                safe_url,
-                small_style
-            )
-        ],
-
-        [
-            "Scanned At",
-            str(scanned_at)
-        ]
-    ]
-
-    scan_table = Table(
-        scan_data,
         colWidths=[
-            40 * mm,
-            134 * mm
+            42 * mm,
+            136 * mm
         ]
     )
 
-    scan_table.setStyle(
+    summary_table.setStyle(
         TableStyle([
             (
                 "GRID",
                 (0, 0),
                 (-1, -1),
                 0.5,
-                colors.grey
+                colors.HexColor("#b7c1ca")
             ),
             (
                 "BACKGROUND",
                 (0, 0),
                 (0, -1),
-                colors.HexColor("#eaf2f8")
+                colors.HexColor("#edf2f7")
             ),
             (
                 "VALIGN",
@@ -2342,19 +2348,25 @@ def report(scan_id):
                 "TOP"
             ),
             (
-                "FONTSIZE",
+                "TOPPADDING",
                 (0, 0),
                 (-1, -1),
-                8
+                6
             ),
             (
-                "TOPPADDING",
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            ),
+            (
+                "LEFTPADDING",
                 (0, 0),
                 (-1, -1),
                 7
             ),
             (
-                "BOTTOMPADDING",
+                "RIGHTPADDING",
                 (0, 0),
                 (-1, -1),
                 7
@@ -2363,20 +2375,20 @@ def report(scan_id):
     )
 
     story.append(
-        scan_table
+        summary_table
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 9)
     )
 
-    # --------------------------------------------------------
-    # Risk assessment
-    # --------------------------------------------------------
+    # ========================================================
+    # 2. FINAL RISK ASSESSMENT
+    # ========================================================
 
     story.append(
         Paragraph(
-            "2. Risk Assessment",
+            "2. Final Risk Assessment",
             section_style
         )
     )
@@ -2387,10 +2399,20 @@ def report(scan_id):
             "#198754"
         )
 
+        risk_message = (
+            "The URL contains relatively few suspicious indicators "
+            "under the current QRGuard analysis rules."
+        )
+
     elif risk == "MEDIUM RISK":
 
         risk_color = colors.HexColor(
             "#d39e00"
+        )
+
+        risk_message = (
+            "The URL contains several indicators that require "
+            "additional verification before interaction."
         )
 
     else:
@@ -2399,27 +2421,110 @@ def report(scan_id):
             "#dc3545"
         )
 
+        risk_message = (
+            "The URL contains multiple suspicious indicators "
+            "and should be treated with caution."
+        )
+
+    # --------------------------------------------------------
+    # Score bar
+    # --------------------------------------------------------
+
+    bar_width = 178 * mm
+
+    filled_width = max(
+        2 * mm,
+        bar_width * (
+            max(
+                0,
+                min(
+                    score,
+                    100
+                )
+            ) / 100
+        )
+    )
+
+    remaining_width = max(
+        1 * mm,
+        bar_width - filled_width
+    )
+
+    score_bar = Table(
+        [
+            ["", ""]
+        ],
+        colWidths=[
+            filled_width,
+            remaining_width
+        ],
+        rowHeights=[
+            6 * mm
+        ]
+    )
+
+    score_bar.setStyle(
+        TableStyle([
+            (
+                "BACKGROUND",
+                (0, 0),
+                (0, 0),
+                risk_color
+            ),
+            (
+                "BACKGROUND",
+                (1, 0),
+                (1, 0),
+                colors.HexColor("#e9ecef")
+            ),
+            (
+                "BOX",
+                (0, 0),
+                (-1, -1),
+                0.5,
+                colors.HexColor("#adb5bd")
+            )
+        ])
+    )
+
+    story.append(
+        score_bar
+    )
+
+    story.append(
+        Spacer(1, 5)
+    )
+
+    # --------------------------------------------------------
+    # Main risk cards
+    # --------------------------------------------------------
+
     risk_table = Table(
         [
             [
                 Paragraph(
-                    f"<b>FINAL RISK SCORE</b><br/>"
-                    f"<font size='24'>{score}/100</font>",
-                    normal_style
+                    "<b>FINAL SCORE</b><br/>"
+                    f"<font size='26'>{score}/100</font>",
+                    ParagraphStyle(
+                        "FinalScore",
+                        parent=normal_style,
+                        alignment=TA_CENTER,
+                        leading=30
+                    )
                 ),
-
                 Paragraph(
-                    f"<b>RISK LEVEL</b><br/>"
-                    f"<font size='16'>"
-                    f"{html.escape(risk)}"
-                    f"</font>",
-                    normal_style
+                    "<b>RISK LEVEL</b><br/>"
+                    f"<font size='15'>{html.escape(risk)}</font>",
+                    white_large_style
                 )
             ]
         ],
         colWidths=[
-            87 * mm,
-            87 * mm
+            89 * mm,
+            89 * mm
+        ],
+        rowHeights=[
+            24 * mm
         ]
     )
 
@@ -2429,7 +2534,7 @@ def report(scan_id):
                 "BACKGROUND",
                 (0, 0),
                 (0, 0),
-                colors.HexColor("#eef3f7")
+                colors.HexColor("#f1f4f7")
             ),
             (
                 "BACKGROUND",
@@ -2438,14 +2543,145 @@ def report(scan_id):
                 risk_color
             ),
             (
-                "TEXTCOLOR",
-                (1, 0),
-                (1, 0),
-                colors.white
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
             ),
             (
                 "ALIGN",
                 (0, 0),
+                (-1, -1),
+                "CENTER"
+            ),
+            (
+                "BOX",
+                (0, 0),
+                (-1, -1),
+                0.7,
+                colors.HexColor("#9aa4ad")
+            )
+        ])
+    )
+
+    story.append(
+        risk_table
+    )
+
+    story.append(
+        Spacer(1, 6)
+    )
+
+    story.append(
+        Paragraph(
+            html.escape(
+                risk_message
+            ),
+            normal_style
+        )
+    )
+
+    story.append(
+        Spacer(1, 8)
+    )
+
+    # ========================================================
+    # 3. SCORE BREAKDOWN
+    # ========================================================
+
+    story.append(
+        Paragraph(
+            "3. Score Breakdown",
+            section_style
+        )
+    )
+
+    score_table = Table(
+        [
+            [
+                Paragraph(
+                    "<b>Component</b>",
+                    white_center_style
+                ),
+                Paragraph(
+                    "<b>Score</b>",
+                    white_center_style
+                ),
+                Paragraph(
+                    "<b>Weight</b>",
+                    white_center_style
+                ),
+                Paragraph(
+                    "<b>Contribution</b>",
+                    white_center_style
+                )
+            ],
+            [
+                "Rule-Based Analysis",
+                f"{rule_score}/100",
+                "70%",
+                f"{rule_contribution}"
+            ],
+            [
+                "Machine Learning",
+                f"{ml_score}/100",
+                "30%",
+                f"{ml_contribution}"
+            ],
+            [
+                Paragraph(
+                    "<b>Final QRGuard Score</b>",
+                    small_style
+                ),
+                Paragraph(
+                    f"<b>{score}/100</b>",
+                    center_style
+                ),
+                "100%",
+                Paragraph(
+                    f"<b>{score}</b>",
+                    center_style
+                )
+            ]
+        ],
+        colWidths=[
+            68 * mm,
+            31 * mm,
+            30 * mm,
+            49 * mm
+        ]
+    )
+
+    score_table.setStyle(
+        TableStyle([
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#0b2239")
+            ),
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+            (
+                "BACKGROUND",
+                (0, -1),
+                (-1, -1),
+                colors.HexColor("#eaf2f8")
+            ),
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.5,
+                colors.HexColor("#adb5bd")
+            ),
+            (
+                "ALIGN",
+                (1, 1),
                 (-1, -1),
                 "CENTER"
             ),
@@ -2456,99 +2692,115 @@ def report(scan_id):
                 "MIDDLE"
             ),
             (
-                "BOX",
-                (0, 0),
-                (-1, -1),
-                0.7,
-                colors.grey
-            ),
-            (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
-                12
+                6
             ),
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
-                12
+                6
             )
         ])
     )
 
     story.append(
-        risk_table
+        score_table
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 9)
     )
 
-    # --------------------------------------------------------
-    # ML Analysis
-    # --------------------------------------------------------
+    # ========================================================
+    # 4. MACHINE LEARNING ANALYSIS
+    # ========================================================
 
     story.append(
         Paragraph(
-            "3. Machine Learning Analysis",
+            "4. Machine Learning Analysis",
             section_style
         )
+    )
+
+    ml_prediction_safe = html.escape(
+        str(ml_prediction)
     )
 
     ml_table = Table(
         [
             [
-                "ML Prediction",
-                ml_prediction
-            ],
-            [
-                "ML Confidence",
-                f"{ml_confidence}%"
-            ],
-            [
-                "ML Phishing Score",
-                f"{ml_score}/100"
+                Paragraph(
+                    "<b>ML PREDICTION</b><br/><br/>"
+                    f"<font size='13'>{ml_prediction_safe}</font>",
+                    ParagraphStyle(
+                        "MLPrediction",
+                        parent=normal_style,
+                        alignment=TA_CENTER,
+                        leading=17
+                    )
+                ),
+                Paragraph(
+                    "<b>CONFIDENCE</b><br/><br/>"
+                    f"<font size='18'>{float(ml_confidence):.1f}%</font>",
+                    ParagraphStyle(
+                        "MLConfidence",
+                        parent=normal_style,
+                        alignment=TA_CENTER,
+                        leading=22
+                    )
+                ),
+                Paragraph(
+                    "<b>PHISHING SCORE</b><br/><br/>"
+                    f"<font size='18'>{ml_score}/100</font>",
+                    ParagraphStyle(
+                        "MLScore",
+                        parent=normal_style,
+                        alignment=TA_CENTER,
+                        leading=22
+                    )
+                )
             ]
         ],
         colWidths=[
-            65 * mm,
-            109 * mm
+            78 * mm,
+            50 * mm,
+            50 * mm
+        ],
+        rowHeights=[
+            27 * mm
         ]
     )
 
     ml_table.setStyle(
         TableStyle([
             (
-                "GRID",
+                "BACKGROUND",
+                (0, 0),
+                (-1, -1),
+                colors.HexColor("#f4f0fa")
+            ),
+            (
+                "BOX",
+                (0, 0),
+                (-1, -1),
+                0.8,
+                colors.HexColor("#6f42c1")
+            ),
+            (
+                "INNERGRID",
                 (0, 0),
                 (-1, -1),
                 0.5,
-                colors.grey
-            ),
-            (
-                "BACKGROUND",
-                (0, 0),
-                (0, -1),
-                colors.HexColor("#eaf2f8")
+                colors.HexColor("#c8b8dd")
             ),
             (
                 "VALIGN",
                 (0, 0),
                 (-1, -1),
-                "TOP"
-            ),
-            (
-                "TOPPADDING",
-                (0, 0),
-                (-1, -1),
-                7
-            ),
-            (
-                "BOTTOMPADDING",
-                (0, 0),
-                (-1, -1),
-                7
+                "MIDDLE"
             )
         ])
     )
@@ -2558,47 +2810,100 @@ def report(scan_id):
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 7)
     )
-
-    # --------------------------------------------------------
-    # Detection indicators
-    # --------------------------------------------------------
 
     story.append(
         Paragraph(
-            "4. Detection Indicators",
+            "The Random Forest classifier evaluates extracted URL "
+            "features and produces a phishing probability score. "
+            "The ML phishing score contributes 30% to the final "
+            "QRGuard score.",
+            normal_style
+        )
+    )
+
+    story.append(
+        Spacer(1, 9)
+    )
+
+    # ========================================================
+    # 5. DETECTION INDICATORS
+    # ========================================================
+
+    story.append(
+        Paragraph(
+            "5. Detection Indicators",
             section_style
         )
     )
 
     indicator_rows = [
         [
-            "Indicator",
-            "Points"
+            Paragraph(
+                "<b>Indicator</b>",
+                white_center_style
+            ),
+            Paragraph(
+                "<b>Points</b>",
+                white_center_style
+            )
         ]
     ]
 
-    for detail in details:
+    for detail in rule_details:
 
-        indicator_rows.append([
+        indicator_rows.append(
+            [
+                Paragraph(
+                    html.escape(
+                        str(
+                            detail["indicator"]
+                        )
+                    ),
+                    small_style
+                ),
+                Paragraph(
+                    str(
+                        detail["points"]
+                    ),
+                    ParagraphStyle(
+                        "IndicatorPoints",
+                        parent=small_style,
+                        alignment=TA_CENTER
+                    )
+                )
+            ]
+        )
+
+    # ML result as separate indicator
+    indicator_rows.append(
+        [
             Paragraph(
                 html.escape(
-                    str(
-                        detail["indicator"]
-                    )
+                    "ML prediction: "
+                    + str(ml_prediction)
+                    + " ("
+                    + f"{float(ml_confidence):.1f}"
+                    + "% confidence)"
                 ),
                 small_style
             ),
-            str(
-                detail["points"]
+            Paragraph(
+                str(ml_score),
+                ParagraphStyle(
+                    "MLIndicatorPoints",
+                    parent=small_style,
+                    alignment=TA_CENTER
+                )
             )
-        ])
+        ]
+    )
 
     indicator_table = Table(
         indicator_rows,
         colWidths=[
-            145 * mm,
+            149 * mm,
             29 * mm
         ],
         repeatRows=1
@@ -2623,7 +2928,7 @@ def report(scan_id):
                 (0, 0),
                 (-1, -1),
                 0.5,
-                colors.grey
+                colors.HexColor("#adb5bd")
             ),
             (
                 "ALIGN",
@@ -2641,10 +2946,22 @@ def report(scan_id):
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
-                6
+                5
             ),
             (
                 "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                5
+            ),
+            (
+                "LEFTPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            ),
+            (
+                "RIGHTPADDING",
                 (0, 0),
                 (-1, -1),
                 6
@@ -2657,44 +2974,31 @@ def report(scan_id):
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 9)
     )
 
-    # --------------------------------------------------------
-    # Score methodology
-    # --------------------------------------------------------
+    # ========================================================
+    # 6. RISK CLASSIFICATION
+    # ========================================================
 
     story.append(
         Paragraph(
-            "5. Score Methodology",
+            "6. Risk Classification",
             section_style
         )
     )
 
-    methodology_text = (
-        "QRGuard combines rule-based URL security analysis "
-        "with a lightweight Random Forest machine-learning "
-        "classifier. The rule-based analysis contributes 70% "
-        "of the combined score, while the ML phishing score "
-        "contributes 30%. The final score is limited to 100."
-    )
-
-    story.append(
-        Paragraph(
-            methodology_text,
-            normal_style
-        )
-    )
-
-    story.append(
-        Spacer(1, 8)
-    )
-
-    risk_method_table = Table(
+    classification_table = Table(
         [
             [
-                "Score Range",
-                "Classification"
+                Paragraph(
+                    "<b>Score Range</b>",
+                    white_center_style
+                ),
+                Paragraph(
+                    "<b>Classification</b>",
+                    white_center_style
+                )
             ],
             [
                 "0 - 30",
@@ -2710,12 +3014,12 @@ def report(scan_id):
             ]
         ],
         colWidths=[
-            70 * mm,
-            104 * mm
+            80 * mm,
+            98 * mm
         ]
     )
 
-    risk_method_table.setStyle(
+    classification_table.setStyle(
         TableStyle([
             (
                 "BACKGROUND",
@@ -2730,11 +3034,29 @@ def report(scan_id):
                 colors.white
             ),
             (
+                "BACKGROUND",
+                (0, 1),
+                (-1, 1),
+                colors.HexColor("#e8f5e9")
+            ),
+            (
+                "BACKGROUND",
+                (0, 2),
+                (-1, 2),
+                colors.HexColor("#fff3cd")
+            ),
+            (
+                "BACKGROUND",
+                (0, 3),
+                (-1, 3),
+                colors.HexColor("#f8d7da")
+            ),
+            (
                 "GRID",
                 (0, 0),
                 (-1, -1),
                 0.5,
-                colors.grey
+                colors.HexColor("#adb5bd")
             ),
             (
                 "ALIGN",
@@ -2758,20 +3080,20 @@ def report(scan_id):
     )
 
     story.append(
-        risk_method_table
+        classification_table
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 9)
     )
 
-    # --------------------------------------------------------
-    # Security methodology
-    # --------------------------------------------------------
+    # ========================================================
+    # 7. SECURITY METHODOLOGY
+    # ========================================================
 
     story.append(
         Paragraph(
-            "6. Security Methodology",
+            "7. Security Methodology",
             section_style
         )
     )
@@ -2782,59 +3104,68 @@ def report(scan_id):
 
         "The extracted URL is validated as an HTTP/HTTPS URL.",
 
-        "Static URL features are extracted for analysis.",
+        "Static URL features are extracted without visiting the website.",
 
         "Rule-based security indicators are calculated.",
 
         "A Random Forest machine-learning classifier evaluates "
         "the URL feature pattern.",
 
-        "Rule-based and ML scores are combined into the final "
-        "QRGuard risk score.",
+        "Rule-based analysis contributes 70% to the combined score.",
+
+        "Machine-learning analysis contributes 30% to the combined score.",
+
+        "The final score is limited to a maximum of 100.",
+
+        "The final score is classified into LOW, MEDIUM, or HIGH risk.",
 
         "The submitted URL is not automatically opened or visited "
         "by QRGuard."
     ]
 
-    for item in methodology:
+    for number, item in enumerate(
+        methodology,
+        start=1
+    ):
 
         story.append(
             Paragraph(
-                "• " + item,
+                f"<b>{number}.</b> "
+                + html.escape(item),
                 normal_style
             )
         )
 
         story.append(
-            Spacer(1, 3)
+            Spacer(1, 2)
         )
 
     story.append(
-        Spacer(1, 8)
+        Spacer(1, 7)
     )
 
-    # --------------------------------------------------------
-    # Security notice
-    # --------------------------------------------------------
+    # ========================================================
+    # SECURITY NOTICE
+    # ========================================================
 
     notice_table = Table(
         [
             [
                 Paragraph(
-                    "<b>SECURITY NOTICE</b><br/>"
+                    "<b>SECURITY NOTICE</b><br/><br/>"
                     "QRGuard performs static URL analysis. "
                     "The machine-learning model is trained on a "
                     "small project dataset and is intended for "
                     "educational and defensive cybersecurity use. "
-                    "A risk classification should not be treated "
-                    "as absolute proof that a website is malicious "
-                    "or safe.",
+                    "A risk classification is an automated assessment "
+                    "and should not be treated as absolute proof that "
+                    "a website is malicious or safe.",
                     small_style
                 )
             ]
         ],
         colWidths=[
-            174 * mm
+            178 * mm
         ]
     )
 
@@ -2850,7 +3181,7 @@ def report(scan_id):
                 "BOX",
                 (0, 0),
                 (-1, -1),
-                0.7,
+                0.8,
                 colors.HexColor("#d39e00")
             ),
             (
@@ -2869,13 +3200,13 @@ def report(scan_id):
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
-                10
+                9
             ),
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
-                10
+                9
             )
         ])
     )
@@ -2885,16 +3216,16 @@ def report(scan_id):
     )
 
     story.append(
-        Spacer(1, 12)
+        Spacer(1, 9)
     )
 
-    # --------------------------------------------------------
-    # Disclaimer
-    # --------------------------------------------------------
+    # ========================================================
+    # 8. DISCLAIMER
+    # ========================================================
 
     story.append(
         Paragraph(
-            "7. Disclaimer",
+            "8. Disclaimer",
             section_style
         )
     )
@@ -2916,18 +3247,90 @@ def report(scan_id):
     )
 
     story.append(
-        Spacer(1, 18)
+        Spacer(1, 13)
+    )
+
+    # ========================================================
+    # REPORT FOOTER
+    # ========================================================
+
+    footer_table = Table(
+        [
+            [
+                Paragraph(
+                    "<b>QRGuard © 2026</b>",
+                    small_style
+                ),
+                Paragraph(
+                    "Cyber Security Project",
+                    right_style
+                )
+            ]
+        ],
+        colWidths=[
+            89 * mm,
+            89 * mm
+        ]
+    )
+
+    footer_table.setStyle(
+        TableStyle([
+            (
+                "LINEABOVE",
+                (0, 0),
+                (-1, 0),
+                0.8,
+                colors.HexColor("#c9a227")
+            ),
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            )
+        ])
     )
 
     story.append(
-        Paragraph(
-            "QRGuard © 2026 | Cyber Security Project",
-            small_style
-        )
+        footer_table
     )
 
+    # ========================================================
+    # PAGE NUMBER FUNCTION
+    # ========================================================
+
+    def add_page_number(
+        canvas,
+        doc
+    ):
+
+        canvas.saveState()
+
+        canvas.setFont(
+            "Helvetica",
+            7
+        )
+
+        canvas.setFillColor(
+            colors.HexColor("#666666")
+        )
+
+        canvas.drawCentredString(
+            A4[0] / 2,
+            8 * mm,
+            f"Page {doc.page}"
+        )
+
+        canvas.restoreState()
+
+    # ========================================================
+    # BUILD PDF
+    # ========================================================
+
     document.build(
-        story
+        story,
+        onFirstPage=add_page_number,
+        onLaterPages=add_page_number
     )
 
     pdf_buffer.seek(0)
