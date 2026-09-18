@@ -24,120 +24,245 @@
         }
 
         :root {
-            --bg: #05050a;
-            --card: rgba(16, 13, 28, 0.78);
-            --purple: #8b5cf6;
-            --purple-light: #b794ff;
+            --bg: #04040a;
+            --bg-soft: #090711;
+
             --gold: #d4af37;
-            --gold-light: #f4d875;
-            --text: #ffffff;
-            --muted: #9d9aa9;
-            --border: rgba(212, 175, 55, 0.20);
+            --gold-light: #ffe58a;
+            --gold-dark: #a77b18;
+
+            --purple: #8b5cf6;
+            --purple-light: #b99aff;
+            --purple-dark: #5b21b6;
+
+            --white: #ffffff;
+            --text: #f6f4fb;
+            --muted: #9e9aaa;
+            --muted-2: #777382;
+
+            --glass: rgba(18, 14, 31, 0.78);
+            --glass-light: rgba(255,255,255,0.045);
+
+            --border: rgba(212,175,55,0.22);
         }
+
+
+        /* ==================================================
+           BODY
+        ================================================== */
 
         body {
             min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
             color: var(--text);
+
             background:
                 radial-gradient(
-                    circle at 15% 15%,
-                    rgba(139, 92, 246, 0.20),
+                    circle at 10% 10%,
+                    rgba(139,92,246,0.18),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(212,175,55,0.09),
                     transparent 28%
                 ),
                 radial-gradient(
-                    circle at 85% 20%,
-                    rgba(212, 175, 55, 0.10),
-                    transparent 25%
+                    circle at 50% 90%,
+                    rgba(91,33,182,0.14),
+                    transparent 34%
                 ),
-                radial-gradient(
-                    circle at 50% 100%,
-                    rgba(94, 53, 177, 0.16),
-                    transparent 35%
-                ),
-                #05050a;
+                linear-gradient(
+                    135deg,
+                    #030309,
+                    #070511,
+                    #04040a
+                );
+
+            overflow-x: hidden;
         }
 
-        /* =========================
+
+        /* ==================================================
+           BACKGROUND GRID
+        ================================================== */
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            pointer-events: none;
+
+            opacity: 0.18;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 45px 45px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 85%
+                );
+
+            z-index: -2;
+        }
+
+
+        /* ==================================================
            TOP NAVIGATION
-        ========================= */
+        ================================================== */
 
         .topbar {
+
             min-height: 78px;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
+
             padding: 14px 6%;
+
             position: sticky;
             top: 0;
+
             z-index: 1000;
 
-            background: rgba(5, 5, 10, 0.88);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background:
+                rgba(4,4,10,0.86);
 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            border-bottom:
+                1px solid
+                rgba(255,255,255,0.07);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
         }
 
+
+        /* ==================================================
+           BRAND
+        ================================================== */
+
         .brand {
+
             display: flex;
             align-items: center;
+
             gap: 12px;
 
             color: white;
+
             text-decoration: none;
 
             font-size: 23px;
             font-weight: 900;
+
             letter-spacing: -0.5px;
         }
 
+
         .shield {
-            width: 46px;
-            height: 50px;
+
+            width: 48px;
+            height: 52px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border: 1px solid rgba(212,175,55,0.55);
-            border-radius: 14px;
+            border-radius: 15px;
+
+            border:
+                1px solid
+                rgba(212,175,55,0.58);
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(139,92,246,0.18),
-                    rgba(212,175,55,0.06)
+                    rgba(139,92,246,0.20),
+                    rgba(212,175,55,0.07)
                 );
 
             color: var(--gold-light);
-            font-size: 22px;
+
+            font-size: 23px;
 
             box-shadow:
-                0 0 25px rgba(139,92,246,0.14),
-                inset 0 0 20px rgba(212,175,55,0.04);
+                0 0 30px
+                rgba(139,92,246,0.16),
+
+                inset 0 0 20px
+                rgba(212,175,55,0.05);
+
+            transition:
+                transform 0.25s,
+                box-shadow 0.25s;
         }
+
+
+        .brand:hover .shield {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 0 38px
+                rgba(139,92,246,0.25),
+
+                inset 0 0 24px
+                rgba(212,175,55,0.08);
+        }
+
 
         .brand span {
             color: var(--gold-light);
         }
 
+
+        /* ==================================================
+           NAV
+        ================================================== */
+
         .nav {
+
             display: flex;
             align-items: center;
-            gap: 8px;
+
+            gap: 6px;
         }
 
+
         .nav a {
+
+            position: relative;
+
             padding: 10px 14px;
 
-            color: #bdb9c8;
+            color: #aaa6b5;
+
             text-decoration: none;
 
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
 
-            border-radius: 10px;
+            border-radius: 11px;
 
             transition:
                 color 0.2s,
@@ -145,51 +270,87 @@
                 transform 0.2s;
         }
 
+
         .nav a:hover {
+
             color: white;
-            background: rgba(139,92,246,0.10);
-            transform: translateY(-1px);
+
+            background:
+                rgba(139,92,246,0.10);
+
+            transform:
+                translateY(-1px);
         }
+
 
         .nav .logout {
+
             color: var(--gold-light);
-            border: 1px solid rgba(212,175,55,0.28);
-            background: rgba(212,175,55,0.05);
+
+            border:
+                1px solid
+                rgba(212,175,55,0.25);
+
+            background:
+                rgba(212,175,55,0.045);
         }
+
 
         .nav .logout:hover {
-            background: rgba(212,175,55,0.12);
+
+            background:
+                rgba(212,175,55,0.12);
         }
 
-        /* =========================
-           MAIN CONTAINER
-        ========================= */
+
+        /* ==================================================
+           MAIN
+        ================================================== */
 
         .container {
-            width: min(1120px, 92%);
-            margin: auto;
-            padding: 70px 0 40px;
+
+            width:
+                min(1120px, 92%);
+
+            margin:
+                auto;
+
+            padding:
+                68px 0 45px;
         }
 
-        /* =========================
+
+        /* ==================================================
            HERO
-        ========================= */
+        ================================================== */
 
         .hero {
+
             text-align: center;
-            margin-bottom: 42px;
+
+            margin-bottom: 40px;
         }
 
+
         .badge {
+
             display: inline-flex;
             align-items: center;
-            gap: 8px;
 
-            padding: 9px 17px;
+            gap: 9px;
 
-            border-radius: 50px;
+            padding:
+                9px 17px;
 
-            border: 1px solid rgba(212,175,55,0.30);
+            margin-bottom:
+                22px;
+
+            border-radius:
+                50px;
+
+            border:
+                1px solid
+                rgba(212,175,55,0.30);
 
             background:
                 linear-gradient(
@@ -198,40 +359,60 @@
                     rgba(139,92,246,0.08)
                 );
 
-            color: var(--gold-light);
+            color:
+                var(--gold-light);
 
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 2px;
+            font-size:
+                11px;
+
+            font-weight:
+                900;
+
+            letter-spacing:
+                2px;
 
             box-shadow:
-                0 0 25px rgba(212,175,55,0.06);
-
-            margin-bottom: 22px;
+                0 0 28px
+                rgba(212,175,55,0.06);
         }
 
+
         .badge::before {
+
             content: "";
+
             width: 7px;
             height: 7px;
 
             border-radius: 50%;
 
-            background: #8cffb0;
+            background:
+                #8cffb0;
 
             box-shadow:
-                0 0 10px rgba(140,255,176,0.75);
+                0 0 12px
+                rgba(140,255,176,0.80);
         }
+
 
         h1 {
-            font-size: clamp(42px, 7vw, 76px);
-            line-height: 1;
-            letter-spacing: -2.5px;
 
-            margin-bottom: 20px;
+            font-size:
+                clamp(44px, 7vw, 78px);
+
+            line-height:
+                0.98;
+
+            letter-spacing:
+                -3px;
+
+            margin-bottom:
+                21px;
         }
 
+
         h1 span {
+
             background:
                 linear-gradient(
                     90deg,
@@ -240,122 +421,236 @@
                     var(--purple-light)
                 );
 
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            -webkit-background-clip:
+                text;
+
+            background-clip:
+                text;
+
+            color:
+                transparent;
         }
+
 
         .hero p {
-            max-width: 690px;
-            margin: auto;
 
-            color: #a7a4b2;
+            max-width:
+                690px;
 
-            font-size: 16px;
-            line-height: 1.75;
+            margin:
+                auto;
+
+            color:
+                #aaa7b5;
+
+            font-size:
+                16px;
+
+            line-height:
+                1.75;
         }
 
-        /* =========================
+
+        /* ==================================================
            ERROR
-        ========================= */
+        ================================================== */
 
         .error {
-            width: min(760px, 100%);
-            margin: 0 auto 20px;
 
-            padding: 15px 18px;
+            width:
+                min(760px, 100%);
 
-            border-radius: 14px;
+            margin:
+                0 auto 20px;
 
-            border: 1px solid rgba(255,75,75,0.35);
+            padding:
+                15px 18px;
 
-            background: rgba(255,55,55,0.08);
+            border-radius:
+                14px;
 
-            color: #ffb7b7;
+            border:
+                1px solid
+                rgba(255,75,75,0.38);
 
-            text-align: center;
-            line-height: 1.5;
+            background:
+                rgba(255,55,55,0.08);
+
+            color:
+                #ffbcbc;
+
+            text-align:
+                center;
+
+            line-height:
+                1.5;
 
             box-shadow:
-                0 10px 30px rgba(0,0,0,0.20);
+                0 12px 35px
+                rgba(0,0,0,0.20);
         }
 
-        /* =========================
+
+        /* ==================================================
            SCANNER CARD
-        ========================= */
+        ================================================== */
 
         .scanner-card {
-            width: min(800px, 100%);
-            margin: auto;
 
-            padding: 42px;
+            position:
+                relative;
 
-            border-radius: 28px;
+            width:
+                min(800px, 100%);
 
-            border: 1px solid var(--border);
+            margin:
+                auto;
+
+            padding:
+                42px;
+
+            border-radius:
+                30px;
+
+            border:
+                1px solid
+                var(--border);
 
             background:
                 linear-gradient(
                     145deg,
                     rgba(255,255,255,0.065),
-                    rgba(255,255,255,0.018)
+                    rgba(255,255,255,0.015)
                 );
 
             box-shadow:
-                0 35px 100px rgba(0,0,0,0.48),
-                0 0 70px rgba(139,92,246,0.08),
-                inset 0 1px 0 rgba(255,255,255,0.04);
 
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
+                0 40px 100px
+                rgba(0,0,0,0.52),
+
+                0 0 75px
+                rgba(139,92,246,0.08),
+
+                inset 0 1px 0
+                rgba(255,255,255,0.05);
+
+            backdrop-filter:
+                blur(24px);
+
+            -webkit-backdrop-filter:
+                blur(24px);
+
+            overflow:
+                hidden;
         }
 
-        .scanner-title {
-            text-align: center;
-            margin-bottom: 28px;
-        }
 
-        .scanner-title h2 {
-            font-size: 28px;
-            margin-bottom: 9px;
-        }
+        .scanner-card::before {
 
-        .scanner-title p {
-            color: var(--muted);
-            font-size: 14px;
-        }
+            content: "";
 
-        /* =========================
-           UPLOAD AREA
-        ========================= */
+            position: absolute;
 
-        .upload-area {
-            position: relative;
+            top: 0;
+            left: 12%;
 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            min-height: 270px;
-
-            padding: 38px 24px;
-
-            border-radius: 22px;
-
-            border: 2px dashed rgba(212,175,55,0.28);
+            width: 76%;
+            height: 1px;
 
             background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(212,175,55,0.65),
+                    rgba(139,92,246,0.55),
+                    transparent
+                );
+        }
+
+
+        /* ==================================================
+           SCANNER TITLE
+        ================================================== */
+
+        .scanner-title {
+
+            text-align:
+                center;
+
+            margin-bottom:
+                28px;
+        }
+
+
+        .scanner-title h2 {
+
+            font-size:
+                28px;
+
+            margin-bottom:
+                9px;
+        }
+
+
+        .scanner-title p {
+
+            color:
+                var(--muted);
+
+            font-size:
+                14px;
+        }
+
+
+        /* ==================================================
+           UPLOAD AREA
+        ================================================== */
+
+        .upload-area {
+
+            position:
+                relative;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            min-height:
+                275px;
+
+            padding:
+                40px 24px;
+
+            border-radius:
+                23px;
+
+            border:
+                2px dashed
+                rgba(212,175,55,0.28);
+
+            background:
+
                 radial-gradient(
                     circle at center,
-                    rgba(139,92,246,0.10),
-                    transparent 60%
+                    rgba(139,92,246,0.11),
+                    transparent 62%
                 ),
+
                 rgba(255,255,255,0.018);
 
-            cursor: pointer;
+            cursor:
+                pointer;
 
-            overflow: hidden;
+            overflow:
+                hidden;
 
             transition:
                 border-color 0.25s,
@@ -364,129 +659,230 @@
                 box-shadow 0.25s;
         }
 
+
         .upload-area::before {
+
             content: "";
 
-            position: absolute;
-            inset: 12px;
+            position:
+                absolute;
 
-            border-radius: 16px;
+            inset:
+                12px;
 
-            border: 1px solid rgba(255,255,255,0.035);
+            border-radius:
+                17px;
 
-            pointer-events: none;
+            border:
+                1px solid
+                rgba(255,255,255,0.035);
+
+            pointer-events:
+                none;
         }
+
 
         .upload-area:hover {
-            border-color: rgba(212,175,55,0.72);
+
+            border-color:
+                rgba(212,175,55,0.78);
 
             background:
+
                 radial-gradient(
                     circle at center,
-                    rgba(139,92,246,0.16),
-                    transparent 62%
+                    rgba(139,92,246,0.17),
+                    transparent 64%
                 ),
+
                 rgba(212,175,55,0.025);
 
-            transform: translateY(-3px);
+            transform:
+                translateY(-3px);
 
             box-shadow:
-                0 18px 45px rgba(0,0,0,0.25),
-                0 0 35px rgba(139,92,246,0.10);
+
+                0 20px 48px
+                rgba(0,0,0,0.28),
+
+                0 0 38px
+                rgba(139,92,246,0.12);
         }
 
+
+        /* ==================================================
+           UPLOAD ICON
+        ================================================== */
+
         .upload-icon {
-            width: 78px;
-            height: 78px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width:
+                82px;
 
-            margin-bottom: 18px;
+            height:
+                82px;
 
-            border-radius: 22px;
+            display:
+                flex;
 
-            border: 1px solid rgba(212,175,55,0.30);
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            margin-bottom:
+                18px;
+
+            border-radius:
+                23px;
+
+            border:
+                1px solid
+                rgba(212,175,55,0.34);
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(139,92,246,0.16),
+                    rgba(139,92,246,0.18),
                     rgba(212,175,55,0.08)
                 );
 
-            color: var(--gold-light);
+            color:
+                var(--gold-light);
 
-            font-size: 42px;
+            font-size:
+                42px;
 
             box-shadow:
-                0 0 35px rgba(139,92,246,0.10);
+
+                0 0 38px
+                rgba(139,92,246,0.12),
+
+                inset 0 0 20px
+                rgba(212,175,55,0.04);
+
+            transition:
+                transform 0.25s;
         }
+
+
+        .upload-area:hover .upload-icon {
+
+            transform:
+                translateY(-4px)
+                scale(1.03);
+        }
+
 
         .upload-area h3 {
-            font-size: 21px;
-            margin-bottom: 9px;
+
+            font-size:
+                21px;
+
+            margin-bottom:
+                9px;
         }
+
 
         .upload-area p {
-            color: #858290;
-            font-size: 13px;
+
+            color:
+                #858290;
+
+            font-size:
+                13px;
+
+            text-align:
+                center;
         }
+
 
         input[type="file"] {
-            display: none;
+            display:
+                none;
         }
 
-        /* =========================
+
+        /* ==================================================
            FILE NAME
-        ========================= */
+        ================================================== */
 
         .file-name {
-            min-height: 20px;
 
-            margin-top: 16px;
+            min-height:
+                20px;
 
-            color: var(--gold-light);
+            margin-top:
+                16px;
 
-            font-size: 13px;
-            text-align: center;
+            color:
+                var(--gold-light);
 
-            word-break: break-word;
+            font-size:
+                13px;
+
+            font-weight:
+                600;
+
+            text-align:
+                center;
+
+            word-break:
+                break-word;
         }
 
-        /* =========================
+
+        /* ==================================================
            SCAN BUTTON
-        ========================= */
+        ================================================== */
 
         .scan-btn {
-            width: 100%;
 
-            margin-top: 22px;
+            position:
+                relative;
 
-            padding: 17px 20px;
+            width:
+                100%;
 
-            border: none;
-            border-radius: 13px;
+            margin-top:
+                22px;
 
-            cursor: pointer;
+            padding:
+                17px 20px;
 
-            color: #08070a;
+            border:
+                none;
 
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 0.3px;
+            border-radius:
+                14px;
+
+            cursor:
+                pointer;
+
+            color:
+                #08070a;
+
+            font-size:
+                15px;
+
+            font-weight:
+                900;
+
+            letter-spacing:
+                0.3px;
 
             background:
                 linear-gradient(
                     100deg,
-                    #c99b24,
+                    #b98718,
                     #f4d875,
                     #d4af37
                 );
 
             box-shadow:
-                0 12px 35px rgba(212,175,55,0.16);
+                0 13px 38px
+                rgba(212,175,55,0.17);
 
             transition:
                 transform 0.2s,
@@ -494,85 +890,135 @@
                 filter 0.2s;
         }
 
-        .scan-btn:hover {
-            transform: translateY(-2px);
 
-            filter: brightness(1.06);
+        .scan-btn:hover {
+
+            transform:
+                translateY(-2px);
+
+            filter:
+                brightness(1.07);
 
             box-shadow:
-                0 17px 42px rgba(212,175,55,0.27);
+                0 18px 45px
+                rgba(212,175,55,0.30);
         }
+
 
         .scan-btn:active {
-            transform: translateY(0);
+
+            transform:
+                translateY(0);
         }
+
 
         .scan-btn:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-            transform: none;
-            filter: none;
+
+            opacity:
+                0.60;
+
+            cursor:
+                not-allowed;
+
+            transform:
+                none;
+
+            filter:
+                none;
         }
 
-        /* =========================
-           INFO CARDS
-        ========================= */
+
+        /* ==================================================
+           INFO GRID
+        ================================================== */
 
         .info-grid {
-            width: min(800px, 100%);
 
-            margin: 22px auto 0;
+            width:
+                min(800px, 100%);
 
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            margin:
+                22px auto 0;
 
-            gap: 14px;
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap:
+                14px;
         }
 
+
         .info-box {
-            position: relative;
 
-            min-height: 125px;
+            position:
+                relative;
 
-            padding: 22px 17px;
+            min-height:
+                135px;
 
-            border-radius: 17px;
+            padding:
+                23px 17px;
 
-            border: 1px solid rgba(255,255,255,0.075);
+            border-radius:
+                18px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.075);
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.038),
                     rgba(255,255,255,0.012)
                 );
 
-            text-align: center;
+            text-align:
+                center;
 
             transition:
                 transform 0.2s,
                 border-color 0.2s,
-                background 0.2s;
+                background 0.2s,
+                box-shadow 0.2s;
         }
+
 
         .info-box:hover {
-            transform: translateY(-3px);
 
-            border-color: rgba(139,92,246,0.25);
+            transform:
+                translateY(-4px);
+
+            border-color:
+                rgba(139,92,246,0.30);
 
             background:
-                rgba(139,92,246,0.045);
+                rgba(139,92,246,0.05);
+
+            box-shadow:
+                0 15px 35px
+                rgba(0,0,0,0.22);
         }
 
+
         .info-box::before {
+
             content: "";
 
-            display: block;
+            display:
+                block;
 
-            width: 30px;
-            height: 2px;
+            width:
+                34px;
 
-            margin: 0 auto 14px;
+            height:
+                2px;
+
+            margin:
+                0 auto 14px;
 
             background:
                 linear-gradient(
@@ -581,116 +1027,227 @@
                     var(--purple)
                 );
 
-            border-radius: 5px;
+            border-radius:
+                5px;
         }
+
 
         .info-box strong {
-            display: block;
 
-            margin-bottom: 8px;
+            display:
+                block;
 
-            color: var(--gold-light);
+            margin-bottom:
+                8px;
 
-            font-size: 12px;
-            letter-spacing: 1px;
+            color:
+                var(--gold-light);
+
+            font-size:
+                12px;
+
+            letter-spacing:
+                1px;
         }
+
 
         .info-box span {
-            color: #858290;
 
-            font-size: 12px;
-            line-height: 1.55;
+            color:
+                #858290;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.55;
         }
 
-        /* =========================
+
+        /* ==================================================
            FOOTER
-        ========================= */
+        ================================================== */
 
         .footer {
-            padding: 30px 20px 42px;
 
-            color: #62606c;
+            padding:
+                30px 20px 42px;
 
-            font-size: 12px;
+            color:
+                #62606c;
 
-            text-align: center;
+            font-size:
+                12px;
+
+            text-align:
+                center;
         }
 
-        /* =========================
+
+        /* ==================================================
            MOBILE
-        ========================= */
+        ================================================== */
 
         @media (max-width: 760px) {
 
             .topbar {
-                flex-direction: column;
-                gap: 12px;
-                padding: 14px 4%;
+
+                flex-direction:
+                    column;
+
+                gap:
+                    12px;
+
+                padding:
+                    14px 4%;
             }
+
 
             .nav {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
+
+                width:
+                    100%;
+
+                justify-content:
+                    center;
+
+                flex-wrap:
+                    wrap;
             }
+
 
             .nav a {
-                font-size: 13px;
-                padding: 9px 11px;
+
+                font-size:
+                    13px;
+
+                padding:
+                    9px 11px;
             }
+
 
             .container {
-                padding: 48px 0 30px;
+
+                padding:
+                    48px 0 30px;
             }
+
 
             h1 {
-                font-size: 48px;
-                letter-spacing: -1.5px;
+
+                font-size:
+                    48px;
+
+                letter-spacing:
+                    -1.5px;
             }
+
 
             .hero p {
-                font-size: 14px;
+
+                font-size:
+                    14px;
+
+                padding:
+                    0 8px;
             }
+
 
             .scanner-card {
-                padding: 25px 18px;
-                border-radius: 22px;
+
+                padding:
+                    25px 18px;
+
+                border-radius:
+                    23px;
             }
+
 
             .scanner-title h2 {
-                font-size: 24px;
+
+                font-size:
+                    24px;
             }
+
 
             .upload-area {
-                min-height: 235px;
+
+                min-height:
+                    240px;
+
+                padding:
+                    32px 18px;
             }
 
+
+            .upload-icon {
+
+                width:
+                    72px;
+
+                height:
+                    72px;
+
+                font-size:
+                    36px;
+            }
+
+
             .info-grid {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
         }
+
 
         @media (max-width: 420px) {
 
             .brand {
-                font-size: 20px;
+
+                font-size:
+                    20px;
             }
+
 
             .shield {
-                width: 42px;
-                height: 46px;
+
+                width:
+                    42px;
+
+                height:
+                    46px;
             }
+
 
             h1 {
-                font-size: 40px;
+
+                font-size:
+                    40px;
             }
+
 
             .nav {
-                gap: 3px;
+
+                gap:
+                    3px;
             }
 
+
             .nav a {
-                padding: 8px 8px;
+
+                padding:
+                    8px 8px;
+            }
+
+
+            .badge {
+
+                font-size:
+                    9px;
+
+                letter-spacing:
+                    1.5px;
             }
         }
 
@@ -699,6 +1256,7 @@
 
 
 <body>
+
 
 <header class="topbar">
 
@@ -741,9 +1299,9 @@
 <main class="container">
 
 
-    <!-- =========================
+    <!-- ==================================================
          HERO
-    ========================== -->
+    ================================================== -->
 
     <section class="hero">
 
@@ -751,11 +1309,13 @@
             QR SECURITY ANALYSIS
         </div>
 
+
         <h1>
             Scan.
             <span>Detect.</span>
             Protect.
         </h1>
+
 
         <p>
             QRGuard analyzes URLs hidden inside QR codes
@@ -766,9 +1326,9 @@
     </section>
 
 
-    <!-- =========================
+    <!-- ==================================================
          ERROR
-    ========================== -->
+    ================================================== -->
 
     {% if error %}
 
@@ -779,9 +1339,9 @@
     {% endif %}
 
 
-    <!-- =========================
+    <!-- ==================================================
          SCANNER
-    ========================== -->
+    ================================================== -->
 
     <section class="scanner-card">
 
@@ -816,9 +1376,11 @@
                     ▣
                 </div>
 
+
                 <h3>
                     Choose QR Image
                 </h3>
+
 
                 <p>
                     Click here to select PNG, JPG, JPEG,
@@ -859,9 +1421,9 @@
     </section>
 
 
-    <!-- =========================
+    <!-- ==================================================
          SECURITY FEATURES
-    ========================== -->
+    ================================================== -->
 
     <section class="info-grid">
 
@@ -935,9 +1497,9 @@
         document.getElementById("scanButton");
 
 
-    /* =========================
+    /* ==================================================
        FILE SELECTION
-    ========================== */
+    ================================================== */
 
     fileInput.addEventListener(
         "change",
@@ -963,9 +1525,9 @@
     );
 
 
-    /* =========================
+    /* ==================================================
        SCAN BUTTON
-    ========================== */
+    ================================================== */
 
     scanForm.addEventListener(
         "submit",
@@ -979,6 +1541,7 @@
                 return;
 
             }
+
 
             scanButton.disabled = true;
 
