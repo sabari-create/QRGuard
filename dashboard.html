@@ -15,34 +15,74 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
             color: #f5f5f5;
+            overflow-x: hidden;
 
             background:
                 radial-gradient(
-                    circle at 12% 10%,
+                    circle at 10% 5%,
                     rgba(112, 67, 190, 0.22),
-                    transparent 34%
-                ),
-                radial-gradient(
-                    circle at 88% 12%,
-                    rgba(255, 193, 7, 0.10),
                     transparent 30%
                 ),
                 radial-gradient(
+                    circle at 90% 10%,
+                    rgba(255, 193, 7, 0.10),
+                    transparent 27%
+                ),
+                radial-gradient(
                     circle at 50% 100%,
-                    rgba(74, 43, 130, 0.12),
+                    rgba(91, 55, 151, 0.15),
                     transparent 40%
                 ),
                 linear-gradient(
                     135deg,
-                    #03050a,
-                    #080d1b 52%,
-                    #09050f
+                    #020307,
+                    #080b16 48%,
+                    #090510
                 );
+        }
+
+
+        /* ==========================================
+           BACKGROUND GRID
+        ========================================== */
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.20;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 42px 42px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 90%
+                );
+
+            z-index: -1;
         }
 
 
@@ -51,7 +91,7 @@
         ========================================== */
 
         .topbar {
-            height: 74px;
+            min-height: 76px;
 
             display: flex;
             align-items: center;
@@ -64,12 +104,15 @@
             z-index: 1000;
 
             background:
-                rgba(4, 7, 15, 0.90);
+                rgba(3, 5, 12, 0.91);
 
             border-bottom:
                 1px solid rgba(255, 193, 7, 0.18);
 
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(22px);
+
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.20);
         }
 
 
@@ -80,13 +123,13 @@
 
             font-size: 23px;
             font-weight: 900;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
 
         .shield {
-            width: 42px;
-            height: 42px;
+            width: 43px;
+            height: 43px;
 
             display: flex;
             align-items: center;
@@ -97,20 +140,21 @@
             background:
                 linear-gradient(
                     145deg,
-                    #1a1732,
-                    #090a12
+                    #1b1735,
+                    #080a12
                 );
 
             border:
-                1px solid rgba(255, 193, 7, 0.42);
+                1px solid rgba(255,193,7,0.45);
 
             color: #ffc107;
 
             font-size: 21px;
 
             box-shadow:
-                0 0 25px rgba(112, 67, 190, 0.22),
-                inset 0 0 15px rgba(255,255,255,0.02);
+                0 0 25px rgba(112,67,190,0.25),
+                0 0 16px rgba(255,193,7,0.08),
+                inset 0 0 18px rgba(255,255,255,0.025);
         }
 
 
@@ -120,7 +164,7 @@
 
 
         /* ==========================================
-           NAV
+           NAVIGATION
         ========================================== */
 
         .nav-area {
@@ -140,7 +184,7 @@
             border-radius: 10px;
 
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
 
             background:
                 rgba(255,255,255,0.035);
@@ -148,7 +192,7 @@
             border:
                 1px solid rgba(255,255,255,0.07);
 
-            transition: 0.2s;
+            transition: 0.22s;
         }
 
 
@@ -156,9 +200,12 @@
             color: #ffc107;
 
             border-color:
-                rgba(255,193,7,0.32);
+                rgba(255,193,7,0.35);
 
-            transform: translateY(-1px);
+            background:
+                rgba(255,193,7,0.055);
+
+            transform: translateY(-2px);
         }
 
 
@@ -172,13 +219,14 @@
 
 
         .profile-button {
-            border: 1px solid rgba(255,193,7,0.22);
+            border:
+                1px solid rgba(255,193,7,0.22);
 
             background:
                 linear-gradient(
                     135deg,
                     rgba(255,193,7,0.08),
-                    rgba(112,67,190,0.10)
+                    rgba(112,67,190,0.12)
                 );
 
             color: #f1f3f7;
@@ -193,7 +241,7 @@
 
             cursor: pointer;
 
-            font-weight: 700;
+            font-weight: 800;
         }
 
 
@@ -217,6 +265,9 @@
             color: #111;
 
             font-weight: 900;
+
+            box-shadow:
+                0 0 15px rgba(255,193,7,0.15);
         }
 
 
@@ -224,25 +275,25 @@
             position: absolute;
 
             right: 0;
-            top: 52px;
+            top: 55px;
 
-            width: 230px;
+            width: 235px;
 
             padding: 12px;
 
-            border-radius: 16px;
+            border-radius: 17px;
 
             background:
-                rgba(12, 16, 29, 0.97);
+                rgba(10, 13, 25, 0.98);
 
             border:
-                1px solid rgba(255,193,7,0.18);
+                1px solid rgba(255,193,7,0.20);
 
             box-shadow:
-                0 25px 60px rgba(0,0,0,0.55),
-                0 0 30px rgba(100,60,170,0.12);
+                0 25px 65px rgba(0,0,0,0.60),
+                0 0 35px rgba(100,60,170,0.14);
 
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(22px);
 
             display: none;
         }
@@ -311,16 +362,16 @@
 
 
         /* ==========================================
-           MAIN
+           MAIN CONTAINER
         ========================================== */
 
         .container {
             width: min(
-                1160px,
+                1180px,
                 calc(100% - 32px)
             );
 
-            margin: 42px auto 70px;
+            margin: 40px auto 70px;
         }
 
 
@@ -331,25 +382,47 @@
         .hero {
             position: relative;
 
-            padding: 34px;
+            padding: 38px;
 
-            border-radius: 24px;
+            border-radius: 25px;
 
             overflow: hidden;
 
             background:
                 linear-gradient(
                     135deg,
-                    rgba(17, 20, 37, 0.94),
-                    rgba(12, 9, 24, 0.91)
+                    rgba(17,20,37,0.95),
+                    rgba(12,8,25,0.93)
                 );
 
             border:
                 1px solid rgba(255,255,255,0.08);
 
             box-shadow:
-                0 30px 80px rgba(0,0,0,0.42),
-                0 0 50px rgba(112,67,190,0.10);
+                0 30px 85px rgba(0,0,0,0.46),
+                0 0 55px rgba(112,67,190,0.10);
+        }
+
+
+        .hero::before {
+            content: "";
+
+            position: absolute;
+
+            width: 420px;
+            height: 420px;
+
+            right: -180px;
+            top: -230px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(255,193,7,0.15),
+                    transparent 67%
+                );
         }
 
 
@@ -358,27 +431,37 @@
 
             position: absolute;
 
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
 
-            right: -100px;
-            top: -110px;
+            left: -180px;
+            bottom: -200px;
 
             border-radius: 50%;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(255,193,7,0.13),
-                    transparent 65%
+                    rgba(112,67,190,0.18),
+                    transparent 68%
                 );
         }
 
 
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+
         .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
             color: #ffc107;
 
-            font-size: 12px;
+            font-size: 11px;
 
             font-weight: 900;
 
@@ -388,28 +471,46 @@
         }
 
 
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #5ee6a0;
+
+            box-shadow:
+                0 0 12px rgba(94,230,160,0.75);
+        }
+
+
         .hero h1 {
-            margin: 9px 0 9px;
+            margin: 10px 0 10px;
 
-            font-size: 38px;
+            font-size: 40px;
 
-            line-height: 1.15;
+            line-height: 1.12;
+
+            letter-spacing: -0.7px;
         }
 
 
         .hero h1 span {
             color: #ffc107;
+
+            text-shadow:
+                0 0 25px rgba(255,193,7,0.14);
         }
 
 
         .hero p {
             margin: 0;
 
-            max-width: 700px;
+            max-width: 720px;
 
             color: #969fb0;
 
-            line-height: 1.7;
+            line-height: 1.75;
 
             font-size: 14px;
         }
@@ -420,7 +521,7 @@
 
             gap: 11px;
 
-            margin-top: 23px;
+            margin-top: 24px;
 
             flex-wrap: wrap;
         }
@@ -428,7 +529,9 @@
 
         .primary-btn,
         .secondary-btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
 
             padding: 12px 17px;
 
@@ -436,11 +539,11 @@
 
             text-decoration: none;
 
-            font-weight: 800;
+            font-weight: 900;
 
             font-size: 13px;
 
-            transition: 0.2s;
+            transition: 0.22s;
         }
 
 
@@ -455,7 +558,7 @@
                 );
 
             box-shadow:
-                0 8px 25px rgba(255,193,7,0.14);
+                0 9px 28px rgba(255,193,7,0.16);
         }
 
 
@@ -472,16 +575,22 @@
 
         .primary-btn:hover,
         .secondary-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+        }
+
+
+        .primary-btn:hover {
+            box-shadow:
+                0 13px 32px rgba(255,193,7,0.23);
         }
 
 
         /* ==========================================
-           SECTION TITLE
+           SECTION
         ========================================== */
 
         .section {
-            margin-top: 30px;
+            margin-top: 31px;
         }
 
 
@@ -497,7 +606,9 @@
         .section-heading h2 {
             margin: 0;
 
-            font-size: 20px;
+            font-size: 19px;
+
+            letter-spacing: 0.2px;
         }
 
 
@@ -507,7 +618,11 @@
             height: 1px;
 
             background:
-                rgba(255,255,255,0.08);
+                linear-gradient(
+                    90deg,
+                    rgba(255,193,7,0.20),
+                    rgba(255,255,255,0.04)
+                );
         }
 
 
@@ -528,17 +643,21 @@
         .stat-card {
             position: relative;
 
-            padding: 21px;
+            padding: 22px;
 
-            min-height: 145px;
+            min-height: 154px;
 
-            border-radius: 18px;
+            border-radius: 19px;
 
             background:
-                rgba(12,16,29,0.82);
+                linear-gradient(
+                    145deg,
+                    rgba(15,19,34,0.92),
+                    rgba(8,10,19,0.88)
+                );
 
             border:
-                1px solid rgba(255,255,255,0.07);
+                1px solid rgba(255,255,255,0.075);
 
             overflow: hidden;
 
@@ -546,20 +665,42 @@
         }
 
 
+        .stat-card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 120px;
+            height: 120px;
+
+            right: -60px;
+            bottom: -60px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(255,193,7,0.08),
+                    transparent 70%
+                );
+        }
+
+
         .stat-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-5px);
 
             border-color:
-                rgba(255,193,7,0.20);
+                rgba(255,193,7,0.23);
 
             box-shadow:
-                0 15px 40px rgba(0,0,0,0.25);
+                0 18px 45px rgba(0,0,0,0.30);
         }
 
 
         .stat-icon {
-            width: 42px;
-            height: 42px;
+            width: 43px;
+            height: 43px;
 
             display: flex;
             align-items: center;
@@ -568,10 +709,10 @@
             border-radius: 12px;
 
             background:
-                rgba(255,193,7,0.08);
+                rgba(255,193,7,0.075);
 
             border:
-                1px solid rgba(255,193,7,0.15);
+                1px solid rgba(255,193,7,0.16);
 
             font-size: 19px;
 
@@ -582,20 +723,20 @@
         .stat-title {
             color: #80899b;
 
-            font-size: 11px;
+            font-size: 10px;
 
-            font-weight: 800;
+            font-weight: 900;
 
             text-transform: uppercase;
 
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
         }
 
 
         .stat-number {
             margin-top: 5px;
 
-            font-size: 31px;
+            font-size: 32px;
 
             font-weight: 900;
 
@@ -630,16 +771,20 @@
         .recent-card {
             padding: 23px;
 
-            border-radius: 20px;
+            border-radius: 21px;
 
             background:
-                rgba(12,16,29,0.82);
+                linear-gradient(
+                    145deg,
+                    rgba(13,17,30,0.91),
+                    rgba(8,10,19,0.89)
+                );
 
             border:
                 1px solid rgba(255,255,255,0.08);
 
             box-shadow:
-                0 20px 60px rgba(0,0,0,0.30);
+                0 22px 65px rgba(0,0,0,0.31);
         }
 
 
@@ -671,7 +816,7 @@
             text-transform: uppercase;
 
             border-bottom:
-                1px solid rgba(255,193,7,0.14);
+                1px solid rgba(255,193,7,0.16);
         }
 
 
@@ -687,7 +832,12 @@
         }
 
 
-        tr:hover td {
+        tbody tr {
+            transition: 0.18s;
+        }
+
+
+        tbody tr:hover td {
             background:
                 rgba(255,255,255,0.025);
         }
@@ -701,7 +851,7 @@
 
 
         .url {
-            max-width: 400px;
+            max-width: 410px;
 
             word-break: break-all;
 
@@ -721,7 +871,7 @@
 
 
         /* ==========================================
-           RISK
+           RISK BADGES
         ========================================== */
 
         .risk {
@@ -735,7 +885,7 @@
 
             font-weight: 900;
 
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
         }
 
 
@@ -746,7 +896,7 @@
                 rgba(25,135,84,0.12);
 
             border:
-                1px solid rgba(25,135,84,0.25);
+                1px solid rgba(25,135,84,0.27);
         }
 
 
@@ -757,7 +907,7 @@
                 rgba(255,193,7,0.11);
 
             border:
-                1px solid rgba(255,193,7,0.25);
+                1px solid rgba(255,193,7,0.27);
         }
 
 
@@ -768,7 +918,7 @@
                 rgba(220,53,69,0.12);
 
             border:
-                1px solid rgba(220,53,69,0.25);
+                1px solid rgba(220,53,69,0.27);
         }
 
 
@@ -785,7 +935,7 @@
 
             font-size: 10px;
 
-            font-weight: 800;
+            font-weight: 900;
 
             background:
                 rgba(255,255,255,0.045);
@@ -801,40 +951,50 @@
             color: #ffc107;
 
             border-color:
-                rgba(255,193,7,0.30);
+                rgba(255,193,7,0.32);
+
+            background:
+                rgba(255,193,7,0.055);
         }
 
 
         /* ==========================================
-           EMPTY
+           EMPTY STATE
         ========================================== */
 
         .empty {
             text-align: center;
 
-            padding: 50px 20px;
+            padding: 58px 20px;
         }
 
 
         .empty-icon {
-            width: 65px;
-            height: 65px;
+            width: 68px;
+            height: 68px;
 
-            margin: 0 auto 15px;
+            margin: 0 auto 16px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 18px;
+            border-radius: 19px;
 
             background:
-                rgba(255,193,7,0.06);
+                linear-gradient(
+                    145deg,
+                    rgba(255,193,7,0.09),
+                    rgba(112,67,190,0.10)
+                );
 
             border:
-                1px solid rgba(255,193,7,0.14);
+                1px solid rgba(255,193,7,0.16);
 
-            font-size: 27px;
+            font-size: 28px;
+
+            box-shadow:
+                0 0 30px rgba(112,67,190,0.10);
         }
 
 
@@ -846,13 +1006,15 @@
 
 
         .empty p {
-            margin: 0 auto 20px;
+            margin: 0 auto 21px;
 
             max-width: 430px;
 
             color: #7f899b;
 
             line-height: 1.6;
+
+            font-size: 13px;
         }
 
 
@@ -871,26 +1033,77 @@
 
 
         .security-card {
-            padding: 20px;
+            position: relative;
 
-            border-radius: 17px;
+            padding: 21px;
+
+            border-radius: 18px;
 
             background:
                 linear-gradient(
                     135deg,
-                    rgba(91,55,151,0.11),
+                    rgba(91,55,151,0.12),
                     rgba(255,193,7,0.035)
                 );
 
             border:
-                1px solid rgba(125,85,190,0.15);
+                1px solid rgba(125,85,190,0.16);
+
+            overflow: hidden;
+
+            transition: 0.22s;
+        }
+
+
+        .security-card:hover {
+            transform: translateY(-4px);
+
+            border-color:
+                rgba(255,193,7,0.18);
+        }
+
+
+        .security-card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 100px;
+            height: 100px;
+
+            right: -50px;
+            bottom: -50px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(255,193,7,0.08),
+                    transparent 70%
+                );
         }
 
 
         .security-card .icon {
-            font-size: 22px;
+            width: 42px;
+            height: 42px;
 
-            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,193,7,0.07);
+
+            border:
+                1px solid rgba(255,193,7,0.14);
+
+            font-size: 20px;
+
+            margin-bottom: 13px;
         }
 
 
@@ -906,7 +1119,7 @@
 
             color: #8f98a9;
 
-            line-height: 1.6;
+            line-height: 1.65;
 
             font-size: 12px;
         }
@@ -919,11 +1132,13 @@
         .footer {
             text-align: center;
 
-            margin-top: 35px;
+            margin-top: 38px;
 
             color: #5f6879;
 
             font-size: 11px;
+
+            letter-spacing: 0.2px;
         }
 
 
@@ -959,15 +1174,15 @@
                 width:
                     calc(100% - 20px);
 
-                margin-top: 25px;
+                margin-top: 24px;
             }
 
             .hero {
-                padding: 24px;
+                padding: 26px;
             }
 
             .hero h1 {
-                font-size: 29px;
+                font-size: 30px;
             }
 
             .stats {
@@ -976,6 +1191,10 @@
 
             .profile-button span {
                 display: none;
+            }
+
+            .recent-card {
+                padding: 16px;
             }
 
         }
@@ -993,9 +1212,6 @@
 
 <header class="topbar">
 
-
-    <!-- BRAND -->
-
     <div class="brand">
 
         <div class="shield">
@@ -1007,15 +1223,13 @@
     </div>
 
 
-    <!-- NAV -->
-
     <div class="nav-area">
 
         <a
             href="{{ url_for('index') }}"
             class="nav-btn"
         >
-            Scan
+            Scanner
         </a>
 
 
@@ -1026,8 +1240,6 @@
             History
         </a>
 
-
-        <!-- PROFILE -->
 
         <div class="profile">
 
@@ -1115,39 +1327,44 @@
 
     <section class="hero">
 
-        <div class="eyebrow">
-            Security Command Center
-        </div>
+        <div class="hero-content">
+
+            <div class="eyebrow">
+                <span class="status-dot"></span>
+                Security Command Center
+            </div>
 
 
-        <h1>
-            Welcome to <span>QRGuard</span>
-        </h1>
+            <h1>
+                Welcome to <span>QRGuard</span>
+            </h1>
 
 
-        <p>
-            Monitor QR-code security scans, review risk assessments,
-            and analyze suspicious URLs using QRGuard's rule-based
-            phishing detection system.
-        </p>
+            <p>
+                Monitor QR-code security scans, review risk assessments,
+                and analyze suspicious URLs using QRGuard's rule-based
+                phishing detection system.
+            </p>
 
 
-        <div class="hero-actions">
+            <div class="hero-actions">
 
-            <a
-                href="{{ url_for('index') }}"
-                class="primary-btn"
-            >
-                🔍 Scan New QR
-            </a>
+                <a
+                    href="{{ url_for('index') }}"
+                    class="primary-btn"
+                >
+                    🔍 Scan New QR
+                </a>
 
 
-            <a
-                href="{{ url_for('history') }}"
-                class="secondary-btn"
-            >
-                🕘 View History
-            </a>
+                <a
+                    href="{{ url_for('history') }}"
+                    class="secondary-btn"
+                >
+                    🕘 View History
+                </a>
+
+            </div>
 
         </div>
 
@@ -1160,7 +1377,6 @@
     ====================================== -->
 
     <section class="section">
-
 
         <div class="section-heading">
 
@@ -1175,8 +1391,6 @@
 
         <div class="stats">
 
-
-            <!-- TOTAL -->
 
             <div class="stat-card total">
 
@@ -1195,8 +1409,6 @@
             </div>
 
 
-            <!-- LOW -->
-
             <div class="stat-card low">
 
                 <div class="stat-icon">
@@ -1214,8 +1426,6 @@
             </div>
 
 
-            <!-- MEDIUM -->
-
             <div class="stat-card medium">
 
                 <div class="stat-icon">
@@ -1232,8 +1442,6 @@
 
             </div>
 
-
-            <!-- HIGH -->
 
             <div class="stat-card high">
 
@@ -1262,7 +1470,6 @@
     ====================================== -->
 
     <section class="section">
-
 
         <div class="section-heading">
 
@@ -1434,8 +1641,6 @@
             {% else %}
 
 
-                <!-- EMPTY STATE -->
-
                 <div class="empty">
 
                     <div class="empty-icon">
@@ -1474,11 +1679,10 @@
 
 
     <!-- ======================================
-         HOW QR GUARD WORKS
+         PROTECTION
     ====================================== -->
 
     <section class="section">
-
 
         <div class="section-heading">
 
