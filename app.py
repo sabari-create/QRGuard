@@ -8,8 +8,9 @@ from flask import (
     send_file
 )
 
-from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from authlib.integrations.flask_client import OAuth
 
 import cv2
@@ -18,9 +19,10 @@ import sqlite3
 import ipaddress
 import io
 import html
+import re
 import hashlib
 import secrets
-import re
+import numpy as np
 
 from urllib.parse import urlparse, unquote
 from functools import wraps
@@ -41,28 +43,24 @@ from reportlab.platypus import (
     TableStyle
 )
 
+from sklearn.ensemble import RandomForestClassifier
+
 
 # ============================================================
-# QRGuard
-# QR-Code Phishing Detection System
+# QRGuard - QR-Code Phishing Detection System
 # ============================================================
-
 
 app = Flask(
     __name__,
-    template_folder=os.path.dirname(
-        os.path.abspath(__file__)
-    ),
-    static_folder=os.path.dirname(
-        os.path.abspath(__file__)
-    ),
+    template_folder=os.path.dirname(os.path.abspath(__file__)),
+    static_folder=os.path.dirname(os.path.abspath(__file__)),
     static_url_path=""
 )
 
-
-# ============================================================
-# VERCEL / PROXY SUPPORT
-# ============================================================
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "QRGuard-Local-Project-Secret-Key-2026"
+)
 
 app.wsgi_app = ProxyFix(
     app.wsgi_app,
@@ -71,38 +69,30 @@ app.wsgi_app = ProxyFix(
     x_host=1
 )
 
-
 # ============================================================
-# SECRET KEY
+# SESSION CONFIGURATION
 # ============================================================
 
-app.secret_key = os.environ.get(
-    "FLASK_SECRET_KEY",
-    "QRGuard-Local-Project-Secret-Key-2026"
-)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
-
-app.config.update(
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=True
+# Secure cookie only on Vercel / HTTPS
+app.config["SESSION_COOKIE_SECURE"] = bool(
+    os.environ.get("VERCEL")
 )
 
 
 # ============================================================
-# DATABASE PATH
+# DATABASE
 # ============================================================
+
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 if os.environ.get("VERCEL"):
-
     DB_NAME = "/tmp/qrgurad.db"
-
 else:
-
-    BASE_DIR = os.path.dirname(
-        os.path.abspath(__file__)
-    )
-
     DB_NAME = os.path.join(
         BASE_DIR,
         "qrgurad.db"
@@ -110,34 +100,11 @@ else:
 
 
 # ============================================================
-# UPLOAD LIMIT
-# ============================================================
-
-MAX_FILE_SIZE = 5 * 1024 * 1024
-
-
-app.config[
-    "MAX_CONTENT_LENGTH"
-] = MAX_FILE_SIZE
-
-
-ALLOWED_EXTENSIONS = {
-    "png",
-    "jpg",
-    "jpeg",
-    "webp",
-    "bmp"
-}
-
-
-# ============================================================
-# DEMO ADMIN
+# LOGIN DETAILS
 # ============================================================
 
 DEMO_USERNAME = "admin"
-
 DEMO_EMAIL = "admin@qrgurad.local"
-
 DEMO_PASSWORD = "qrgurad123"
 
 
@@ -147,7 +114,6 @@ DEMO_PASSWORD = "qrgurad123"
 
 oauth = OAuth(app)
 
-
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID"
 )
@@ -156,31 +122,20 @@ GOOGLE_CLIENT_SECRET = os.environ.get(
     "GOOGLE_CLIENT_SECRET"
 )
 
-
 google = None
 
-
-if (
-    GOOGLE_CLIENT_ID
-    and GOOGLE_CLIENT_SECRET
-):
+if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
 
     google = oauth.register(
-
         name="google",
-
         client_id=GOOGLE_CLIENT_ID,
-
         client_secret=GOOGLE_CLIENT_SECRET,
-
         server_metadata_url=(
             "https://accounts.google.com/"
             ".well-known/openid-configuration"
         ),
-
         client_kwargs={
-            "scope":
-                "openid email profile"
+            "scope": "openid email profile"
         }
     )
 
@@ -208,101 +163,70 @@ def init_db():
 
     connection = get_db()
 
-    # --------------------------------------------------------
-    # USERS TABLE
-    # --------------------------------------------------------
-
     connection.execute("""
         CREATE TABLE IF NOT EXISTS users (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             username TEXT UNIQUE NOT NULL,
-
             email TEXT UNIQUE NOT NULL,
-
             password_hash TEXT,
-
             password_salt TEXT,
-
             google_id TEXT UNIQUE,
-
             display_name TEXT,
-
-            created_at TIMESTAMP
-                DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-
-
-    # --------------------------------------------------------
-    # SCANS TABLE
-    # --------------------------------------------------------
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS scans (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             user_id INTEGER,
-
             url TEXT NOT NULL,
-
             score INTEGER NOT NULL,
-
             risk TEXT NOT NULL,
-
-            scanned_at TIMESTAMP
-                DEFAULT CURRENT_TIMESTAMP
+            ml_prediction TEXT,
+            ml_confidence REAL,
+            ml_score INTEGER,
+            scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id)
+                REFERENCES users(id)
         )
     """)
 
-
     # --------------------------------------------------------
-    # MIGRATION: USERS
+    # Migration for older databases
     # --------------------------------------------------------
 
-    user_columns = [
+    existing_columns = [
         row["name"]
         for row in connection.execute(
             "PRAGMA table_info(users)"
         ).fetchall()
     ]
 
+    user_columns = {
+        "password_hash":
+            "TEXT",
+        "password_salt":
+            "TEXT",
+        "google_id":
+            "TEXT",
+        "display_name":
+            "TEXT"
+    }
 
-    if "password_salt" not in user_columns:
+    for column, datatype in user_columns.items():
 
-        connection.execute(
-            """
-            ALTER TABLE users
-            ADD COLUMN password_salt TEXT
-            """
-        )
+        if column not in existing_columns:
 
+            try:
 
-    if "google_id" not in user_columns:
+                connection.execute(
+                    f"ALTER TABLE users "
+                    f"ADD COLUMN {column} {datatype}"
+                )
 
-        connection.execute(
-            """
-            ALTER TABLE users
-            ADD COLUMN google_id TEXT
-            """
-        )
-
-
-    if "display_name" not in user_columns:
-
-        connection.execute(
-            """
-            ALTER TABLE users
-            ADD COLUMN display_name TEXT
-            """
-        )
-
-
-    # --------------------------------------------------------
-    # MIGRATION: SCANS
-    # --------------------------------------------------------
+            except sqlite3.Error:
+                pass
 
     scan_columns = [
         row["name"]
@@ -311,25 +235,32 @@ def init_db():
         ).fetchall()
     ]
 
+    scan_new_columns = {
+        "user_id": "INTEGER",
+        "ml_prediction": "TEXT",
+        "ml_confidence": "REAL",
+        "ml_score": "INTEGER"
+    }
 
-    if "user_id" not in scan_columns:
+    for column, datatype in scan_new_columns.items():
 
-        connection.execute(
-            """
-            ALTER TABLE scans
-            ADD COLUMN user_id INTEGER
-            """
-        )
+        if column not in scan_columns:
 
+            try:
 
-    connection.commit()
+                connection.execute(
+                    f"ALTER TABLE scans "
+                    f"ADD COLUMN {column} {datatype}"
+                )
 
+            except sqlite3.Error:
+                pass
 
     # --------------------------------------------------------
-    # CREATE DEMO ADMIN
+    # Create demo admin
     # --------------------------------------------------------
 
-    existing_admin = connection.execute(
+    admin = connection.execute(
         """
         SELECT id
         FROM users
@@ -338,8 +269,7 @@ def init_db():
         (DEMO_USERNAME,)
     ).fetchone()
 
-
-    if existing_admin is None:
+    if admin is None:
 
         password_hash = generate_password_hash(
             DEMO_PASSWORD
@@ -361,22 +291,13 @@ def init_db():
                 DEMO_USERNAME,
                 DEMO_EMAIL,
                 password_hash,
-                None,
+                secrets.token_hex(16),
                 "QRGuard Administrator"
             )
         )
 
-
     connection.commit()
-
     connection.close()
-
-
-# ============================================================
-# INITIALIZE DATABASE
-# ============================================================
-
-init_db()
 
 
 # ============================================================
@@ -413,51 +334,22 @@ def get_current_user():
     )
 
     if not user_id:
-
         return None
-
 
     connection = get_db()
 
-
     user = connection.execute(
         """
-        SELECT
-            id,
-            username,
-            email,
-            display_name
+        SELECT *
         FROM users
         WHERE id = ?
         """,
         (user_id,)
     ).fetchone()
 
-
     connection.close()
 
-
     return user
-
-
-# ============================================================
-# FILE VALIDATION
-# ============================================================
-
-def allowed_file(filename):
-
-    return (
-
-        bool(filename)
-
-        and "." in filename
-
-        and filename.rsplit(
-            ".",
-            1
-        )[1].lower()
-        in ALLOWED_EXTENSIONS
-    )
 
 
 # ============================================================
@@ -473,9 +365,7 @@ def validate_url(url):
             "The QR code did not contain any URL."
         )
 
-
     url = url.strip()
-
 
     if len(url) > 2048:
 
@@ -484,9 +374,7 @@ def validate_url(url):
             "The extracted URL is too long."
         )
 
-
     parsed = urlparse(url)
-
 
     if parsed.scheme.lower() not in (
         "http",
@@ -498,14 +386,12 @@ def validate_url(url):
             "QR code does not contain a valid HTTP/HTTPS URL."
         )
 
-
     if not parsed.hostname:
 
         return (
             False,
             "The extracted URL does not contain a valid hostname."
         )
-
 
     try:
 
@@ -518,12 +404,352 @@ def validate_url(url):
             "Invalid URL port detected."
         )
 
-
     return True, None
 
 
 # ============================================================
-# URL ANALYSIS
+# ML FEATURE EXTRACTION
+# ============================================================
+
+def extract_ml_features(url):
+
+    parsed = urlparse(url)
+
+    hostname = (
+        parsed.hostname or ""
+    ).lower()
+
+    path = (
+        parsed.path or ""
+    ).lower()
+
+    query = (
+        parsed.query or ""
+    ).lower()
+
+    full_url = url.lower()
+
+    # --------------------------------------------------------
+    # Basic numerical URL features
+    # --------------------------------------------------------
+
+    features = [
+
+        # URL length
+        min(len(url), 300),
+
+        # Hostname length
+        min(len(hostname), 100),
+
+        # Path length
+        min(len(path), 150),
+
+        # Query length
+        min(len(query), 150),
+
+        # Number of dots
+        hostname.count("."),
+
+        # Number of hyphens
+        hostname.count("-"),
+
+        # Number of digits
+        sum(
+            char.isdigit()
+            for char in hostname
+        ),
+
+        # Number of special characters
+        sum(
+            char in "@_%=?" 
+            for char in url
+        ),
+
+        # HTTPS
+        int(
+            parsed.scheme.lower()
+            == "https"
+        ),
+
+        # IP address
+        int(
+            _is_ip_address(hostname)
+        ),
+
+        # Punycode
+        int(
+            "xn--" in hostname
+        ),
+
+        # Username
+        int(
+            parsed.username is not None
+        ),
+
+        # Password
+        int(
+            parsed.password is not None
+        ),
+
+        # Query exists
+        int(
+            bool(query)
+        ),
+
+        # Many query parameters
+        query.count("&") + 1
+        if query
+        else 0,
+
+        # Suspicious words
+        sum(
+            word in full_url
+            for word in [
+                "login",
+                "signin",
+                "verify",
+                "verification",
+                "account",
+                "password",
+                "secure",
+                "bank",
+                "confirm",
+                "update",
+                "wallet",
+                "payment",
+                "recover"
+            ]
+        ),
+
+        # Suspicious extensions
+        int(
+            full_url.endswith(
+                (
+                    ".exe",
+                    ".scr",
+                    ".bat",
+                    ".cmd",
+                    ".apk"
+                )
+            )
+        ),
+
+        # Non-standard port
+        int(
+            _has_nonstandard_port(parsed)
+        ),
+
+        # URL encoding
+        int(
+            "%" in url
+        ),
+
+        # Multiple subdomains
+        int(
+            hostname.count(".") >= 3
+        )
+    ]
+
+    return np.array(
+        features,
+        dtype=float
+    )
+
+
+def _is_ip_address(hostname):
+
+    try:
+
+        ipaddress.ip_address(
+            hostname
+        )
+
+        return True
+
+    except ValueError:
+
+        return False
+
+
+def _has_nonstandard_port(parsed):
+
+    try:
+
+        port = parsed.port
+
+        if port is None:
+
+            return False
+
+        return port not in (
+            80,
+            443
+        )
+
+    except ValueError:
+
+        return True
+
+
+# ============================================================
+# ML TRAINING DATA
+# ============================================================
+
+def build_ml_training_data():
+
+    safe_urls = [
+
+        "https://google.com",
+        "https://www.google.com",
+        "https://github.com",
+        "https://github.com/login",
+        "https://microsoft.com",
+        "https://www.microsoft.com",
+        "https://apple.com",
+        "https://www.apple.com",
+        "https://amazon.com",
+        "https://www.amazon.com",
+        "https://wikipedia.org",
+        "https://www.wikipedia.org",
+        "https://youtube.com",
+        "https://www.youtube.com",
+        "https://stackoverflow.com",
+        "https://python.org",
+        "https://www.python.org",
+        "https://example.com",
+        "https://example.org",
+        "https://www.cloudflare.com",
+        "https://www.mozilla.org"
+    ]
+
+    phishing_urls = [
+
+        "http://192.168.1.20/login",
+        "http://192.168.1.25/verify",
+        "http://login-secure-account.com",
+        "http://secure-account-verify.com",
+        "http://bank-login-confirm.com",
+        "http://verify-password-account.com",
+        "http://secure-login-update.com",
+        "http://account-verification-login.com",
+        "http://xn--secure-login-9za.com",
+        "http://paypal-login-verify.com",
+        "http://amazon-account-verify.com",
+        "http://bank-secure-login.com",
+        "http://secure-payment-update.com",
+        "http://login-confirm-account.com",
+        "http://verify-wallet-payment.com",
+        "http://account-secure-password.com",
+        "http://192.168.1.100:8080/login",
+        "http://example.com@phishing-site.com",
+        "http://secure--account--verify.com",
+        "http://login.verify.account.example.com",
+        "http://update-account-password.example.com"
+    ]
+
+    X = []
+
+    y = []
+
+    for url in safe_urls:
+
+        X.append(
+            extract_ml_features(url)
+        )
+
+        y.append(0)
+
+    for url in phishing_urls:
+
+        X.append(
+            extract_ml_features(url)
+        )
+
+        y.append(1)
+
+    return np.array(X), np.array(y)
+
+
+# ============================================================
+# TRAIN ML MODEL
+# ============================================================
+
+def train_ml_model():
+
+    X, y = build_ml_training_data()
+
+    model = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=8,
+        random_state=42,
+        class_weight="balanced"
+    )
+
+    model.fit(
+        X,
+        y
+    )
+
+    return model
+
+
+ML_MODEL = train_ml_model()
+
+
+# ============================================================
+# ML ANALYSIS
+# ============================================================
+
+def ml_analyze_url(url):
+
+    features = extract_ml_features(
+        url
+    ).reshape(1, -1)
+
+    prediction = ML_MODEL.predict(
+        features
+    )[0]
+
+    probabilities = (
+        ML_MODEL.predict_proba(
+            features
+        )[0]
+    )
+
+    phishing_probability = (
+        float(probabilities[1])
+    )
+
+    confidence = round(
+        max(probabilities) * 100,
+        2
+    )
+
+    ml_score = round(
+        phishing_probability * 100
+    )
+
+    if prediction == 1:
+
+        prediction_text = (
+            "Potential Phishing"
+        )
+
+    else:
+
+        prediction_text = (
+            "Likely Safe"
+        )
+
+    return {
+        "prediction": prediction_text,
+        "confidence": confidence,
+        "score": ml_score
+    }
+
+
+# ============================================================
+# RULE-BASED URL ANALYSIS
 # ============================================================
 
 def analyze_url(url):
@@ -536,12 +762,17 @@ def analyze_url(url):
 
     parsed = urlparse(url)
 
-    hostname = parsed.hostname or ""
+    hostname = (
+        parsed.hostname or ""
+    )
 
-    path = parsed.path or ""
+    path = (
+        parsed.path or ""
+    )
 
-    query = parsed.query or ""
-
+    query = (
+        parsed.query or ""
+    )
 
     def add_indicator(
         indicator,
@@ -561,11 +792,7 @@ def analyze_url(url):
             "points": points
         })
 
-
-    # --------------------------------------------------------
-    # 1. URL LENGTH
-    # --------------------------------------------------------
-
+    # 1
     if len(url) > 100:
 
         add_indicator(
@@ -573,11 +800,7 @@ def analyze_url(url):
             15
         )
 
-
-    # --------------------------------------------------------
-    # 2. HTTPS
-    # --------------------------------------------------------
-
+    # 2
     if parsed.scheme.lower() != "https":
 
         add_indicator(
@@ -585,11 +808,7 @@ def analyze_url(url):
             15
         )
 
-
-    # --------------------------------------------------------
-    # 3. IP ADDRESS
-    # --------------------------------------------------------
-
+    # 3
     try:
 
         ipaddress.ip_address(
@@ -605,11 +824,7 @@ def analyze_url(url):
 
         pass
 
-
-    # --------------------------------------------------------
-    # 4. USERNAME / PASSWORD
-    # --------------------------------------------------------
-
+    # 4
     if (
         parsed.username
         or parsed.password
@@ -620,11 +835,7 @@ def analyze_url(url):
             20
         )
 
-
-    # --------------------------------------------------------
-    # 5. @ SYMBOL
-    # --------------------------------------------------------
-
+    # 5
     if "@" in url:
 
         add_indicator(
@@ -632,11 +843,7 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 6. SUSPICIOUS KEYWORDS
-    # --------------------------------------------------------
-
+    # 6
     suspicious_keywords = [
 
         "login",
@@ -649,20 +856,14 @@ def analyze_url(url):
         "bank",
         "confirm",
         "signin"
-
     ]
-
 
     found_keywords = [
 
         keyword
-
         for keyword in suspicious_keywords
-
         if keyword in url.lower()
-
     ]
-
 
     if found_keywords:
 
@@ -675,11 +876,7 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 7. MULTIPLE SUBDOMAINS
-    # --------------------------------------------------------
-
+    # 7
     if hostname.count(".") >= 3:
 
         add_indicator(
@@ -687,11 +884,7 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 8. HYPHEN
-    # --------------------------------------------------------
-
+    # 8
     if "-" in hostname:
 
         add_indicator(
@@ -699,19 +892,11 @@ def analyze_url(url):
             5
         )
 
-
-    # --------------------------------------------------------
-    # 9. MULTIPLE DIGITS
-    # --------------------------------------------------------
-
+    # 9
     digit_count = sum(
-
         character.isdigit()
-
         for character in hostname
-
     )
-
 
     if digit_count >= 3:
 
@@ -720,11 +905,7 @@ def analyze_url(url):
             5
         )
 
-
-    # --------------------------------------------------------
-    # 10. LONG HOSTNAME
-    # --------------------------------------------------------
-
+    # 10
     if len(hostname) > 30:
 
         add_indicator(
@@ -732,29 +913,20 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 11. ENCODED / UNUSUAL CHARACTERS
-    # --------------------------------------------------------
-
-    if (
-        "%" in url
-        or "_" in url
-    ):
+    # 11
+    if "%" in url or "_" in url:
 
         add_indicator(
             "Encoded or unusual URL characters detected",
             5
         )
 
-
-    # --------------------------------------------------------
-    # 12. URL DECODING
-    # --------------------------------------------------------
-
+    # 12
     try:
 
-        decoded_url = unquote(url)
+        decoded_url = unquote(
+            url
+        )
 
         if decoded_url != url:
 
@@ -767,11 +939,7 @@ def analyze_url(url):
 
         pass
 
-
-    # --------------------------------------------------------
-    # 13. LONG PATH
-    # --------------------------------------------------------
-
+    # 13
     if len(path) > 60:
 
         add_indicator(
@@ -779,17 +947,12 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 14. QUERY PARAMETERS
-    # --------------------------------------------------------
-
+    # 14
     if query:
 
         parameter_count = len(
             query.split("&")
         )
-
 
         if parameter_count >= 4:
 
@@ -798,21 +961,14 @@ def analyze_url(url):
                 10
             )
 
-
-    # --------------------------------------------------------
-    # 15. SUSPICIOUS EXTENSION
-    # --------------------------------------------------------
-
+    # 15
     suspicious_extensions = (
-
         ".exe",
         ".scr",
         ".bat",
         ".cmd",
         ".apk"
-
     )
-
 
     if path.lower().endswith(
         suspicious_extensions
@@ -823,11 +979,7 @@ def analyze_url(url):
             15
         )
 
-
-    # --------------------------------------------------------
-    # 16. PUNYCODE
-    # --------------------------------------------------------
-
+    # 16
     if "xn--" in hostname.lower():
 
         add_indicator(
@@ -835,11 +987,7 @@ def analyze_url(url):
             15
         )
 
-
-    # --------------------------------------------------------
-    # 17. MULTIPLE HYPHENS
-    # --------------------------------------------------------
-
+    # 17
     if hostname.count("-") >= 3:
 
         add_indicator(
@@ -847,11 +995,7 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 18. NON-STANDARD PORT
-    # --------------------------------------------------------
-
+    # 18
     try:
 
         port = parsed.port
@@ -873,13 +1017,8 @@ def analyze_url(url):
             10
         )
 
-
-    # --------------------------------------------------------
-    # 19. LONG HOSTNAME LABEL
-    # --------------------------------------------------------
-
+    # 19
     hostname_labels = hostname.split(".")
-
 
     if any(
         len(label) > 25
@@ -891,20 +1030,10 @@ def analyze_url(url):
             5
         )
 
-
-    # --------------------------------------------------------
-    # SCORE LIMIT
-    # --------------------------------------------------------
-
     score = min(
         score,
         100
     )
-
-
-    # --------------------------------------------------------
-    # RISK
-    # --------------------------------------------------------
 
     if score <= 30:
 
@@ -918,11 +1047,6 @@ def analyze_url(url):
 
         risk = "HIGH RISK"
 
-
-    # --------------------------------------------------------
-    # NO INDICATORS
-    # --------------------------------------------------------
-
     if not reasons:
 
         reasons.append(
@@ -935,13 +1059,97 @@ def analyze_url(url):
             "points": 0
         })
 
-
     return (
         score,
         risk,
         reasons,
         details
     )
+
+
+# ============================================================
+# COMBINE RULE + ML SCORE
+# ============================================================
+
+def combined_analysis(url):
+
+    rule_score, rule_risk, reasons, details = (
+        analyze_url(url)
+    )
+
+    ml_result = ml_analyze_url(
+        url
+    )
+
+    ml_score = ml_result["score"]
+
+    # --------------------------------------------------------
+    # Combined score
+    # --------------------------------------------------------
+
+    combined_score = round(
+        (rule_score * 0.70)
+        +
+        (ml_score * 0.30)
+    )
+
+    combined_score = min(
+        combined_score,
+        100
+    )
+
+    # --------------------------------------------------------
+    # Final classification
+    # --------------------------------------------------------
+
+    if combined_score <= 30:
+
+        final_risk = "LOW RISK"
+
+    elif combined_score <= 60:
+
+        final_risk = "MEDIUM RISK"
+
+    else:
+
+        final_risk = "HIGH RISK"
+
+    # --------------------------------------------------------
+    # Add ML indicator
+    # --------------------------------------------------------
+
+    details.append({
+        "indicator":
+            (
+                "ML prediction: "
+                + ml_result["prediction"]
+                + " ("
+                + str(ml_result["confidence"])
+                + "% confidence)"
+            ),
+        "points":
+            ml_score
+    })
+
+    reasons.append(
+        "ML prediction: "
+        + ml_result["prediction"]
+    )
+
+    return {
+        "score": combined_score,
+        "risk": final_risk,
+        "reasons": reasons,
+        "details": details,
+        "ml_prediction":
+            ml_result["prediction"],
+        "ml_confidence":
+            ml_result["confidence"],
+        "ml_score":
+            ml_score,
+        "rule_score":
+            rule_score
+    }
 
 
 # ============================================================
@@ -952,11 +1160,13 @@ def save_scan(
     user_id,
     url,
     score,
-    risk
+    risk,
+    ml_prediction,
+    ml_confidence,
+    ml_score
 ):
 
     connection = get_db()
-
 
     cursor = connection.execute(
         """
@@ -965,25 +1175,29 @@ def save_scan(
             user_id,
             url,
             score,
-            risk
+            risk,
+            ml_prediction,
+            ml_confidence,
+            ml_score
         )
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         (
             user_id,
             url,
             score,
-            risk
+            risk,
+            ml_prediction,
+            ml_confidence,
+            ml_score
         )
     )
-
 
     connection.commit()
 
     scan_id = cursor.lastrowid
 
     connection.close()
-
 
     return scan_id
 
@@ -1001,87 +1215,67 @@ def login():
     if "user_id" in session:
 
         return redirect(
-            url_for("dashboard")
+            url_for("index")
         )
 
-
-    error = None
-
+    error = request.args.get(
+        "google_error"
+    )
 
     if request.method == "POST":
 
-        username_or_email = request.form.get(
+        username = request.form.get(
             "username",
             ""
         ).strip()
-
 
         password = request.form.get(
             "password",
             ""
         )
 
+        connection = get_db()
 
-        if not username_or_email or not password:
+        user = connection.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE username = ?
+            OR email = ?
+            """,
+            (
+                username,
+                username
+            )
+        ).fetchone()
 
-            error = (
-                "Please enter username/email and password."
+        connection.close()
+
+        if (
+            user
+            and user["password_hash"]
+            and check_password_hash(
+                user["password_hash"],
+                password
+            )
+        ):
+
+            session.clear()
+
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            session["display_name"] = (
+                user["display_name"]
+                or user["username"]
             )
 
-        else:
-
-            connection = get_db()
-
-
-            user = connection.execute(
-                """
-                SELECT *
-                FROM users
-                WHERE username = ?
-                   OR email = ?
-                """,
-                (
-                    username_or_email,
-                    username_or_email
-                )
-            ).fetchone()
-
-
-            connection.close()
-
-
-            if (
-                user
-                and user["password_hash"]
-                and check_password_hash(
-                    user["password_hash"],
-                    password
-                )
-            ):
-
-                session.clear()
-
-                session["user_id"] = user["id"]
-
-                session["username"] = user["username"]
-
-                session["email"] = user["email"]
-
-                session["display_name"] = (
-                    user["display_name"]
-                    or user["username"]
-                )
-
-
-                return redirect(
-                    url_for("dashboard")
-                )
-
-
-            error = (
-                "Invalid username/email or password."
+            return redirect(
+                url_for("index")
             )
 
+        error = (
+            "Invalid username or password."
+        )
 
     return render_template(
         "login.html",
@@ -1102,12 +1296,10 @@ def register():
     if "user_id" in session:
 
         return redirect(
-            url_for("dashboard")
+            url_for("index")
         )
 
-
     error = None
-
 
     if request.method == "POST":
 
@@ -1116,64 +1308,26 @@ def register():
             ""
         ).strip()
 
-
         email = request.form.get(
             "email",
             ""
         ).strip().lower()
-
 
         password = request.form.get(
             "password",
             ""
         )
 
-
         confirm_password = request.form.get(
             "confirm_password",
             ""
         )
 
-
-        # ----------------------------------------------------
-        # USERNAME
-        # ----------------------------------------------------
-
-        if not re.fullmatch(
-            r"[A-Za-z0-9_.-]{3,50}",
-            username
-        ):
+        if not username or not email or not password:
 
             error = (
-                "Username must contain 3-50 letters, "
-                "numbers, dots, underscores or hyphens."
+                "Please fill in all required fields."
             )
-
-
-        # ----------------------------------------------------
-        # EMAIL
-        # ----------------------------------------------------
-
-        elif not re.fullmatch(
-            r"[^@\s]+@[^@\s]+\.[^@\s]+",
-            email
-        ):
-
-            error = (
-                "Please enter a valid email address."
-            )
-
-
-        # ----------------------------------------------------
-        # PASSWORD
-        # ----------------------------------------------------
-
-        elif len(password) < 6:
-
-            error = (
-                "Password must contain at least 6 characters."
-            )
-
 
         elif password != confirm_password:
 
@@ -1181,52 +1335,57 @@ def register():
                 "Passwords do not match."
             )
 
+        elif len(password) < 6:
+
+            error = (
+                "Password must contain at least 6 characters."
+            )
+
+        elif not re.match(
+            r"^[A-Za-z0-9_.-]+$",
+            username
+        ):
+
+            error = (
+                "Username contains invalid characters."
+            )
 
         else:
 
             connection = get_db()
 
-
-            existing_username = connection.execute(
+            existing = connection.execute(
                 """
                 SELECT id
                 FROM users
                 WHERE username = ?
+                OR email = ?
                 """,
-                (username,)
+                (
+                    username,
+                    email
+                )
             ).fetchone()
 
-
-            existing_email = connection.execute(
-                """
-                SELECT id
-                FROM users
-                WHERE email = ?
-                """,
-                (email,)
-            ).fetchone()
-
-
-            if existing_username:
+            if existing:
 
                 error = (
-                    "Username already exists."
+                    "Username or email already exists."
                 )
 
-
-            elif existing_email:
-
-                error = (
-                    "Email address is already registered."
-                )
-
+                connection.close()
 
             else:
 
-                password_hash = generate_password_hash(
-                    password
+                password_hash = (
+                    generate_password_hash(
+                        password
+                    )
                 )
 
+                password_salt = (
+                    secrets.token_hex(16)
+                )
 
                 cursor = connection.execute(
                     """
@@ -1244,39 +1403,26 @@ def register():
                         username,
                         email,
                         password_hash,
-                        None,
+                        password_salt,
                         username
                     )
                 )
 
-
                 connection.commit()
-
 
                 user_id = cursor.lastrowid
 
-
                 connection.close()
-
 
                 session.clear()
 
                 session["user_id"] = user_id
-
                 session["username"] = username
-
-                session["email"] = email
-
                 session["display_name"] = username
 
-
                 return redirect(
-                    url_for("dashboard")
+                    url_for("index")
                 )
-
-
-            connection.close()
-
 
     return render_template(
         "register.html",
@@ -1296,16 +1442,16 @@ def google_login():
         return redirect(
             url_for(
                 "login",
-                google_error="Google login is not configured."
+                google_error=(
+                    "Google login is not configured."
+                )
             )
         )
-
 
     redirect_uri = url_for(
         "google_callback",
         _external=True
     )
-
 
     return google.authorize_redirect(
         redirect_uri
@@ -1327,145 +1473,107 @@ def google_callback():
             url_for("login")
         )
 
-
     try:
 
         token = google.authorize_access_token()
 
-        userinfo = token.get(
+        user_info = token.get(
             "userinfo"
         )
 
+        if not user_info:
 
-        if not userinfo:
+            user_info = (
+                google.userinfo()
+            )
 
-            userinfo = google.userinfo()
-
-
-        google_id = userinfo.get(
-            "sub"
+        google_id = str(
+            user_info.get("sub")
+            or user_info.get("id")
         )
 
-
         email = (
-            userinfo.get("email")
+            user_info.get("email")
             or ""
-        ).strip().lower()
-
+        ).lower()
 
         display_name = (
-            userinfo.get("name")
+            user_info.get("name")
             or email.split("@")[0]
-        ).strip()
-
+        )
 
         if not google_id or not email:
 
             return redirect(
-                url_for("login")
+                url_for(
+                    "login",
+                    google_error=(
+                        "Google account information could not be retrieved."
+                    )
+                )
             )
 
-
         connection = get_db()
-
-
-        # ----------------------------------------------------
-        # FIND BY GOOGLE ID
-        # ----------------------------------------------------
 
         user = connection.execute(
             """
             SELECT *
             FROM users
             WHERE google_id = ?
+            OR email = ?
             """,
-            (google_id,)
+            (
+                google_id,
+                email
+            )
         ).fetchone()
 
+        if user:
 
-        # ----------------------------------------------------
-        # FIND BY EMAIL
-        # ----------------------------------------------------
-
-        if user is None:
-
-            user = connection.execute(
+            connection.execute(
                 """
-                SELECT *
-                FROM users
-                WHERE email = ?
+                UPDATE users
+                SET google_id = ?,
+                    display_name = ?
+                WHERE id = ?
                 """,
-                (email,)
-            ).fetchone()
-
-
-            if user:
-
-                connection.execute(
-                    """
-                    UPDATE users
-                    SET google_id = ?,
-                        display_name = ?
-                    WHERE id = ?
-                    """,
-                    (
-                        google_id,
-                        display_name,
-                        user["id"]
-                    )
+                (
+                    google_id,
+                    display_name,
+                    user["id"]
                 )
+            )
 
+            user_id = user["id"]
+            username = user["username"]
 
-        # ----------------------------------------------------
-        # CREATE NEW USER
-        # ----------------------------------------------------
-
-        if user is None:
+        else:
 
             base_username = re.sub(
                 r"[^A-Za-z0-9_.-]",
                 "",
                 email.split("@")[0]
-            )
-
-
-            if len(base_username) < 3:
-
-                base_username = "googleuser"
-
-
-            base_username = base_username[:40]
-
+            ) or "googleuser"
 
             username = base_username
 
-
             counter = 1
 
-
-            while True:
-
-                existing = connection.execute(
-                    """
-                    SELECT id
-                    FROM users
-                    WHERE username = ?
-                    """,
-                    (username,)
-                ).fetchone()
-
-
-                if not existing:
-
-                    break
-
+            while connection.execute(
+                """
+                SELECT id
+                FROM users
+                WHERE username = ?
+                """,
+                (username,)
+            ).fetchone():
 
                 username = (
-                    f"{base_username}{counter}"
+                    base_username
+                    + str(counter)
                 )
 
                 counter += 1
-
 
             cursor = connection.execute(
                 """
@@ -1490,55 +1598,20 @@ def google_callback():
                 )
             )
 
-
-            connection.commit()
-
-
             user_id = cursor.lastrowid
 
-
-            user = connection.execute(
-                """
-                SELECT *
-                FROM users
-                WHERE id = ?
-                """,
-                (user_id,)
-            ).fetchone()
-
-
-        else:
-
-            connection.commit()
-
-
+        connection.commit()
         connection.close()
-
-
-        # ----------------------------------------------------
-        # LOGIN SESSION
-        # ----------------------------------------------------
 
         session.clear()
 
-
-        session["user_id"] = user["id"]
-
-        session["username"] = user["username"]
-
-        session["email"] = user["email"]
-
-        session["display_name"] = (
-            user["display_name"]
-            or display_name
-            or user["username"]
-        )
-
+        session["user_id"] = user_id
+        session["username"] = username
+        session["display_name"] = display_name
 
         return redirect(
-            url_for("dashboard")
+            url_for("index")
         )
-
 
     except Exception as exception:
 
@@ -1547,9 +1620,13 @@ def google_callback():
             exception
         )
 
-
         return redirect(
-            url_for("login")
+            url_for(
+                "login",
+                google_error=(
+                    "Google login failed. Please try again."
+                )
+            )
         )
 
 
@@ -1562,14 +1639,13 @@ def logout():
 
     session.clear()
 
-
     return redirect(
         url_for("login")
     )
 
 
 # ============================================================
-# MAIN SCANNER
+# MAIN PAGE
 # ============================================================
 
 @app.route("/")
@@ -1582,7 +1658,7 @@ def index():
 
 
 # ============================================================
-# SCAN
+# QR SCAN
 # ============================================================
 
 @app.route(
@@ -1592,149 +1668,106 @@ def index():
 @login_required
 def scan():
 
-    error = None
-
-
-    user_id = session.get(
-        "user_id"
-    )
-
-
-    # --------------------------------------------------------
-    # FILE
-    # --------------------------------------------------------
-
-    file = request.files.get(
-        "qr_file"
-    )
-
-
-    if file is None:
-
-        file = request.files.get(
-            "qr_image"
-        )
-
-
-    if file is None:
-
-        error = (
-            "Please select a QR image."
-        )
-
-        return render_template(
-            "index.html",
-            error=error
-        )
-
-
-    # --------------------------------------------------------
-    # EMPTY FILE
-    # --------------------------------------------------------
-
-    if not file.filename:
-
-        error = (
-            "No file selected. Please choose a QR image."
-        )
-
-        return render_template(
-            "index.html",
-            error=error
-        )
-
-
-    # --------------------------------------------------------
-    # EXTENSION
-    # --------------------------------------------------------
-
-    if not allowed_file(
-        file.filename
-    ):
-
-        error = (
-            "Unsupported image format. "
-            "Use PNG, JPG, JPEG, WEBP or BMP."
-        )
-
-        return render_template(
-            "index.html",
-            error=error
-        )
-
+    filepath = None
 
     try:
 
+        if "qr_image" not in request.files:
+
+            return render_template(
+                "index.html",
+                error="Please select a QR image."
+            )
+
+        file = request.files[
+            "qr_image"
+        ]
+
+        if file.filename == "":
+
+            return render_template(
+                "index.html",
+                error=(
+                    "No file selected. "
+                    "Please choose a QR image."
+                )
+            )
+
+        allowed_extensions = {
+            "png",
+            "jpg",
+            "jpeg",
+            "webp",
+            "bmp"
+        }
+
+        filename = file.filename.lower()
+
+        if (
+            "."
+            not in filename
+            or filename.rsplit(
+                ".",
+                1
+            )[1]
+            not in allowed_extensions
+        ):
+
+            return render_template(
+                "index.html",
+                error=(
+                    "Unsupported image format."
+                )
+            )
+
         # ----------------------------------------------------
-        # READ IMAGE DIRECTLY INTO MEMORY
+        # Read uploaded image directly into memory
         # ----------------------------------------------------
 
         image_bytes = file.read()
 
-
         if not image_bytes:
 
-            error = (
-                "Uploaded image is empty."
+            return render_template(
+                "index.html",
+                error="Uploaded image is empty."
             )
+
+        # 5 MB protection
+        if len(image_bytes) > 5 * 1024 * 1024:
 
             return render_template(
                 "index.html",
-                error=error
+                error=(
+                    "File is too large. "
+                    "Maximum allowed size is 5 MB."
+                )
             )
 
-
-        if len(image_bytes) > MAX_FILE_SIZE:
-
-            error = (
-                "File is too large. "
-                "Maximum allowed size is 5 MB."
-            )
-
-            return render_template(
-                "index.html",
-                error=error
-            )
-
-
-        # ----------------------------------------------------
-        # CONVERT TO NUMPY
-        # ----------------------------------------------------
-
-        import numpy as np
-
-
-        image_array = np.frombuffer(
+        numpy_array = np.frombuffer(
             image_bytes,
             dtype=np.uint8
         )
 
-
         image = cv2.imdecode(
-            image_array,
+            numpy_array,
             cv2.IMREAD_COLOR
         )
 
-
         if image is None:
-
-            error = (
-                "Unable to read the uploaded image. "
-                "Please upload a valid image file."
-            )
 
             return render_template(
                 "index.html",
-                error=error
+                error=(
+                    "Unable to read the uploaded image."
+                )
             )
 
-
         # ----------------------------------------------------
-        # QR DETECTOR
+        # QR Detector
         # ----------------------------------------------------
 
         detector = cv2.QRCodeDetector()
-
 
         data, points, _ = (
             detector.detectAndDecode(
@@ -1742,147 +1775,133 @@ def scan():
             )
         )
 
-
-        # ----------------------------------------------------
-        # QR NOT FOUND
-        # ----------------------------------------------------
-
         if not data:
-
-            error = (
-                "No readable QR code was detected. "
-                "Please upload a clear QR image."
-            )
 
             return render_template(
                 "index.html",
-                error=error
+                error=(
+                    "No readable QR code was detected. "
+                    "Please upload a clear QR image."
+                )
             )
-
-
-        # ----------------------------------------------------
-        # URL
-        # ----------------------------------------------------
 
         url = data.strip()
 
-
         # ----------------------------------------------------
-        # VALIDATE
+        # URL validation
         # ----------------------------------------------------
 
         valid, validation_error = (
             validate_url(url)
         )
 
-
         if not valid:
-
-            error = validation_error
 
             return render_template(
                 "index.html",
-                error=error
+                error=validation_error
             )
 
+        # ----------------------------------------------------
+        # Combined rule + ML analysis
+        # ----------------------------------------------------
+
+        analysis = combined_analysis(
+            url
+        )
 
         # ----------------------------------------------------
-        # ANALYZE
+        # Save result
         # ----------------------------------------------------
 
-        (
-            score,
-            risk,
-            reasons,
-            details
-        ) = analyze_url(url)
-
-
-        # ----------------------------------------------------
-        # SAVE
-        # ----------------------------------------------------
+        user_id = session[
+            "user_id"
+        ]
 
         scan_id = save_scan(
             user_id,
             url,
-            score,
-            risk
+            analysis["score"],
+            analysis["risk"],
+            analysis["ml_prediction"],
+            analysis["ml_confidence"],
+            analysis["ml_score"]
         )
-
 
         result = {
 
-            "id": scan_id,
+            "id":
+                scan_id,
 
-            "url": url,
+            "url":
+                url,
 
-            "score": score,
+            "score":
+                analysis["score"],
 
-            "risk": risk,
+            "risk":
+                analysis["risk"],
 
-            "reasons": reasons,
+            "reasons":
+                analysis["reasons"],
 
-            "details": details
+            "details":
+                analysis["details"],
+
+            "ml_prediction":
+                analysis["ml_prediction"],
+
+            "ml_confidence":
+                analysis["ml_confidence"],
+
+            "ml_score":
+                analysis["ml_score"],
+
+            "rule_score":
+                analysis["rule_score"]
         }
-
 
         return render_template(
             "result.html",
             result=result
         )
 
-
     except cv2.error:
-
-        error = (
-            "The image could not be processed. "
-            "Please upload a valid QR image."
-        )
-
 
         return render_template(
             "index.html",
-            error=error
+            error=(
+                "The image could not be processed."
+            )
         )
-
 
     except sqlite3.Error as exception:
 
         print(
-            "SQLite Error:",
+            "Database Error:",
             exception
         )
 
-
-        error = (
-            "Database error occurred. "
-            "Please try again."
-        )
-
-
         return render_template(
             "index.html",
-            error=error
+            error=(
+                "Database error occurred."
+            )
         )
-
 
     except Exception as exception:
 
         print(
-            "QRGuard Scan Error:",
+            "QRGuard Error:",
             exception
         )
 
-
-        error = (
-            "An unexpected error occurred "
-            "while processing the QR image."
-        )
-
-
         return render_template(
             "index.html",
-            error=error
+            error=(
+                "An unexpected error occurred "
+                "while processing the QR image."
+            )
         )
 
 
@@ -1894,13 +1913,7 @@ def scan():
 @login_required
 def history():
 
-    user_id = session.get(
-        "user_id"
-    )
-
-
     connection = get_db()
-
 
     scans = connection.execute(
         """
@@ -1909,17 +1922,20 @@ def history():
             url,
             score,
             risk,
+            ml_prediction,
+            ml_confidence,
+            ml_score,
             scanned_at
         FROM scans
         WHERE user_id = ?
         ORDER BY id DESC
         """,
-        (user_id,)
+        (
+            session["user_id"],
+        )
     ).fetchall()
 
-
     connection.close()
-
 
     return render_template(
         "history.html",
@@ -1935,13 +1951,11 @@ def history():
 @login_required
 def dashboard():
 
-    user_id = session.get(
-        "user_id"
-    )
-
-
     connection = get_db()
 
+    user_id = session[
+        "user_id"
+    ]
 
     total = connection.execute(
         """
@@ -1951,7 +1965,6 @@ def dashboard():
         """,
         (user_id,)
     ).fetchone()[0]
-
 
     low = connection.execute(
         """
@@ -1966,7 +1979,6 @@ def dashboard():
         )
     ).fetchone()[0]
 
-
     medium = connection.execute(
         """
         SELECT COUNT(*)
@@ -1979,7 +1991,6 @@ def dashboard():
             "MEDIUM RISK"
         )
     ).fetchone()[0]
-
 
     high = connection.execute(
         """
@@ -1994,6 +2005,18 @@ def dashboard():
         )
     ).fetchone()[0]
 
+    ml_phishing = connection.execute(
+        """
+        SELECT COUNT(*)
+        FROM scans
+        WHERE user_id = ?
+        AND ml_prediction = ?
+        """,
+        (
+            user_id,
+            "Potential Phishing"
+        )
+    ).fetchone()[0]
 
     recent_scans = connection.execute(
         """
@@ -2002,26 +2025,39 @@ def dashboard():
             url,
             score,
             risk,
+            ml_prediction,
+            ml_confidence,
+            ml_score,
             scanned_at
         FROM scans
         WHERE user_id = ?
         ORDER BY id DESC
         LIMIT 5
         """,
-        (user_id,)
+        (
+            user_id,
+        )
     ).fetchall()
-
 
     connection.close()
 
-
     stats = {
-        "total": total,
-        "low": low,
-        "medium": medium,
-        "high": high
-    }
 
+        "total":
+            total,
+
+        "low":
+            low,
+
+        "medium":
+            medium,
+
+        "high":
+            high,
+
+        "ml_phishing":
+            ml_phishing
+    }
 
     return render_template(
         "dashboard.html",
@@ -2040,13 +2076,7 @@ def dashboard():
 @login_required
 def report(scan_id):
 
-    user_id = session.get(
-        "user_id"
-    )
-
-
     connection = get_db()
-
 
     scan = connection.execute(
         """
@@ -2055,6 +2085,9 @@ def report(scan_id):
             url,
             score,
             risk,
+            ml_prediction,
+            ml_confidence,
+            ml_score,
             scanned_at
         FROM scans
         WHERE id = ?
@@ -2062,13 +2095,11 @@ def report(scan_id):
         """,
         (
             scan_id,
-            user_id
+            session["user_id"]
         )
     ).fetchone()
 
-
     connection.close()
-
 
     if scan is None:
 
@@ -2077,132 +2108,101 @@ def report(scan_id):
             404
         )
 
-
     url = scan["url"]
 
     stored_score = scan["score"]
-
     stored_risk = scan["risk"]
 
-    scanned_at = scan["scanned_at"]
+    ml_prediction = (
+        scan["ml_prediction"]
+        or "Not available"
+    )
 
+    ml_confidence = (
+        scan["ml_confidence"]
+        if scan["ml_confidence"] is not None
+        else 0
+    )
 
-    (
-        _,
-        _,
-        reasons,
-        details
-    ) = analyze_url(url)
+    ml_score = (
+        scan["ml_score"]
+        if scan["ml_score"] is not None
+        else 0
+    )
 
+    scanned_at = scan[
+        "scanned_at"
+    ]
+
+    analysis = combined_analysis(
+        url
+    )
 
     score = stored_score
-
     risk = stored_risk
 
-
-    # --------------------------------------------------------
-    # PDF BUFFER
-    # --------------------------------------------------------
+    details = analysis[
+        "details"
+    ]
 
     pdf_buffer = io.BytesIO()
 
-
     document = SimpleDocTemplate(
-
         pdf_buffer,
-
         pagesize=A4,
-
         rightMargin=18 * mm,
-
         leftMargin=18 * mm,
-
         topMargin=18 * mm,
-
         bottomMargin=18 * mm
     )
 
-
     styles = getSampleStyleSheet()
 
-
     title_style = ParagraphStyle(
-
         "TitleStyle",
-
         parent=styles["Title"],
-
         alignment=TA_CENTER,
-
         fontSize=22,
-
         leading=26,
-
         spaceAfter=8
     )
 
-
     subtitle_style = ParagraphStyle(
-
         "SubtitleStyle",
-
         parent=styles["Normal"],
-
         alignment=TA_CENTER,
-
         fontSize=10,
-
         leading=14,
-
         spaceAfter=18
     )
 
-
     section_style = ParagraphStyle(
-
         "SectionStyle",
-
         parent=styles["Heading2"],
-
         fontSize=13,
-
         leading=16,
-
         spaceBefore=10,
-
         spaceAfter=8
     )
 
-
     normal_style = ParagraphStyle(
-
         "NormalStyle",
-
         parent=styles["Normal"],
-
         fontSize=9,
-
         leading=13
     )
 
-
     small_style = ParagraphStyle(
-
         "SmallStyle",
-
         parent=styles["Normal"],
-
         fontSize=8,
-
         leading=11
     )
 
-
     story = []
 
-
     # --------------------------------------------------------
-    # HEADER
+    # Header
     # --------------------------------------------------------
 
     story.append(
@@ -2212,7 +2212,6 @@ def report(scan_id):
         )
     )
 
-
     story.append(
         Paragraph(
             "QR-Code Phishing Detection System",
@@ -2220,9 +2219,7 @@ def report(scan_id):
         )
     )
 
-
     header_table = Table(
-
         [
             [
                 Paragraph(
@@ -2231,67 +2228,56 @@ def report(scan_id):
                 )
             ]
         ],
-
         colWidths=[
             174 * mm
         ]
     )
 
-
     header_table.setStyle(
         TableStyle([
-
             (
                 "BACKGROUND",
                 (0, 0),
                 (-1, -1),
                 colors.HexColor("#0b2239")
             ),
-
             (
                 "TEXTCOLOR",
                 (0, 0),
                 (-1, -1),
                 colors.white
             ),
-
             (
                 "ALIGN",
                 (0, 0),
                 (-1, -1),
                 "CENTER"
             ),
-
             (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
                 10
             ),
-
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
                 10
             )
-
         ])
     )
-
 
     story.append(
         header_table
     )
 
-
     story.append(
         Spacer(1, 12)
     )
 
-
     # --------------------------------------------------------
-    # SCAN INFORMATION
+    # Scan information
     # --------------------------------------------------------
 
     story.append(
@@ -2301,11 +2287,9 @@ def report(scan_id):
         )
     )
 
-
     safe_url = html.escape(
         url
     )
-
 
     scan_data = [
 
@@ -2326,24 +2310,18 @@ def report(scan_id):
             "Scanned At",
             str(scanned_at)
         ]
-
     ]
 
-
     scan_table = Table(
-
         scan_data,
-
         colWidths=[
             40 * mm,
             134 * mm
         ]
     )
 
-
     scan_table.setStyle(
         TableStyle([
-
             (
                 "GRID",
                 (0, 0),
@@ -2351,58 +2329,49 @@ def report(scan_id):
                 0.5,
                 colors.grey
             ),
-
             (
                 "BACKGROUND",
                 (0, 0),
                 (0, -1),
                 colors.HexColor("#eaf2f8")
             ),
-
             (
                 "VALIGN",
                 (0, 0),
                 (-1, -1),
                 "TOP"
             ),
-
             (
                 "FONTSIZE",
                 (0, 0),
                 (-1, -1),
                 8
             ),
-
             (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
                 7
             ),
-
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
                 7
             )
-
         ])
     )
-
 
     story.append(
         scan_table
     )
 
-
     story.append(
         Spacer(1, 12)
     )
 
-
     # --------------------------------------------------------
-    # RISK ASSESSMENT
+    # Risk assessment
     # --------------------------------------------------------
 
     story.append(
@@ -2411,7 +2380,6 @@ def report(scan_id):
             section_style
         )
     )
-
 
     if risk == "LOW RISK":
 
@@ -2431,14 +2399,11 @@ def report(scan_id):
             "#dc3545"
         )
 
-
     risk_table = Table(
-
         [
             [
-
                 Paragraph(
-                    f"<b>RISK SCORE</b><br/>"
+                    f"<b>FINAL RISK SCORE</b><br/>"
                     f"<font size='24'>{score}/100</font>",
                     normal_style
                 ),
@@ -2450,55 +2415,46 @@ def report(scan_id):
                     f"</font>",
                     normal_style
                 )
-
             ]
         ],
-
         colWidths=[
             87 * mm,
             87 * mm
         ]
     )
 
-
     risk_table.setStyle(
         TableStyle([
-
             (
                 "BACKGROUND",
                 (0, 0),
                 (0, 0),
                 colors.HexColor("#eef3f7")
             ),
-
             (
                 "BACKGROUND",
                 (1, 0),
                 (1, 0),
                 risk_color
             ),
-
             (
                 "TEXTCOLOR",
                 (1, 0),
                 (1, 0),
                 colors.white
             ),
-
             (
                 "ALIGN",
                 (0, 0),
                 (-1, -1),
                 "CENTER"
             ),
-
             (
                 "VALIGN",
                 (0, 0),
                 (-1, -1),
                 "MIDDLE"
             ),
-
             (
                 "BOX",
                 (0, 0),
@@ -2506,111 +2462,63 @@ def report(scan_id):
                 0.7,
                 colors.grey
             ),
-
             (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
                 12
             ),
-
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
                 12
             )
-
         ])
     )
-
 
     story.append(
         risk_table
     )
 
-
     story.append(
         Spacer(1, 12)
     )
 
-
     # --------------------------------------------------------
-    # DETECTION INDICATORS
+    # ML Analysis
     # --------------------------------------------------------
 
     story.append(
         Paragraph(
-            "3. Detection Indicators",
+            "3. Machine Learning Analysis",
             section_style
         )
     )
 
-
-    indicator_rows = [
-
+    ml_table = Table(
         [
-            "Indicator",
-            "Points"
-        ]
-
-    ]
-
-
-    for detail in details:
-
-        indicator_rows.append(
-
             [
-
-                Paragraph(
-                    html.escape(
-                        str(
-                            detail["indicator"]
-                        )
-                    ),
-                    small_style
-                ),
-
-                str(
-                    detail["points"]
-                )
-
+                "ML Prediction",
+                ml_prediction
+            ],
+            [
+                "ML Confidence",
+                f"{ml_confidence}%"
+            ],
+            [
+                "ML Phishing Score",
+                f"{ml_score}/100"
             ]
-
-        )
-
-
-    indicator_table = Table(
-
-        indicator_rows,
-
-        colWidths=[
-            145 * mm,
-            29 * mm
         ],
-
-        repeatRows=1
+        colWidths=[
+            65 * mm,
+            109 * mm
+        ]
     )
 
-
-    indicator_table.setStyle(
+    ml_table.setStyle(
         TableStyle([
-
-            (
-                "BACKGROUND",
-                (0, 0),
-                (-1, 0),
-                colors.HexColor("#0b2239")
-            ),
-
-            (
-                "TEXTCOLOR",
-                (0, 0),
-                (-1, 0),
-                colors.white
-            ),
-
             (
                 "GRID",
                 (0, 0),
@@ -2618,135 +2526,98 @@ def report(scan_id):
                 0.5,
                 colors.grey
             ),
-
             (
-                "ALIGN",
-                (1, 1),
-                (1, -1),
-                "CENTER"
+                "BACKGROUND",
+                (0, 0),
+                (0, -1),
+                colors.HexColor("#eaf2f8")
             ),
-
             (
                 "VALIGN",
                 (0, 0),
                 (-1, -1),
                 "TOP"
             ),
-
             (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
-                6
+                7
             ),
-
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
-                6
+                7
             )
-
         ])
     )
 
-
     story.append(
-        indicator_table
+        ml_table
     )
-
 
     story.append(
         Spacer(1, 12)
     )
 
-
     # --------------------------------------------------------
-    # SCORE BREAKDOWN
+    # Detection indicators
     # --------------------------------------------------------
 
     story.append(
         Paragraph(
-            "4. Score Breakdown",
+            "4. Detection Indicators",
             section_style
         )
     )
 
-
-    breakdown_text = (
-
-        "The QRGuard risk score is calculated using "
-        "rule-based URL security indicators. Each "
-        "detected indicator contributes a predefined "
-        "number of points. The final score is limited "
-        "to a maximum of 100."
-
-    )
-
-
-    story.append(
-        Paragraph(
-            breakdown_text,
-            normal_style
-        )
-    )
-
-
-    story.append(
-        Spacer(1, 8)
-    )
-
-
-    risk_method_table = Table(
-
+    indicator_rows = [
         [
-
-            [
-                "Score Range",
-                "Classification"
-            ],
-
-            [
-                "0 - 30",
-                "LOW RISK"
-            ],
-
-            [
-                "31 - 60",
-                "MEDIUM RISK"
-            ],
-
-            [
-                "61 - 100",
-                "HIGH RISK"
-            ]
-
-        ],
-
-        colWidths=[
-            70 * mm,
-            104 * mm
+            "Indicator",
+            "Points"
         ]
+    ]
+
+    for detail in details:
+
+        indicator_rows.append([
+            Paragraph(
+                html.escape(
+                    str(
+                        detail["indicator"]
+                    )
+                ),
+                small_style
+            ),
+            str(
+                detail["points"]
+            )
+        ])
+
+    indicator_table = Table(
+        indicator_rows,
+        colWidths=[
+            145 * mm,
+            29 * mm
+        ],
+        repeatRows=1
     )
 
-
-    risk_method_table.setStyle(
+    indicator_table.setStyle(
         TableStyle([
-
             (
                 "BACKGROUND",
                 (0, 0),
                 (-1, 0),
                 colors.HexColor("#0b2239")
             ),
-
             (
                 "TEXTCOLOR",
                 (0, 0),
                 (-1, 0),
                 colors.white
             ),
-
             (
                 "GRID",
                 (0, 0),
@@ -2754,135 +2625,227 @@ def report(scan_id):
                 0.5,
                 colors.grey
             ),
-
             (
                 "ALIGN",
-                (0, 0),
-                (-1, -1),
+                (1, 1),
+                (1, -1),
                 "CENTER"
             ),
-
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "TOP"
+            ),
             (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
                 6
             ),
-
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
                 6
             )
-
         ])
     )
 
-
     story.append(
-        risk_method_table
+        indicator_table
     )
-
 
     story.append(
         Spacer(1, 12)
     )
 
-
     # --------------------------------------------------------
-    # METHODOLOGY
+    # Score methodology
     # --------------------------------------------------------
 
     story.append(
         Paragraph(
-            "5. Security Methodology",
+            "5. Score Methodology",
             section_style
         )
     )
 
+    methodology_text = (
+        "QRGuard combines rule-based URL security analysis "
+        "with a lightweight Random Forest machine-learning "
+        "classifier. The rule-based analysis contributes 70% "
+        "of the combined score, while the ML phishing score "
+        "contributes 30%. The final score is limited to 100."
+    )
+
+    story.append(
+        Paragraph(
+            methodology_text,
+            normal_style
+        )
+    )
+
+    story.append(
+        Spacer(1, 8)
+    )
+
+    risk_method_table = Table(
+        [
+            [
+                "Score Range",
+                "Classification"
+            ],
+            [
+                "0 - 30",
+                "LOW RISK"
+            ],
+            [
+                "31 - 60",
+                "MEDIUM RISK"
+            ],
+            [
+                "61 - 100",
+                "HIGH RISK"
+            ]
+        ],
+        colWidths=[
+            70 * mm,
+            104 * mm
+        ]
+    )
+
+    risk_method_table.setStyle(
+        TableStyle([
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#0b2239")
+            ),
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.5,
+                colors.grey
+            ),
+            (
+                "ALIGN",
+                (0, 0),
+                (-1, -1),
+                "CENTER"
+            ),
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            ),
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            )
+        ])
+    )
+
+    story.append(
+        risk_method_table
+    )
+
+    story.append(
+        Spacer(1, 12)
+    )
+
+    # --------------------------------------------------------
+    # Security methodology
+    # --------------------------------------------------------
+
+    story.append(
+        Paragraph(
+            "6. Security Methodology",
+            section_style
+        )
+    )
 
     methodology = [
 
-        "QR image is decoded locally using a QR-code detector.",
+        "QR image is decoded locally using OpenCV.",
 
         "The extracted URL is validated as an HTTP/HTTPS URL.",
 
-        "The URL is analyzed using predefined security heuristics.",
+        "Static URL features are extracted for analysis.",
 
-        "Suspicious indicators contribute weighted risk points.",
+        "Rule-based security indicators are calculated.",
 
-        "The final score is classified into LOW, MEDIUM, or HIGH risk.",
+        "A Random Forest machine-learning classifier evaluates "
+        "the URL feature pattern.",
 
-        "The submitted URL is not automatically opened or visited by QRGuard."
+        "Rule-based and ML scores are combined into the final "
+        "QRGuard risk score.",
 
+        "The submitted URL is not automatically opened or visited "
+        "by QRGuard."
     ]
-
 
     for item in methodology:
 
         story.append(
-
             Paragraph(
                 "• " + item,
                 normal_style
             )
-
         )
 
         story.append(
             Spacer(1, 3)
         )
 
-
     story.append(
         Spacer(1, 8)
     )
 
-
     # --------------------------------------------------------
-    # SECURITY NOTICE
+    # Security notice
     # --------------------------------------------------------
 
     notice_table = Table(
-
         [
-
             [
-
                 Paragraph(
-
                     "<b>SECURITY NOTICE</b><br/>"
                     "QRGuard performs static URL analysis. "
-                    "A risk classification is an automated "
-                    "security assessment and should not be "
-                    "treated as absolute proof that a website "
-                    "is malicious or safe.",
-
+                    "The machine-learning model is trained on a "
+                    "small project dataset and is intended for "
+                    "educational and defensive cybersecurity use. "
+                    "A risk classification should not be treated "
+                    "as absolute proof that a website is malicious "
+                    "or safe.",
                     small_style
-
                 )
-
             ]
-
         ],
-
         colWidths=[
             174 * mm
         ]
     )
 
-
     notice_table.setStyle(
         TableStyle([
-
             (
                 "BACKGROUND",
                 (0, 0),
                 (-1, -1),
                 colors.HexColor("#fff3cd")
             ),
-
             (
                 "BOX",
                 (0, 0),
@@ -2890,73 +2853,60 @@ def report(scan_id):
                 0.7,
                 colors.HexColor("#d39e00")
             ),
-
             (
                 "LEFTPADDING",
                 (0, 0),
                 (-1, -1),
                 10
             ),
-
             (
                 "RIGHTPADDING",
                 (0, 0),
                 (-1, -1),
                 10
             ),
-
             (
                 "TOPPADDING",
                 (0, 0),
                 (-1, -1),
                 10
             ),
-
             (
                 "BOTTOMPADDING",
                 (0, 0),
                 (-1, -1),
                 10
             )
-
         ])
     )
-
 
     story.append(
         notice_table
     )
 
-
     story.append(
         Spacer(1, 12)
     )
 
-
     # --------------------------------------------------------
-    # DISCLAIMER
+    # Disclaimer
     # --------------------------------------------------------
 
     story.append(
         Paragraph(
-            "6. Disclaimer",
+            "7. Disclaimer",
             section_style
         )
     )
 
-
     disclaimer = (
-
-        "This report is generated for educational and "
-        "defensive cybersecurity analysis purposes. "
-        "QRGuard uses heuristic indicators and may "
-        "produce false positives or false negatives. "
-        "Users should verify suspicious links through "
-        "trusted security resources before interacting "
-        "with them."
-
+        "This report is generated for educational and defensive "
+        "cybersecurity analysis purposes. QRGuard uses heuristic "
+        "indicators and a lightweight machine-learning model. "
+        "The model may produce false positives or false negatives. "
+        "Users should verify suspicious links through trusted "
+        "security resources before interacting with them."
     )
-
 
     story.append(
         Paragraph(
@@ -2965,11 +2915,9 @@ def report(scan_id):
         )
     )
 
-
     story.append(
         Spacer(1, 18)
     )
-
 
     story.append(
         Paragraph(
@@ -2978,27 +2926,19 @@ def report(scan_id):
         )
     )
 
-
     document.build(
         story
     )
 
-
     pdf_buffer.seek(0)
 
-
     return send_file(
-
         pdf_buffer,
-
         as_attachment=True,
-
         download_name=(
             f"QRGuard_Report_{scan_id}.pdf"
         ),
-
         mimetype="application/pdf"
-
     )
 
 
@@ -3012,35 +2952,12 @@ def health():
     return {
         "status": "ok",
         "application": "QRGuard",
-        "version": "2026"
+        "ml_model": "RandomForest"
     }
 
 
 # ============================================================
-# FILE TOO LARGE
-# ============================================================
-
-@app.errorhandler(413)
-def file_too_large(error):
-
-    if "user_id" in session:
-
-        return render_template(
-            "index.html",
-            error=(
-                "File is too large. "
-                "Maximum allowed size is 5 MB."
-            )
-        ), 413
-
-
-    return redirect(
-        url_for("login")
-    )
-
-
-# ============================================================
-# PAGE NOT FOUND
+# 404
 # ============================================================
 
 @app.errorhandler(404)
@@ -3050,9 +2967,10 @@ def page_not_found(error):
 
         return render_template(
             "index.html",
-            error="The requested page was not found."
+            error=(
+                "The requested page was not found."
+            )
         ), 404
-
 
     return redirect(
         url_for("login")
@@ -3060,37 +2978,43 @@ def page_not_found(error):
 
 
 # ============================================================
-# INTERNAL SERVER ERROR
+# 413
+# ============================================================
+
+@app.errorhandler(413)
+def file_too_large(error):
+
+    return render_template(
+        "index.html",
+        error=(
+            "File is too large. "
+            "Maximum allowed size is 5 MB."
+        )
+    ), 413
+
+
+# ============================================================
+# 500
 # ============================================================
 
 @app.errorhandler(500)
 def internal_server_error(error):
 
-    print(
-        "Internal Server Error:",
-        error
-    )
-
-
-    if "user_id" in session:
-
-        return render_template(
-            "index.html",
-            error=(
-                "A server error occurred. "
-                "Please try again."
-            )
-        ), 500
-
-
-    return redirect(
-        url_for("login")
-    )
+    return render_template(
+        "index.html",
+        error=(
+            "A server error occurred. "
+            "Please try again."
+        )
+    ), 500
 
 
 # ============================================================
-# LOCAL DEVELOPMENT
+# START APPLICATION
 # ============================================================
+
+init_db()
+
 
 if __name__ == "__main__":
 
