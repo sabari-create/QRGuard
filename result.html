@@ -250,9 +250,7 @@
 
 
         .brand-name span {
-
-            color:
-                var(--gold-light);
+            color: var(--gold-light);
         }
 
 
@@ -262,8 +260,7 @@
 
             margin-top: 2px;
 
-            color:
-                #686573;
+            color: #686573;
 
             font-size: 8px;
 
@@ -767,10 +764,7 @@
                     var(--gold-light)
                     {{ result.score }}%,
 
-                    var(--purple)
-                    {{ result.score }}%,
-
-                    rgba(255,255,255,0.055)
+                    rgba(139,92,246,0.22)
                     {{ result.score }}%,
 
                     rgba(255,255,255,0.055)
@@ -1581,16 +1575,12 @@
 
 
         .url-panel {
-
-            animation-delay:
-                0.08s;
+            animation-delay: 0.08s;
         }
 
 
         .actions {
-
-            animation-delay:
-                0.16s;
+            animation-delay: 0.16s;
         }
 
 
@@ -1616,9 +1606,7 @@
         @media (max-width: 950px) {
 
             .analysis-grid {
-
-                grid-template-columns:
-                    1fr;
+                grid-template-columns: 1fr;
             }
 
 
@@ -1636,9 +1624,7 @@
 
 
             .actions {
-
-                grid-template-columns:
-                    1fr 1fr 1fr;
+                grid-template-columns: 1fr 1fr 1fr;
             }
 
         }
@@ -1664,16 +1650,12 @@
 
 
             .brand-subtitle {
-
-                display:
-                    none;
+                display: none;
             }
 
 
             .brand-name {
-
-                font-size:
-                    18px;
+                font-size: 18px;
             }
 
 
@@ -1705,9 +1687,7 @@
 
 
             .nav a:nth-child(2) {
-
-                display:
-                    none;
+                display: none;
             }
 
 
@@ -1732,16 +1712,12 @@
 
 
             .analysis-header h1 {
-
-                font-size:
-                    35px;
+                font-size: 35px;
             }
 
 
             .analysis-header p {
-
-                font-size:
-                    12px;
+                font-size: 12px;
             }
 
 
@@ -1777,23 +1753,17 @@
 
 
             .score-number strong {
-
-                font-size:
-                    48px;
+                font-size: 48px;
             }
 
 
             .panel-title {
-
-                align-items:
-                    flex-start;
+                align-items: flex-start;
             }
 
 
             .panel-title h2 {
-
-                font-size:
-                    17px;
+                font-size: 17px;
             }
 
 
@@ -1818,23 +1788,17 @@
 
 
             .indicator-text {
-
-                font-size:
-                    11px;
+                font-size: 11px;
             }
 
 
             .actions {
-
-                grid-template-columns:
-                    1fr;
+                grid-template-columns: 1fr;
             }
 
 
             .action {
-
-                min-height:
-                    50px;
+                min-height: 50px;
             }
 
         }
@@ -1857,16 +1821,12 @@
 
 
             .logout {
-
-                padding:
-                    7px 8px !important;
+                padding: 7px 8px !important;
             }
 
 
             .analysis-header h1 {
-
-                font-size:
-                    31px;
+                font-size: 31px;
             }
 
 
@@ -1917,7 +1877,6 @@
 
 
 <body>
-
 
     <!-- =====================================================
          TOP NAVIGATION
@@ -1976,17 +1935,11 @@
     </header>
 
 
-
     <!-- =====================================================
          MAIN
     ===================================================== -->
 
     <main class="page">
-
-
-        <!-- =================================================
-             ANALYSIS HEADER
-        ================================================= -->
 
         <section class="analysis-header">
 
@@ -2025,20 +1978,11 @@
         </section>
 
 
-
-        <!-- =================================================
-             ANALYSIS GRID
-        ================================================= -->
-
         <section class="analysis-grid">
 
-
-            <!-- =============================================
-                 SCORE PANEL
-            ============================================== -->
+            <!-- SCORE PANEL -->
 
             <div class="score-panel">
-
 
                 <div class="score-label">
                     SECURITY RISK SCORE
@@ -2072,17 +2016,11 @@
                     <div class="risk-badge">
 
                         {% if result.risk == "LOW RISK" %}
-
                             ✓
-
                         {% elif result.risk == "MEDIUM RISK" %}
-
                             !
-
                         {% else %}
-
                             !
-
                         {% endif %}
 
                         {{ result.risk }}
@@ -2102,13 +2040,9 @@
             </div>
 
 
-
-            <!-- =============================================
-                 URL PANEL
-            ============================================== -->
+            <!-- URL PANEL -->
 
             <div class="url-panel">
-
 
                 <div class="panel-title">
 
@@ -2124,29 +2058,20 @@
                 </div>
 
 
-
-                <!-- =========================================
-                     URL
-                ========================================== -->
-
                 <div class="url-box">
 
                     <span class="url-prefix">
                         URL →
                     </span>
 
-                    {{ result.url }}
+                    {{ result.url | e }}
 
                 </div>
 
 
-
-                <!-- =========================================
-                     INDICATORS
-                ========================================== -->
+                <!-- INDICATORS -->
 
                 <div class="indicator-section">
-
 
                     <div class="indicator-heading">
 
@@ -2167,9 +2092,7 @@
 
                     <div class="indicator-list">
 
-
                         {% for detail in result.details %}
-
 
                             {% if detail.points > 0 %}
 
@@ -2181,7 +2104,7 @@
 
 
                                     <div class="indicator-text">
-                                        {{ detail.indicator }}
+                                        {{ detail.indicator | e }}
                                     </div>
 
 
@@ -2190,7 +2113,6 @@
                                     </div>
 
                                 </div>
-
 
                             {% else %}
 
@@ -2202,7 +2124,7 @@
 
 
                                     <div class="indicator-text">
-                                        {{ detail.indicator }}
+                                        {{ detail.indicator | e }}
                                     </div>
 
 
@@ -2214,19 +2136,14 @@
 
                             {% endif %}
 
-
                         {% endfor %}
-
 
                     </div>
 
                 </div>
 
 
-
-                <!-- =========================================
-                     SECURITY MESSAGE
-                ========================================== -->
+                <!-- SECURITY MESSAGE -->
 
                 <div class="security-message">
 
@@ -2247,30 +2164,21 @@
 
                 </div>
 
-
             </div>
-
 
         </section>
 
 
-
-        <!-- =================================================
-             ACTIONS
-        ================================================= -->
+        <!-- ACTIONS -->
 
         <div class="actions">
-
 
             <a
                 href="{{ url_for('report', scan_id=result.id) }}"
                 class="action primary"
             >
-
                 📄
-
                 Download PDF Report
-
             </a>
 
 
@@ -2278,11 +2186,8 @@
                 href="{{ url_for('index') }}"
                 class="action purple"
             >
-
                 🔍
-
                 Scan Another QR
-
             </a>
 
 
@@ -2290,21 +2195,14 @@
                 href="{{ url_for('history') }}"
                 class="action"
             >
-
                 🕘
-
                 View Scan History
-
             </a>
-
 
         </div>
 
 
-
-        <!-- =================================================
-             FOOTER
-        ================================================= -->
+        <!-- FOOTER -->
 
         <div class="footer-notice">
 
@@ -2317,11 +2215,8 @@
 
         </div>
 
-
     </main>
-
 
 </body>
 
 </html>
-
