@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,28 +13,71 @@
 
     <style>
 
+        /* =========================================================
+           QRGuard Premium Result Page
+           Royal Gold + Purple Cyber Security Theme
+        ========================================================= */
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family:
+                Inter,
+                Arial,
+                Helvetica,
+                sans-serif;
+
             background:
                 radial-gradient(
-                    circle at 15% 10%,
-                    rgba(116, 61, 173, 0.18),
-                    transparent 30%
+                    circle at 10% 5%,
+                    rgba(126, 58, 190, 0.20),
+                    transparent 28%
                 ),
                 radial-gradient(
-                    circle at 90% 80%,
-                    rgba(212, 175, 55, 0.08),
-                    transparent 30%
+                    circle at 92% 15%,
+                    rgba(229, 195, 91, 0.09),
+                    transparent 25%
                 ),
-                #05070d;
+                radial-gradient(
+                    circle at 70% 90%,
+                    rgba(111, 54, 170, 0.12),
+                    transparent 28%
+                ),
+                #03050a;
+
             color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                );
+
+            background-size: 45px 45px;
+
+            pointer-events: none;
+            z-index: -1;
         }
 
         a {
@@ -40,26 +85,34 @@
             color: inherit;
         }
 
-        /* ==================================================
-           TOP BAR
-        ================================================== */
+
+        /* =========================================================
+           TOP NAVIGATION
+        ========================================================= */
 
         .topbar {
-            height: 76px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            height: 78px;
+
             padding: 0 6%;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
 
-            background: rgba(5, 7, 13, 0.88);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background:
+                rgba(3, 5, 10, 0.84);
 
-            backdrop-filter: blur(18px);
+            border-bottom:
+                1px solid rgba(255,255,255,0.07);
 
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            backdrop-filter:
+                blur(20px);
         }
+
 
         .brand {
             display: flex;
@@ -67,9 +120,10 @@
             gap: 12px;
         }
 
+
         .shield {
-            width: 40px;
-            height: 46px;
+            width: 42px;
+            height: 48px;
 
             display: flex;
             align-items: center;
@@ -78,186 +132,409 @@
             background:
                 linear-gradient(
                     145deg,
-                    #f4d77a,
-                    #9a7218
+                    #fff0a6,
+                    #e5c35b 45%,
+                    #936b16
                 );
 
-            clip-path: polygon(
-                50% 0%,
-                90% 15%,
-                90% 60%,
-                50% 100%,
-                10% 60%,
-                10% 15%
-            );
+            clip-path:
+                polygon(
+                    50% 0%,
+                    91% 15%,
+                    91% 60%,
+                    50% 100%,
+                    9% 60%,
+                    9% 15%
+                );
 
-            color: #08090d;
-            font-weight: 900;
+            color: #050608;
+
             font-size: 18px;
+            font-weight: 900;
+
+            box-shadow:
+                0 0 25px
+                rgba(229,195,91,0.15);
         }
+
 
         .brand-name {
             font-size: 21px;
-            font-weight: 800;
+            font-weight: 850;
             letter-spacing: 1px;
         }
 
+
         .brand-name span {
-            color: #e6c45c;
+            color: #e5c35b;
         }
+
+
+        .brand-subtitle {
+            display: block;
+
+            margin-top: 2px;
+
+            color: #666b78;
+
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
 
         .nav {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
         }
+
 
         .nav a {
             padding: 10px 14px;
-            border-radius: 9px;
-            color: #aaaeba;
-            font-size: 13px;
-            transition: 0.25s;
+
+            border-radius: 10px;
+
+            color: #9296a4;
+
+            font-size: 12px;
+            font-weight: 650;
+
+            transition:
+                transform 0.25s ease,
+                background 0.25s ease,
+                color 0.25s ease;
         }
+
 
         .nav a:hover {
-            background: rgba(255,255,255,0.06);
-            color: white;
+            transform: translateY(-1px);
+
+            background:
+                rgba(255,255,255,0.055);
+
+            color: #ffffff;
         }
+
 
         .logout {
-            border: 1px solid rgba(229,195,91,0.25);
-            color: #e6c45c !important;
+            border:
+                1px solid rgba(229,195,91,0.25);
+
+            color: #e5c35b !important;
         }
 
-        /* ==================================================
+
+        /* =========================================================
            PAGE
-        ================================================== */
+        ========================================================= */
 
         .page {
             width: 92%;
-            max-width: 1180px;
+            max-width: 1220px;
+
             margin: auto;
-            padding: 48px 0 70px;
+
+            padding:
+                55px 0 80px;
         }
 
-        /* ==================================================
-           ANALYSIS HEADER
-        ================================================== */
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
 
         .analysis-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+
             gap: 30px;
-            margin-bottom: 25px;
+
+            margin-bottom: 28px;
         }
+
 
         .eyebrow {
-            color: #b47ce2;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            margin-bottom: 13px;
+
+            color: #c28ce9;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: 2.2px;
         }
 
-        .analysis-header h1 {
-            font-size: clamp(30px, 4vw, 48px);
-            line-height: 1.1;
-            margin-bottom: 10px;
+
+        .eyebrow::before {
+            content: "";
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #54d89b;
+
+            box-shadow:
+                0 0 12px
+                rgba(84,216,155,0.7);
         }
+
+
+        .analysis-header h1 {
+            font-size:
+                clamp(32px, 5vw, 54px);
+
+            line-height: 1.05;
+
+            letter-spacing: -1.5px;
+
+            margin-bottom: 12px;
+        }
+
 
         .analysis-header h1 span {
             color: #e5c35b;
+
+            text-shadow:
+                0 0 30px
+                rgba(229,195,91,0.12);
         }
+
 
         .analysis-header p {
+            max-width: 620px;
+
             color: #858996;
+
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.7;
         }
+
 
         .scan-id {
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 13px 17px;
 
-            background: rgba(255,255,255,0.035);
-            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
 
-            color: #858996;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.055),
+                    rgba(255,255,255,0.018)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.09);
+
+            color: #777c89;
+
             font-size: 12px;
+
             white-space: nowrap;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,0.20);
         }
+
 
         .scan-id strong {
             color: #e5c35b;
         }
 
-        /* ==================================================
-           MAIN ANALYSIS GRID
-        ================================================== */
+
+        /* =========================================================
+           MAIN GRID
+        ========================================================= */
 
         .analysis-grid {
             display: grid;
-            grid-template-columns: 350px 1fr;
+
+            grid-template-columns:
+                370px
+                minmax(0, 1fr);
+
             gap: 20px;
+
             align-items: stretch;
         }
 
-        /* ==================================================
-           SCORE PANEL
-        ================================================== */
 
-        .score-panel {
-            position: relative;
-            overflow: hidden;
+        /* =========================================================
+           COMMON GLASS PANEL
+        ========================================================= */
 
-            padding: 32px;
-
-            border-radius: 24px;
-
+        .glass {
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,255,255,0.075),
-                    rgba(255,255,255,0.025)
+                    rgba(255,255,255,0.065),
+                    rgba(255,255,255,0.018)
                 );
 
-            border: 1px solid rgba(255,255,255,0.09);
+            border:
+                1px solid rgba(255,255,255,0.085);
 
             box-shadow:
-                0 25px 70px rgba(0,0,0,0.35);
+                0 25px 80px
+                rgba(0,0,0,0.38);
+
+            backdrop-filter:
+                blur(16px);
         }
+
+
+        /* =========================================================
+           SCORE PANEL
+        ========================================================= */
+
+        .score-panel {
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 30px;
+
+            border-radius: 26px;
+
+            background:
+                linear-gradient(
+                    150deg,
+                    rgba(255,255,255,0.075),
+                    rgba(255,255,255,0.022)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.10);
+
+            box-shadow:
+                0 30px 90px
+                rgba(0,0,0,0.42);
+        }
+
 
         .score-panel::before {
             content: "";
+
+            position: absolute;
+
+            width: 240px;
+            height: 240px;
+
+            right: -110px;
+            top: -110px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(154,77,210,0.14);
+
+            filter: blur(35px);
+
+            pointer-events: none;
+        }
+
+
+        .score-panel::after {
+            content: "";
+
             position: absolute;
 
             width: 180px;
             height: 180px;
 
-            right: -80px;
-            top: -80px;
+            left: -100px;
+            bottom: -100px;
 
             border-radius: 50%;
 
-            background: rgba(160,88,213,0.12);
+            background:
+                rgba(229,195,91,0.055);
 
-            filter: blur(25px);
+            filter: blur(35px);
+
+            pointer-events: none;
         }
+
 
         .score-label {
+            position: relative;
+            z-index: 2;
+
             color: #858996;
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            font-weight: bold;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: 1.8px;
         }
 
-        .score-ring {
-            width: 220px;
-            height: 220px;
 
-            margin: 28px auto;
+        .score-mini-status {
+            position: relative;
+            z-index: 2;
+
+            display: inline-flex;
+
+            align-items: center;
+            gap: 6px;
+
+            margin-top: 10px;
+
+            padding: 6px 10px;
+
+            border-radius: 30px;
+
+            background:
+                rgba(84,216,155,0.07);
+
+            border:
+                1px solid rgba(84,216,155,0.18);
+
+            color: #54d89b;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 1px;
+        }
+
+
+        .score-mini-status::before {
+            content: "";
+
+            width: 5px;
+            height: 5px;
+
+            border-radius: 50%;
+
+            background: #54d89b;
+
+            box-shadow:
+                0 0 8px
+                rgba(84,216,155,0.8);
+        }
+
+
+        /* =========================================================
+           SCORE RING
+        ========================================================= */
+
+        .score-ring {
+            position: relative;
+            z-index: 2;
+
+            width: 235px;
+            height: 235px;
+
+            margin: 30px auto 25px;
 
             border-radius: 50%;
 
@@ -268,85 +545,152 @@
             background:
                 radial-gradient(
                     circle,
-                    #080b12 58%,
-                    transparent 59%
+                    #070a10 59%,
+                    transparent 60%
                 ),
                 conic-gradient(
                     #e5c35b
                     {{ result.score }}%,
-                    rgba(255,255,255,0.07)
-                    {{ result.score }}%
+                    #8b5ab1
+                    {{ result.score }}%,
+                    rgba(255,255,255,0.055)
+                    {{ result.score }}%,
+                    rgba(255,255,255,0.055)
+                    100%
                 );
 
             box-shadow:
-                0 0 45px rgba(229,195,91,0.10);
+                0 0 0 1px
+                rgba(229,195,91,0.06),
+
+                0 0 45px
+                rgba(229,195,91,0.11);
         }
 
+
+        .score-ring::before {
+            content: "";
+
+            position: absolute;
+
+            inset: 9px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid
+                rgba(229,195,91,0.08);
+        }
+
+
         .score-number {
+            position: relative;
+
             text-align: center;
         }
+
 
         .score-number strong {
             display: block;
-            font-size: 50px;
-            line-height: 1;
+
+            font-size: 57px;
+
+            line-height: 0.95;
+
+            font-weight: 850;
+
+            letter-spacing: -2px;
+
+            color: #ffffff;
         }
+
 
         .score-number small {
-            color: #7f8390;
-            font-size: 12px;
+            display: block;
+
+            margin-top: 10px;
+
+            color: #777c88;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: 2px;
         }
 
-        /* ==================================================
+
+        /* =========================================================
            RISK STATUS
-        ================================================== */
+        ========================================================= */
 
         .risk-status {
+            position: relative;
+            z-index: 2;
+
             text-align: center;
-            margin-top: 5px;
         }
 
-        .risk-badge {
-            display: inline-block;
 
-            padding: 9px 20px;
+        .risk-badge {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            padding:
+                10px 22px;
 
             border-radius: 50px;
 
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 1px;
+            font-size: 11px;
+            font-weight: 850;
+
+            letter-spacing: 1.4px;
 
             {% if result.risk == "LOW RISK" %}
-                background: rgba(25,135,84,0.13);
-                border: 1px solid rgba(25,135,84,0.4);
+                background: rgba(25,135,84,0.12);
+                border: 1px solid rgba(84,216,155,0.35);
                 color: #54d89b;
+                box-shadow: 0 0 25px rgba(84,216,155,0.06);
             {% elif result.risk == "MEDIUM RISK" %}
-                background: rgba(211,158,0,0.13);
-                border: 1px solid rgba(211,158,0,0.4);
+                background: rgba(211,158,0,0.12);
+                border: 1px solid rgba(240,200,76,0.35);
                 color: #f0c84c;
+                box-shadow: 0 0 25px rgba(240,200,76,0.06);
             {% else %}
-                background: rgba(220,53,69,0.13);
-                border: 1px solid rgba(220,53,69,0.4);
+                background: rgba(220,53,69,0.12);
+                border: 1px solid rgba(255,113,128,0.35);
                 color: #ff7180;
+                box-shadow: 0 0 25px rgba(255,113,128,0.06);
             {% endif %}
         }
 
+
         .score-note {
+            max-width: 280px;
+
+            margin:
+                14px auto 0;
+
             color: #777b87;
-            font-size: 12px;
-            line-height: 1.6;
-            margin-top: 14px;
+
+            font-size: 11px;
+
+            line-height: 1.7;
         }
 
-        /* ==================================================
+
+        /* =========================================================
            URL PANEL
-        ================================================== */
+        ========================================================= */
 
         .url-panel {
+            position: relative;
+
             padding: 30px;
 
-            border-radius: 24px;
+            border-radius: 26px;
 
             background:
                 linear-gradient(
@@ -355,305 +699,746 @@
                     rgba(255,255,255,0.018)
                 );
 
-            border: 1px solid rgba(255,255,255,0.09);
+            border:
+                1px solid rgba(255,255,255,0.085);
+
+            box-shadow:
+                0 25px 80px
+                rgba(0,0,0,0.32);
         }
+
 
         .panel-title {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
 
-            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 18px;
         }
+
 
         .panel-title h2 {
-            font-size: 18px;
+            font-size: 19px;
+
+            font-weight: 750;
         }
+
 
         .panel-tag {
-            color: #b47ce2;
-            font-size: 10px;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
+            padding: 6px 9px;
 
-        .url-box {
-            padding: 18px;
+            border-radius: 7px;
 
-            border-radius: 14px;
+            background:
+                rgba(180,124,226,0.08);
 
-            background: #070a10;
-
-            border: 1px solid rgba(229,195,91,0.16);
-
-            word-break: break-all;
-
-            color: #d8dbe4;
-
-            font-family: Consolas, monospace;
-            font-size: 13px;
-
-            line-height: 1.7;
-        }
-
-        .url-prefix {
-            color: #e5c35b;
-        }
-
-        /* ==================================================
-           INDICATORS
-        ================================================== */
-
-        .indicator-section {
-            margin-top: 28px;
-        }
-
-        .indicator-section h3 {
-            font-size: 16px;
-            margin-bottom: 14px;
-        }
-
-        .indicator-list {
-            display: grid;
-            gap: 10px;
-        }
-
-        .indicator {
-            display: grid;
-            grid-template-columns: 34px 1fr auto;
-            gap: 12px;
-            align-items: center;
-
-            padding: 14px;
-
-            border-radius: 13px;
-
-            background: rgba(255,255,255,0.025);
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .indicator-icon {
-            width: 30px;
-            height: 30px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 9px;
-
-            background: rgba(180,124,226,0.10);
+            border:
+                1px solid rgba(180,124,226,0.16);
 
             color: #c18be9;
-            font-size: 13px;
+
+            font-size: 8px;
+            font-weight: 800;
+
+            letter-spacing: 1.2px;
         }
 
-        .indicator-text {
-            color: #c9cbd4;
-            font-size: 13px;
-            line-height: 1.4;
-        }
 
-        .points {
-            color: #e5c35b;
-            font-size: 12px;
-            font-weight: bold;
-        }
+        /* =========================================================
+           URL BOX
+        ========================================================= */
 
-        /* ==================================================
-           SECURITY MESSAGE
-        ================================================== */
+        .url-box {
+            position: relative;
 
-        .security-message {
-            margin-top: 20px;
-
-            padding: 18px;
+            padding: 19px 20px;
 
             border-radius: 15px;
 
             background:
                 linear-gradient(
-                    90deg,
+                    135deg,
+                    #070a10,
+                    #090c14
+                );
+
+            border:
+                1px solid rgba(229,195,91,0.15);
+
+            color: #d8dbe4;
+
+            word-break: break-all;
+
+            font-family:
+                Consolas,
+                "Courier New",
+                monospace;
+
+            font-size: 12px;
+
+            line-height: 1.75;
+
+            box-shadow:
+                inset 0 0 25px
+                rgba(0,0,0,0.18);
+        }
+
+
+        .url-box::before {
+            content: "DESTINATION URL";
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #5f6470;
+
+            font-family: Arial, sans-serif;
+
+            font-size: 8px;
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+        }
+
+
+        .url-prefix {
+            color: #e5c35b;
+
+            font-weight: 800;
+        }
+
+
+        /* =========================================================
+           INDICATOR SECTION
+        ========================================================= */
+
+        .indicator-section {
+            margin-top: 28px;
+        }
+
+
+        .indicator-heading {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 14px;
+        }
+
+
+        .indicator-heading h3 {
+            font-size: 16px;
+            font-weight: 750;
+        }
+
+
+        .indicator-count {
+            color: #707581;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: 1px;
+        }
+
+
+        .indicator-list {
+            display: grid;
+
+            gap: 9px;
+        }
+
+
+        .indicator {
+            display: grid;
+
+            grid-template-columns:
+                38px
+                minmax(0, 1fr)
+                auto;
+
+            gap: 12px;
+
+            align-items: center;
+
+            padding: 13px;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            border:
+                1px solid rgba(255,255,255,0.055);
+
+            transition:
+                transform 0.22s ease,
+                border-color 0.22s ease,
+                background 0.22s ease;
+        }
+
+
+        .indicator:hover {
+            transform: translateX(3px);
+
+            background:
+                rgba(255,255,255,0.04);
+
+            border-color:
+                rgba(229,195,91,0.15);
+        }
+
+
+        .indicator-icon {
+            width: 32px;
+            height: 32px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+
+        .indicator.positive .indicator-icon {
+            background:
+                rgba(255,113,128,0.09);
+
+            color: #ff7180;
+
+            border:
+                1px solid rgba(255,113,128,0.13);
+        }
+
+
+        .indicator.safe .indicator-icon {
+            background:
+                rgba(84,216,155,0.09);
+
+            color: #54d89b;
+
+            border:
+                1px solid rgba(84,216,155,0.13);
+        }
+
+
+        .indicator-text {
+            color: #c9cbd4;
+
+            font-size: 12px;
+
+            line-height: 1.45;
+        }
+
+
+        .points {
+            min-width: 40px;
+
+            text-align: right;
+
+            color: #e5c35b;
+
+            font-size: 11px;
+
+            font-weight: 850;
+        }
+
+
+        /* =========================================================
+           SECURITY MESSAGE
+        ========================================================= */
+
+        .security-message {
+            position: relative;
+
+            margin-top: 20px;
+
+            padding: 18px 19px;
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    100deg,
                     rgba(229,195,91,0.055),
                     rgba(180,124,226,0.045)
                 );
 
-            border: 1px solid rgba(229,195,91,0.12);
+            border:
+                1px solid rgba(229,195,91,0.12);
         }
 
+
         .security-message strong {
-            display: block;
+            display: flex;
+
+            align-items: center;
+            gap: 8px;
+
             color: #e5c35b;
-            font-size: 13px;
-            margin-bottom: 7px;
+
+            font-size: 12px;
+
+            margin-bottom: 8px;
         }
+
 
         .security-message p {
             color: #9699a5;
-            font-size: 12px;
-            line-height: 1.7;
+
+            font-size: 11px;
+
+            line-height: 1.75;
         }
 
-        /* ==================================================
+
+        /* =========================================================
            ACTION BAR
-        ================================================== */
+        ========================================================= */
 
         .actions {
             margin-top: 20px;
 
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+
+            grid-template-columns:
+                1.15fr
+                1fr
+                1fr;
+
             gap: 12px;
         }
 
+
         .action {
-            min-height: 52px;
+            min-height: 54px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
-            border-radius: 12px;
+            gap: 8px;
 
-            font-size: 13px;
-            font-weight: 700;
+            padding: 12px 15px;
 
-            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 13px;
 
-            background: rgba(255,255,255,0.035);
+            font-size: 12px;
+            font-weight: 750;
+
+            border:
+                1px solid rgba(255,255,255,0.085);
+
+            background:
+                rgba(255,255,255,0.032);
 
             color: #d8dae2;
 
-            transition: 0.25s;
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                border-color 0.25s ease,
+                background 0.25s ease;
         }
 
+
         .action:hover {
-            transform: translateY(-2px);
-            border-color: rgba(229,195,91,0.3);
+            transform: translateY(-3px);
+
+            border-color:
+                rgba(229,195,91,0.25);
+
+            background:
+                rgba(255,255,255,0.05);
         }
+
 
         .action.primary {
             background:
                 linear-gradient(
                     135deg,
-                    #e5c35b,
-                    #a67b1c
+                    #f1d873,
+                    #c89b2b 50%,
+                    #9b711a
                 );
 
-            color: #08090d;
+            color: #07080b;
 
             border: none;
+
+            box-shadow:
+                0 12px 30px
+                rgba(229,195,91,0.08);
         }
+
 
         .action.primary:hover {
             box-shadow:
-                0 10px 28px rgba(229,195,91,0.16);
+                0 15px 35px
+                rgba(229,195,91,0.17);
         }
 
+
         .action.purple {
-            border-color: rgba(180,124,226,0.25);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(155,83,207,0.13),
+                    rgba(99,49,139,0.08)
+                );
+
+            border-color:
+                rgba(180,124,226,0.25);
+
             color: #c18be9;
         }
 
-        /* ==================================================
-           FOOTER NOTICE
-        ================================================== */
+
+        .action.purple:hover {
+            border-color:
+                rgba(180,124,226,0.42);
+
+            box-shadow:
+                0 12px 30px
+                rgba(180,124,226,0.07);
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
 
         .footer-notice {
-            margin-top: 25px;
+            margin-top: 28px;
+
+            padding-top: 20px;
+
+            border-top:
+                1px solid rgba(255,255,255,0.05);
 
             text-align: center;
 
-            color: #646874;
+            color: #5e636f;
 
-            font-size: 11px;
+            font-size: 10px;
 
             line-height: 1.7;
+
+            letter-spacing: 0.2px;
         }
 
-        /* ==================================================
-           MOBILE
-        ================================================== */
 
-        @media (max-width: 900px) {
+        /* =========================================================
+           ANIMATIONS
+        ========================================================= */
+
+        .score-panel,
+        .url-panel,
+        .actions,
+        .analysis-header {
+            animation:
+                fadeUp 0.65s ease both;
+        }
+
+
+        .url-panel {
+            animation-delay: 0.08s;
+        }
+
+
+        .actions {
+            animation-delay: 0.16s;
+        }
+
+
+        @keyframes fadeUp {
+
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        /* =========================================================
+           TABLET
+        ========================================================= */
+
+        @media (max-width: 950px) {
 
             .analysis-grid {
                 grid-template-columns: 1fr;
             }
 
             .score-panel {
-                max-width: 600px;
                 width: 100%;
+                max-width: 600px;
                 margin: auto;
+            }
+
+            .actions {
+                grid-template-columns:
+                    1fr 1fr 1fr;
             }
 
         }
 
-        @media (max-width: 650px) {
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 680px) {
 
             .topbar {
-                padding: 0 4%;
+                height: auto;
+                min-height: 72px;
+
+                padding:
+                    12px 4%;
+
+                gap: 12px;
             }
 
-            .nav a {
-                padding: 8px;
-                font-size: 11px;
+
+            .brand-subtitle {
+                display: none;
             }
+
+
+            .brand-name {
+                font-size: 18px;
+            }
+
+
+            .shield {
+                width: 36px;
+                height: 42px;
+            }
+
+
+            .nav {
+                gap: 3px;
+            }
+
+
+            .nav a {
+                padding:
+                    8px 7px;
+
+                font-size: 10px;
+            }
+
 
             .nav a:nth-child(2) {
                 display: none;
             }
 
+
             .page {
                 width: 94%;
-                padding-top: 35px;
+
+                padding:
+                    36px 0 55px;
             }
+
 
             .analysis-header {
                 display: block;
+
+                margin-bottom: 22px;
             }
 
+
+            .analysis-header h1 {
+                font-size: 35px;
+            }
+
+
+            .analysis-header p {
+                font-size: 12px;
+            }
+
+
             .scan-id {
-                display: inline-block;
+                display: inline-flex;
+
                 margin-top: 15px;
             }
 
+
             .score-panel,
             .url-panel {
-                padding: 22px;
+                padding: 21px;
+
+                border-radius: 20px;
             }
 
+
             .score-ring {
-                width: 190px;
-                height: 190px;
+                width: 200px;
+                height: 200px;
             }
+
+
+            .score-number strong {
+                font-size: 48px;
+            }
+
+
+            .panel-title {
+                align-items: flex-start;
+            }
+
+
+            .panel-title h2 {
+                font-size: 17px;
+            }
+
+
+            .panel-tag {
+                font-size: 7px;
+            }
+
+
+            .indicator {
+                grid-template-columns:
+                    34px
+                    minmax(0, 1fr)
+                    auto;
+
+                padding: 11px;
+            }
+
+
+            .indicator-icon {
+                width: 29px;
+                height: 29px;
+            }
+
+
+            .indicator-text {
+                font-size: 11px;
+            }
+
 
             .actions {
                 grid-template-columns: 1fr;
             }
 
+
+            .action {
+                min-height: 50px;
+            }
+
+        }
+
+
+        /* =========================================================
+           SMALL MOBILE
+        ========================================================= */
+
+        @media (max-width: 430px) {
+
+            .nav a {
+                padding:
+                    7px 5px;
+
+                font-size: 9px;
+            }
+
+
+            .logout {
+                padding:
+                    7px 8px !important;
+            }
+
+
+            .analysis-header h1 {
+                font-size: 31px;
+            }
+
+
+            .score-ring {
+                width: 185px;
+                height: 185px;
+            }
+
+
+            .url-box {
+                padding: 15px;
+
+                font-size: 11px;
+            }
+
+
+            .indicator {
+                grid-template-columns:
+                    31px
+                    1fr;
+            }
+
+
+            .points {
+                grid-column: 2;
+                text-align: left;
+
+                margin-top: 3px;
+            }
+
         }
 
     </style>
+
 </head>
 
 
 <body>
 
-    <!-- ==================================================
+
+    <!-- =========================================================
          TOPBAR
-    ================================================== -->
+    ========================================================= -->
 
     <header class="topbar">
 
-        <a href="{{ url_for('index') }}" class="brand">
+        <a
+            href="{{ url_for('index') }}"
+            class="brand"
+        >
 
             <div class="shield">
                 Q
             </div>
 
-            <div class="brand-name">
-                QR<span>Guard</span>
+            <div>
+
+                <div class="brand-name">
+                    QR<span>Guard</span>
+                </div>
+
+                <span class="brand-subtitle">
+                    Cyber Security
+                </span>
+
             </div>
 
         </a>
@@ -673,7 +1458,10 @@
                 History
             </a>
 
-            <a href="{{ url_for('logout') }}" class="logout">
+            <a
+                href="{{ url_for('logout') }}"
+                class="logout"
+            >
                 Logout
             </a>
 
@@ -682,16 +1470,17 @@
     </header>
 
 
-    <!-- ==================================================
-         PAGE
-    ================================================== -->
+
+    <!-- =========================================================
+         MAIN PAGE
+    ========================================================= -->
 
     <main class="page">
 
 
-        <!-- ==================================================
-             HEADER
-        ================================================== -->
+        <!-- =====================================================
+             ANALYSIS HEADER
+        ===================================================== -->
 
         <section class="analysis-header">
 
@@ -702,12 +1491,14 @@
                 </div>
 
                 <h1>
-                    Security <span>Analysis</span>
+                    Security
+                    <span>Analysis</span>
                 </h1>
 
                 <p>
                     QRGuard completed a static inspection of the
-                    extracted destination URL.
+                    extracted destination URL using predefined
+                    security heuristics.
                 </p>
 
             </div>
@@ -716,6 +1507,7 @@
             <div class="scan-id">
 
                 Scan ID:
+
                 <strong>
                     #{{ result.id }}
                 </strong>
@@ -725,21 +1517,27 @@
         </section>
 
 
-        <!-- ==================================================
-             MAIN GRID
-        ================================================== -->
+
+        <!-- =====================================================
+             ANALYSIS GRID
+        ===================================================== -->
 
         <section class="analysis-grid">
 
 
-            <!-- ==================================================
+            <!-- =================================================
                  SCORE PANEL
-            ================================================== -->
+            ================================================= -->
 
             <div class="score-panel">
 
                 <div class="score-label">
                     SECURITY RISK SCORE
+                </div>
+
+
+                <div class="score-mini-status">
+                    ANALYSIS COMPLETE
                 </div>
 
 
@@ -763,12 +1561,25 @@
                 <div class="risk-status">
 
                     <div class="risk-badge">
+
+                        {% if result.risk == "LOW RISK" %}
+                            ✓
+                        {% elif result.risk == "MEDIUM RISK" %}
+                            !
+                        {% else %}
+                            !
+                        {% endif %}
+
                         {{ result.risk }}
+
                     </div>
 
+
                     <p class="score-note">
+
                         This score is generated from QRGuard's
                         predefined URL security heuristics.
+
                     </p>
 
                 </div>
@@ -776,12 +1587,17 @@
             </div>
 
 
-            <!-- ==================================================
-                 URL + INDICATORS
-            ================================================== -->
+
+            <!-- =================================================
+                 URL + INDICATORS PANEL
+            ================================================= -->
 
             <div class="url-panel">
 
+
+                <!-- =================================================
+                     PANEL TITLE
+                ================================================= -->
 
                 <div class="panel-title">
 
@@ -796,6 +1612,11 @@
                 </div>
 
 
+
+                <!-- =================================================
+                     URL
+                ================================================= -->
+
                 <div class="url-box">
 
                     <span class="url-prefix">
@@ -807,29 +1628,42 @@
                 </div>
 
 
-                <!-- ==============================================
+
+                <!-- =================================================
                      INDICATORS
-                =============================================== -->
+                ================================================= -->
 
                 <div class="indicator-section">
 
-                    <h3>
-                        Detection Indicators
-                    </h3>
+
+                    <div class="indicator-heading">
+
+                        <h3>
+                            Detection Indicators
+                        </h3>
+
+                        <div class="indicator-count">
+
+                            {{ result.details|length }}
+                            CHECKS
+
+                        </div>
+
+                    </div>
 
 
                     <div class="indicator-list">
 
+
                         {% for detail in result.details %}
 
-                        <div class="indicator">
+
+                        {% if detail.points > 0 %}
+
+                        <div class="indicator positive">
 
                             <div class="indicator-icon">
-                                {% if detail.points > 0 %}
-                                    !
-                                {% else %}
-                                    ✓
-                                {% endif %}
+                                !
                             </div>
 
 
@@ -848,16 +1682,48 @@
 
                         </div>
 
+
+                        {% else %}
+
+
+                        <div class="indicator safe">
+
+                            <div class="indicator-icon">
+                                ✓
+                            </div>
+
+
+                            <div class="indicator-text">
+
+                                {{ detail.indicator }}
+
+                            </div>
+
+
+                            <div class="points">
+
+                                +0
+
+                            </div>
+
+                        </div>
+
+
+                        {% endif %}
+
+
                         {% endfor %}
+
 
                     </div>
 
                 </div>
 
 
-                <!-- ==============================================
+
+                <!-- =================================================
                      SECURITY MESSAGE
-                =============================================== -->
+                ================================================= -->
 
                 <div class="security-message">
 
@@ -866,11 +1732,13 @@
                     </strong>
 
                     <p>
+
                         QRGuard performs static URL analysis only.
                         The destination website has not been automatically
                         opened or visited during this scan. A risk score is
                         an automated assessment and should not be treated
                         as absolute proof that a website is malicious or safe.
+
                     </p>
 
                 </div>
@@ -878,20 +1746,24 @@
 
             </div>
 
+
         </section>
 
 
-        <!-- ==================================================
-             ACTIONS
-        ================================================== -->
+
+        <!-- =====================================================
+             ACTION BUTTONS
+        ===================================================== -->
 
         <div class="actions">
+
 
             <a
                 href="{{ url_for('report', scan_id=result.id) }}"
                 class="action primary"
             >
-                📄 Download PDF Report
+                📄
+                Download PDF Report
             </a>
 
 
@@ -899,7 +1771,8 @@
                 href="{{ url_for('index') }}"
                 class="action purple"
             >
-                🔍 Scan Another QR
+                🔍
+                Scan Another QR
             </a>
 
 
@@ -907,20 +1780,27 @@
                 href="{{ url_for('history') }}"
                 class="action"
             >
-                🕘 View Scan History
+                🕘
+                View Scan History
             </a>
+
 
         </div>
 
 
-        <!-- ==================================================
-             FOOTER NOTICE
-        ================================================== -->
+
+        <!-- =====================================================
+             FOOTER
+        ===================================================== -->
 
         <div class="footer-notice">
 
             QRGuard uses rule-based static URL analysis for
             defensive cybersecurity research and educational purposes.
+
+            <br>
+
+            Automated results may contain false positives or false negatives.
 
         </div>
 
@@ -929,4 +1809,5 @@
 
 
 </body>
+
 </html>
