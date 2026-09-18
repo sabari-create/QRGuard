@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QRGuard | Dashboard</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>QRGuard | Security Dashboard</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -19,61 +21,115 @@
             scroll-behavior: smooth;
         }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #f5f5f5;
-            overflow-x: hidden;
+        :root {
+            --black: #020204;
+            --black-2: #05050a;
+            --navy: #080a15;
+            --panel: rgba(12, 14, 27, 0.84);
 
-            background:
-                radial-gradient(
-                    circle at 10% 5%,
-                    rgba(112, 67, 190, 0.22),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 90% 10%,
-                    rgba(255, 193, 7, 0.10),
-                    transparent 27%
-                ),
-                radial-gradient(
-                    circle at 50% 100%,
-                    rgba(91, 55, 151, 0.15),
-                    transparent 40%
-                ),
-                linear-gradient(
-                    135deg,
-                    #020307,
-                    #080b16 48%,
-                    #090510
-                );
+            --gold: #d4af37;
+            --gold-light: #ffe99a;
+            --gold-dark: #9f7617;
+
+            --purple: #8b5cf6;
+            --purple-light: #c4a7ff;
+            --purple-dark: #5b21b6;
+
+            --cyan: #62e6ff;
+
+            --green: #5ee6a0;
+            --yellow: #ffd35a;
+            --red: #ff6873;
+
+            --white: #ffffff;
+            --text: #f7f5ff;
+            --muted: #9997a8;
+            --muted-dark: #656476;
+
+            --border:
+                rgba(212,175,55,0.18);
         }
 
 
-        /* ==========================================
+        /* ==================================================
+           BODY
+        ================================================== */
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            color: var(--text);
+
+            background:
+
+                radial-gradient(
+                    circle at 5% 0%,
+                    rgba(139,92,246,0.18),
+                    transparent 27%
+                ),
+
+                radial-gradient(
+                    circle at 96% 7%,
+                    rgba(212,175,55,0.11),
+                    transparent 25%
+                ),
+
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(98,230,255,0.055),
+                    transparent 30%
+                ),
+
+                linear-gradient(
+                    135deg,
+                    #010103,
+                    #070813 48%,
+                    #03030a
+                );
+
+            overflow-x: hidden;
+        }
+
+
+        /* ==================================================
            BACKGROUND GRID
-        ========================================== */
+        ================================================== */
 
         body::before {
+
             content: "";
+
             position: fixed;
+
             inset: 0;
+
             pointer-events: none;
-            opacity: 0.20;
+
+            opacity: 0.16;
 
             background-image:
+
                 linear-gradient(
                     rgba(255,255,255,0.025) 1px,
                     transparent 1px
                 ),
+
                 linear-gradient(
                     90deg,
                     rgba(255,255,255,0.025) 1px,
                     transparent 1px
                 );
 
-            background-size: 42px 42px;
+            background-size:
+                44px 44px;
 
             mask-image:
                 linear-gradient(
@@ -82,136 +138,250 @@
                     transparent 90%
                 );
 
-            z-index: -1;
+            z-index: -3;
         }
 
 
-        /* ==========================================
-           TOP NAVIGATION
-        ========================================== */
+        /* ==================================================
+           AMBIENT PURPLE GLOW
+        ================================================== */
+
+        body::after {
+
+            content: "";
+
+            position: fixed;
+
+            width: 520px;
+            height: 520px;
+
+            left: 50%;
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(139,92,246,0.035),
+                    transparent 70%
+                );
+
+            pointer-events: none;
+
+            z-index: -2;
+        }
+
+
+        /* ==================================================
+           TOP BAR
+        ================================================== */
 
         .topbar {
-            min-height: 76px;
+
+            min-height: 78px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
-            padding: 0 42px;
+            padding:
+                12px 5.5%;
 
             position: sticky;
+
             top: 0;
+
             z-index: 1000;
 
             background:
-                rgba(3, 5, 12, 0.91);
+                rgba(2,2,6,0.88);
 
             border-bottom:
-                1px solid rgba(255, 193, 7, 0.18);
+                1px solid
+                rgba(212,175,55,0.15);
 
-            backdrop-filter: blur(22px);
+            backdrop-filter:
+                blur(25px);
+
+            -webkit-backdrop-filter:
+                blur(25px);
 
             box-shadow:
-                0 10px 40px rgba(0,0,0,0.20);
+                0 12px 45px
+                rgba(0,0,0,0.25);
         }
 
 
+        /* ==================================================
+           BRAND
+        ================================================== */
+
         .brand {
+
             display: flex;
+
             align-items: center;
+
             gap: 12px;
 
             font-size: 23px;
+
             font-weight: 900;
-            letter-spacing: 0.5px;
+
+            letter-spacing:
+                -0.5px;
+
+            color:
+                white;
         }
 
 
         .shield {
-            width: 43px;
-            height: 43px;
+
+            width: 46px;
+
+            height: 49px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            border-radius: 13px;
+            border-radius: 14px;
 
             background:
+
                 linear-gradient(
                     145deg,
-                    #1b1735,
-                    #080a12
+                    rgba(139,92,246,0.25),
+                    rgba(212,175,55,0.07)
                 );
 
             border:
-                1px solid rgba(255,193,7,0.45);
+                1px solid
+                rgba(212,175,55,0.45);
 
-            color: #ffc107;
+            color:
+                var(--gold-light);
 
-            font-size: 21px;
+            font-size:
+                22px;
 
             box-shadow:
-                0 0 25px rgba(112,67,190,0.25),
-                0 0 16px rgba(255,193,7,0.08),
-                inset 0 0 18px rgba(255,255,255,0.025);
+
+                0 0 30px
+                rgba(139,92,246,0.18),
+
+                inset 0 0 20px
+                rgba(212,175,55,0.04);
         }
 
 
         .brand span {
-            color: #ffc107;
+            color:
+                var(--gold-light);
         }
 
 
-        /* ==========================================
-           NAVIGATION
-        ========================================== */
+        /* ==================================================
+           NAV
+        ================================================== */
 
         .nav-area {
+
             display: flex;
+
             align-items: center;
-            gap: 9px;
+
+            gap: 8px;
         }
 
 
         .nav-btn {
+
+            position: relative;
+
             text-decoration: none;
 
-            color: #c9cfda;
+            color:
+                #aaa8b7;
 
-            padding: 10px 14px;
+            padding:
+                10px 14px;
 
-            border-radius: 10px;
+            border-radius:
+                10px;
 
-            font-size: 13px;
-            font-weight: 800;
+            font-size:
+                13px;
 
-            background:
-                rgba(255,255,255,0.035);
+            font-weight:
+                800;
 
-            border:
-                1px solid rgba(255,255,255,0.07);
-
-            transition: 0.22s;
+            transition:
+                0.22s;
         }
 
 
         .nav-btn:hover {
-            color: #ffc107;
 
-            border-color:
-                rgba(255,193,7,0.35);
+            color:
+                var(--gold-light);
 
             background:
-                rgba(255,193,7,0.055);
+                rgba(139,92,246,0.08);
 
-            transform: translateY(-2px);
+            transform:
+                translateY(-2px);
         }
 
 
-        /* ==========================================
+        .nav-btn::after {
+
+            content: "";
+
+            position: absolute;
+
+            left: 50%;
+
+            bottom: 4px;
+
+            width: 0;
+
+            height: 2px;
+
+            transform:
+                translateX(-50%);
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--gold),
+                    var(--purple)
+                );
+
+            transition:
+                0.22s;
+        }
+
+
+        .nav-btn:hover::after {
+            width: 22px;
+        }
+
+
+        /* ==================================================
            PROFILE
-        ========================================== */
+        ================================================== */
 
         .profile {
             position: relative;
@@ -219,83 +389,123 @@
 
 
         .profile-button {
+
             border:
-                1px solid rgba(255,193,7,0.22);
+                1px solid
+                rgba(212,175,55,0.23);
 
             background:
+
                 linear-gradient(
                     135deg,
-                    rgba(255,193,7,0.08),
-                    rgba(112,67,190,0.12)
+                    rgba(212,175,55,0.08),
+                    rgba(139,92,246,0.12)
                 );
 
-            color: #f1f3f7;
+            color:
+                #f2f2f7;
 
-            padding: 8px 12px;
+            padding:
+                7px 11px;
 
-            border-radius: 12px;
+            border-radius:
+                12px;
 
             display: flex;
+
             align-items: center;
+
             gap: 9px;
 
             cursor: pointer;
 
-            font-weight: 800;
+            font-weight:
+                800;
+
+            transition:
+                0.2s;
+        }
+
+
+        .profile-button:hover {
+
+            border-color:
+                rgba(212,175,55,0.42);
+
+            box-shadow:
+                0 0 22px
+                rgba(139,92,246,0.10);
         }
 
 
         .profile-icon {
-            width: 31px;
-            height: 31px;
+
+            width: 32px;
+
+            height: 32px;
 
             border-radius: 50%;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             background:
+
                 linear-gradient(
                     135deg,
-                    #ffc107,
-                    #a87900
+                    var(--gold-light),
+                    var(--gold-dark)
                 );
 
-            color: #111;
+            color:
+                #080808;
 
-            font-weight: 900;
+            font-weight:
+                900;
 
             box-shadow:
-                0 0 15px rgba(255,193,7,0.15);
+                0 0 18px
+                rgba(212,175,55,0.16);
         }
 
 
         .profile-menu {
+
             position: absolute;
 
             right: 0;
-            top: 55px;
 
-            width: 235px;
+            top: 57px;
+
+            width: 245px;
 
             padding: 12px;
 
-            border-radius: 17px;
+            border-radius: 18px;
 
             background:
-                rgba(10, 13, 25, 0.98);
+                rgba(8,9,18,0.97);
 
             border:
-                1px solid rgba(255,193,7,0.20);
+                1px solid
+                rgba(212,175,55,0.20);
 
             box-shadow:
-                0 25px 65px rgba(0,0,0,0.60),
-                0 0 35px rgba(100,60,170,0.14);
 
-            backdrop-filter: blur(22px);
+                0 28px 70px
+                rgba(0,0,0,0.65),
 
-            display: none;
+                0 0 40px
+                rgba(139,92,246,0.13);
+
+            backdrop-filter:
+                blur(24px);
+
+            display:
+                none;
         }
 
 
@@ -305,898 +515,1354 @@
 
 
         .profile-name {
-            padding: 10px;
+
+            padding:
+                11px;
 
             border-bottom:
-                1px solid rgba(255,255,255,0.07);
+                1px solid
+                rgba(255,255,255,0.07);
 
-            margin-bottom: 7px;
+            margin-bottom:
+                7px;
         }
 
 
         .profile-name strong {
+
             display: block;
-            color: #fff;
+
+            color:
+                white;
+
+            font-size:
+                13px;
         }
 
 
         .profile-name small {
+
             display: block;
 
-            margin-top: 4px;
+            margin-top:
+                5px;
 
-            color: #858ea0;
+            color:
+                #7e8494;
 
-            word-break: break-all;
+            word-break:
+                break-all;
+
+            font-size:
+                11px;
         }
 
 
         .profile-link {
+
             display: block;
 
-            padding: 10px 11px;
+            padding:
+                10px 11px;
 
-            border-radius: 9px;
+            border-radius:
+                9px;
 
-            color: #cdd3df;
+            color:
+                #c9ceda;
 
-            text-decoration: none;
+            text-decoration:
+                none;
 
-            font-size: 13px;
+            font-size:
+                12px;
 
-            transition: 0.2s;
+            transition:
+                0.18s;
         }
 
 
         .profile-link:hover {
-            background:
-                rgba(255,193,7,0.08);
 
-            color: #ffc107;
+            background:
+                rgba(139,92,246,0.09);
+
+            color:
+                var(--gold-light);
         }
 
 
         .logout {
-            color: #ff7b83;
+            color:
+                #ff777f;
         }
 
 
-        /* ==========================================
-           MAIN CONTAINER
-        ========================================== */
+        /* ==================================================
+           MAIN
+        ================================================== */
 
         .container {
-            width: min(
-                1180px,
-                calc(100% - 32px)
-            );
 
-            margin: 40px auto 70px;
+            width:
+                min(1180px, calc(100% - 32px));
+
+            margin:
+                38px auto 70px;
         }
 
 
-        /* ==========================================
+        /* ==================================================
            HERO
-        ========================================== */
+        ================================================== */
 
         .hero {
-            position: relative;
 
-            padding: 38px;
+            position:
+                relative;
 
-            border-radius: 25px;
+            padding:
+                42px;
 
-            overflow: hidden;
+            border-radius:
+                28px;
+
+            overflow:
+                hidden;
 
             background:
+
                 linear-gradient(
                     135deg,
-                    rgba(17,20,37,0.95),
-                    rgba(12,8,25,0.93)
+                    rgba(18,20,38,0.94),
+                    rgba(10,7,22,0.94)
                 );
 
             border:
-                1px solid rgba(255,255,255,0.08);
+                1px solid
+                rgba(255,255,255,0.075);
 
             box-shadow:
-                0 30px 85px rgba(0,0,0,0.46),
-                0 0 55px rgba(112,67,190,0.10);
+
+                0 35px 100px
+                rgba(0,0,0,0.48),
+
+                0 0 65px
+                rgba(139,92,246,0.09),
+
+                inset 0 1px 0
+                rgba(255,255,255,0.04);
         }
 
 
         .hero::before {
+
             content: "";
 
             position: absolute;
 
-            width: 420px;
-            height: 420px;
+            width: 500px;
+            height: 500px;
 
-            right: -180px;
-            top: -230px;
+            right:
+                -220px;
 
-            border-radius: 50%;
+            top:
+                -280px;
+
+            border-radius:
+                50%;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(255,193,7,0.15),
+                    rgba(212,175,55,0.14),
                     transparent 67%
                 );
         }
 
 
         .hero::after {
+
             content: "";
 
             position: absolute;
 
-            width: 280px;
-            height: 280px;
+            width: 350px;
+            height: 350px;
 
-            left: -180px;
-            bottom: -200px;
+            left:
+                -230px;
 
-            border-radius: 50%;
+            bottom:
+                -250px;
+
+            border-radius:
+                50%;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(112,67,190,0.18),
+                    rgba(139,92,246,0.18),
                     transparent 68%
                 );
         }
 
 
         .hero-content {
-            position: relative;
-            z-index: 2;
+
+            position:
+                relative;
+
+            z-index:
+                2;
         }
 
 
         .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
 
-            color: #ffc107;
+            display:
+                inline-flex;
 
-            font-size: 11px;
+            align-items:
+                center;
 
-            font-weight: 900;
+            gap:
+                8px;
 
-            letter-spacing: 2px;
+            color:
+                var(--gold-light);
 
-            text-transform: uppercase;
+            font-size:
+                10px;
+
+            font-weight:
+                900;
+
+            letter-spacing:
+                2px;
+
+            text-transform:
+                uppercase;
         }
 
 
         .status-dot {
-            width: 7px;
-            height: 7px;
 
-            border-radius: 50%;
+            width:
+                7px;
 
-            background: #5ee6a0;
+            height:
+                7px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--green);
 
             box-shadow:
-                0 0 12px rgba(94,230,160,0.75);
+                0 0 13px
+                rgba(94,230,160,0.80);
+
+            animation:
+                statusPulse 1.8s infinite;
+        }
+
+
+        @keyframes statusPulse {
+
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .5;
+                transform: scale(.75);
+            }
         }
 
 
         .hero h1 {
-            margin: 10px 0 10px;
 
-            font-size: 40px;
+            margin:
+                11px 0 10px;
 
-            line-height: 1.12;
+            font-size:
+                clamp(32px, 4vw, 43px);
 
-            letter-spacing: -0.7px;
+            line-height:
+                1.1;
+
+            letter-spacing:
+                -1.2px;
         }
 
 
         .hero h1 span {
-            color: #ffc107;
 
-            text-shadow:
-                0 0 25px rgba(255,193,7,0.14);
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--gold),
+                    var(--gold-light),
+                    var(--purple-light)
+                );
+
+            -webkit-background-clip:
+                text;
+
+            background-clip:
+                text;
+
+            color:
+                transparent;
         }
 
 
         .hero p {
-            margin: 0;
 
-            max-width: 720px;
+            margin:
+                0;
 
-            color: #969fb0;
+            max-width:
+                730px;
 
-            line-height: 1.75;
+            color:
+                #949bab;
 
-            font-size: 14px;
+            line-height:
+                1.75;
+
+            font-size:
+                14px;
         }
 
 
         .hero-actions {
-            display: flex;
 
-            gap: 11px;
+            display:
+                flex;
 
-            margin-top: 24px;
+            gap:
+                11px;
 
-            flex-wrap: wrap;
+            margin-top:
+                25px;
+
+            flex-wrap:
+                wrap;
         }
 
 
         .primary-btn,
         .secondary-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
 
-            padding: 12px 17px;
+            display:
+                inline-flex;
 
-            border-radius: 11px;
+            align-items:
+                center;
 
-            text-decoration: none;
+            justify-content:
+                center;
 
-            font-weight: 900;
+            padding:
+                12px 17px;
 
-            font-size: 13px;
+            border-radius:
+                11px;
 
-            transition: 0.22s;
+            text-decoration:
+                none;
+
+            font-weight:
+                900;
+
+            font-size:
+                12px;
+
+            transition:
+                0.22s;
         }
 
 
         .primary-btn {
-            color: #080a10;
+
+            color:
+                #080808;
 
             background:
                 linear-gradient(
                     135deg,
-                    #ffc107,
-                    #e2a500
+                    var(--gold-light),
+                    var(--gold)
                 );
 
             box-shadow:
-                0 9px 28px rgba(255,193,7,0.16);
+                0 10px 30px
+                rgba(212,175,55,0.16);
         }
 
 
         .secondary-btn {
-            color: #dfe4ed;
+
+            color:
+                #dce0ea;
 
             background:
-                rgba(255,255,255,0.045);
+                rgba(255,255,255,0.035);
 
             border:
-                1px solid rgba(255,255,255,0.09);
+                1px solid
+                rgba(255,255,255,0.09);
         }
 
 
         .primary-btn:hover,
         .secondary-btn:hover {
-            transform: translateY(-3px);
+
+            transform:
+                translateY(-3px);
         }
 
 
         .primary-btn:hover {
+
             box-shadow:
-                0 13px 32px rgba(255,193,7,0.23);
+                0 15px 38px
+                rgba(212,175,55,0.24);
         }
 
 
-        /* ==========================================
+        .secondary-btn:hover {
+
+            border-color:
+                rgba(139,92,246,0.32);
+
+            background:
+                rgba(139,92,246,0.07);
+        }
+
+
+        /* ==================================================
            SECTION
-        ========================================== */
+        ================================================== */
 
         .section {
-            margin-top: 31px;
+            margin-top:
+                31px;
         }
 
 
         .section-heading {
-            display: flex;
-            align-items: center;
-            gap: 12px;
 
-            margin-bottom: 16px;
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                12px;
+
+            margin-bottom:
+                16px;
         }
 
 
         .section-heading h2 {
-            margin: 0;
 
-            font-size: 19px;
+            margin:
+                0;
 
-            letter-spacing: 0.2px;
+            font-size:
+                18px;
+
+            letter-spacing:
+                0.2px;
         }
 
 
         .section-line {
+
             flex: 1;
 
-            height: 1px;
+            height:
+                1px;
 
             background:
                 linear-gradient(
                     90deg,
-                    rgba(255,193,7,0.20),
-                    rgba(255,255,255,0.04)
+                    rgba(212,175,55,0.22),
+                    rgba(255,255,255,0.025)
                 );
         }
 
 
-        /* ==========================================
-           STAT CARDS
-        ========================================== */
+        /* ==================================================
+           STATS
+        ================================================== */
 
         .stats {
-            display: grid;
+
+            display:
+                grid;
 
             grid-template-columns:
                 repeat(4, 1fr);
 
-            gap: 15px;
+            gap:
+                15px;
         }
 
 
         .stat-card {
-            position: relative;
 
-            padding: 22px;
+            position:
+                relative;
 
-            min-height: 154px;
+            min-height:
+                158px;
 
-            border-radius: 19px;
+            padding:
+                22px;
+
+            border-radius:
+                20px;
 
             background:
+
                 linear-gradient(
                     145deg,
-                    rgba(15,19,34,0.92),
-                    rgba(8,10,19,0.88)
+                    rgba(16,18,33,0.94),
+                    rgba(7,8,16,0.90)
                 );
 
             border:
-                1px solid rgba(255,255,255,0.075);
+                1px solid
+                rgba(255,255,255,0.075);
 
-            overflow: hidden;
+            overflow:
+                hidden;
 
-            transition: 0.25s;
+            transition:
+                0.25s;
+        }
+
+
+        .stat-card::before {
+
+            content: "";
+
+            position:
+                absolute;
+
+            left: 0;
+            top: 0;
+
+            width: 100%;
+            height: 2px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(212,175,55,0.55),
+                    transparent
+                );
+
+            opacity:
+                0.55;
         }
 
 
         .stat-card::after {
+
             content: "";
 
-            position: absolute;
+            position:
+                absolute;
 
-            width: 120px;
-            height: 120px;
+            width:
+                150px;
 
-            right: -60px;
-            bottom: -60px;
+            height:
+                150px;
 
-            border-radius: 50%;
+            right:
+                -80px;
+
+            bottom:
+                -80px;
+
+            border-radius:
+                50%;
 
             background:
                 radial-gradient(
                     circle,
-                    rgba(255,193,7,0.08),
+                    rgba(139,92,246,0.10),
                     transparent 70%
                 );
         }
 
 
         .stat-card:hover {
-            transform: translateY(-5px);
+
+            transform:
+                translateY(-6px);
 
             border-color:
-                rgba(255,193,7,0.23);
+                rgba(212,175,55,0.25);
 
             box-shadow:
-                0 18px 45px rgba(0,0,0,0.30);
+                0 20px 48px
+                rgba(0,0,0,0.30);
         }
 
 
         .stat-icon {
-            width: 43px;
-            height: 43px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width:
+                43px;
 
-            border-radius: 12px;
+            height:
+                43px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                12px;
 
             background:
-                rgba(255,193,7,0.075);
+                linear-gradient(
+                    145deg,
+                    rgba(139,92,246,0.14),
+                    rgba(212,175,55,0.06)
+                );
 
             border:
-                1px solid rgba(255,193,7,0.16);
+                1px solid
+                rgba(212,175,55,0.16);
 
-            font-size: 19px;
+            font-size:
+                18px;
 
-            margin-bottom: 15px;
+            margin-bottom:
+                14px;
         }
 
 
         .stat-title {
-            color: #80899b;
 
-            font-size: 10px;
+            color:
+                #7f8798;
 
-            font-weight: 900;
+            font-size:
+                9px;
 
-            text-transform: uppercase;
+            font-weight:
+                900;
 
-            letter-spacing: 1.2px;
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                1.3px;
         }
 
 
         .stat-number {
-            margin-top: 5px;
 
-            font-size: 32px;
+            margin-top:
+                5px;
 
-            font-weight: 900;
+            font-size:
+                31px;
 
-            color: #f4f6fa;
+            font-weight:
+                900;
         }
 
 
         .stat-card.total .stat-number {
-            color: #ffc107;
+            color:
+                var(--gold-light);
         }
 
 
         .stat-card.low .stat-number {
-            color: #5ee6a0;
+            color:
+                var(--green);
         }
 
 
         .stat-card.medium .stat-number {
-            color: #ffc107;
+            color:
+                var(--yellow);
         }
 
 
         .stat-card.high .stat-number {
-            color: #ff6f78;
+            color:
+                var(--red);
         }
 
 
-        /* ==========================================
-           RECENT SCANS
-        ========================================== */
+        /* ==================================================
+           RECENT SCANS CARD
+        ================================================== */
 
         .recent-card {
-            padding: 23px;
 
-            border-radius: 21px;
+            padding:
+                23px;
+
+            border-radius:
+                22px;
 
             background:
+
                 linear-gradient(
                     145deg,
-                    rgba(13,17,30,0.91),
-                    rgba(8,10,19,0.89)
+                    rgba(13,16,29,0.94),
+                    rgba(7,8,16,0.91)
                 );
 
             border:
-                1px solid rgba(255,255,255,0.08);
+                1px solid
+                rgba(255,255,255,0.075);
 
             box-shadow:
-                0 22px 65px rgba(0,0,0,0.31);
+                0 25px 70px
+                rgba(0,0,0,0.32);
         }
 
 
         .table-wrapper {
-            overflow-x: auto;
+            overflow-x:
+                auto;
         }
 
 
         table {
-            width: 100%;
 
-            border-collapse: collapse;
+            width:
+                100%;
 
-            min-width: 720px;
+            border-collapse:
+                collapse;
+
+            min-width:
+                720px;
         }
 
 
         th {
-            padding: 13px 11px;
 
-            text-align: left;
+            padding:
+                13px 11px;
 
-            color: #ffc107;
+            text-align:
+                left;
 
-            font-size: 10px;
+            color:
+                var(--gold-light);
 
-            letter-spacing: 1px;
+            font-size:
+                9px;
 
-            text-transform: uppercase;
+            letter-spacing:
+                1px;
+
+            text-transform:
+                uppercase;
 
             border-bottom:
-                1px solid rgba(255,193,7,0.16);
+                1px solid
+                rgba(212,175,55,0.16);
         }
 
 
         td {
-            padding: 15px 11px;
+
+            padding:
+                15px 11px;
 
             border-bottom:
-                1px solid rgba(255,255,255,0.055);
+                1px solid
+                rgba(255,255,255,0.055);
 
-            color: #cbd1dc;
+            color:
+                #c7ccd7;
 
-            font-size: 13px;
+            font-size:
+                12px;
         }
 
 
         tbody tr {
-            transition: 0.18s;
+
+            transition:
+                0.18s;
         }
 
 
         tbody tr:hover td {
+
             background:
-                rgba(255,255,255,0.025);
+                rgba(139,92,246,0.035);
         }
 
 
         .id {
-            color: #ffc107;
 
-            font-weight: 900;
+            color:
+                var(--gold-light);
+
+            font-weight:
+                900;
         }
 
 
         .url {
-            max-width: 410px;
 
-            word-break: break-all;
+            max-width:
+                410px;
 
-            font-family: Consolas, monospace;
+            word-break:
+                break-all;
 
-            color: #e2e6ee;
+            font-family:
+                Consolas,
+                monospace;
 
-            line-height: 1.5;
+            color:
+                #e0e4ec;
+
+            line-height:
+                1.5;
         }
 
 
         .score {
-            font-weight: 900;
 
-            color: #f1f3f6;
+            font-weight:
+                900;
+
+            color:
+                #eef0f5;
         }
 
 
-        /* ==========================================
+        /* ==================================================
            RISK BADGES
-        ========================================== */
+        ================================================== */
 
         .risk {
-            display: inline-block;
 
-            padding: 6px 10px;
+            display:
+                inline-block;
 
-            border-radius: 999px;
+            padding:
+                6px 10px;
 
-            font-size: 9px;
+            border-radius:
+                999px;
 
-            font-weight: 900;
+            font-size:
+                8px;
 
-            letter-spacing: 0.6px;
+            font-weight:
+                900;
+
+            letter-spacing:
+                0.6px;
         }
 
 
         .risk.low {
-            color: #62e6a4;
+
+            color:
+                var(--green);
 
             background:
-                rgba(25,135,84,0.12);
+                rgba(25,135,84,0.11);
 
             border:
-                1px solid rgba(25,135,84,0.27);
+                1px solid
+                rgba(25,135,84,0.27);
         }
 
 
         .risk.medium {
-            color: #ffc107;
+
+            color:
+                var(--yellow);
 
             background:
-                rgba(255,193,7,0.11);
+                rgba(255,193,7,0.10);
 
             border:
-                1px solid rgba(255,193,7,0.27);
+                1px solid
+                rgba(255,193,7,0.27);
         }
 
 
         .risk.high {
-            color: #ff7078;
+
+            color:
+                var(--red);
 
             background:
-                rgba(220,53,69,0.12);
+                rgba(220,53,69,0.11);
 
             border:
-                1px solid rgba(220,53,69,0.27);
+                1px solid
+                rgba(220,53,69,0.27);
         }
 
 
         .report-btn {
-            display: inline-block;
 
-            text-decoration: none;
+            display:
+                inline-block;
 
-            color: #dce2eb;
+            text-decoration:
+                none;
 
-            padding: 7px 11px;
+            color:
+                #dfe3ec;
 
-            border-radius: 8px;
+            padding:
+                7px 11px;
 
-            font-size: 10px;
+            border-radius:
+                8px;
 
-            font-weight: 900;
+            font-size:
+                9px;
+
+            font-weight:
+                900;
 
             background:
-                rgba(255,255,255,0.045);
+                rgba(255,255,255,0.035);
 
             border:
-                1px solid rgba(255,255,255,0.09);
+                1px solid
+                rgba(255,255,255,0.08);
 
-            transition: 0.2s;
+            transition:
+                0.2s;
         }
 
 
         .report-btn:hover {
-            color: #ffc107;
+
+            color:
+                var(--gold-light);
 
             border-color:
-                rgba(255,193,7,0.32);
+                rgba(212,175,55,0.35);
 
             background:
-                rgba(255,193,7,0.055);
+                rgba(212,175,55,0.055);
+
+            transform:
+                translateY(-1px);
         }
 
 
-        /* ==========================================
+        /* ==================================================
            EMPTY STATE
-        ========================================== */
+        ================================================== */
 
         .empty {
-            text-align: center;
 
-            padding: 58px 20px;
+            text-align:
+                center;
+
+            padding:
+                60px 20px;
         }
 
 
         .empty-icon {
-            width: 68px;
-            height: 68px;
 
-            margin: 0 auto 16px;
+            width:
+                70px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height:
+                70px;
 
-            border-radius: 19px;
+            margin:
+                0 auto 17px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                20px;
 
             background:
+
                 linear-gradient(
                     145deg,
-                    rgba(255,193,7,0.09),
-                    rgba(112,67,190,0.10)
+                    rgba(139,92,246,0.14),
+                    rgba(212,175,55,0.07)
                 );
 
             border:
-                1px solid rgba(255,193,7,0.16);
+                1px solid
+                rgba(212,175,55,0.18);
 
-            font-size: 28px;
+            font-size:
+                29px;
 
             box-shadow:
-                0 0 30px rgba(112,67,190,0.10);
+                0 0 35px
+                rgba(139,92,246,0.11);
         }
 
 
         .empty h3 {
-            margin: 0 0 7px;
 
-            font-size: 19px;
+            margin:
+                0 0 8px;
+
+            font-size:
+                19px;
         }
 
 
         .empty p {
-            margin: 0 auto 21px;
 
-            max-width: 430px;
+            margin:
+                0 auto 22px;
 
-            color: #7f899b;
+            max-width:
+                430px;
 
-            line-height: 1.6;
+            color:
+                #7f8797;
 
-            font-size: 13px;
+            line-height:
+                1.65;
+
+            font-size:
+                12px;
         }
 
 
-        /* ==========================================
-           SECURITY INFO
-        ========================================== */
+        /* ==================================================
+           PROTECTION CARDS
+        ================================================== */
 
         .security-grid {
-            display: grid;
+
+            display:
+                grid;
 
             grid-template-columns:
                 repeat(3, 1fr);
 
-            gap: 14px;
+            gap:
+                14px;
         }
 
 
         .security-card {
-            position: relative;
 
-            padding: 21px;
+            position:
+                relative;
 
-            border-radius: 18px;
+            padding:
+                23px;
+
+            min-height:
+                185px;
+
+            border-radius:
+                19px;
 
             background:
+
                 linear-gradient(
                     135deg,
                     rgba(91,55,151,0.12),
-                    rgba(255,193,7,0.035)
+                    rgba(212,175,55,0.035)
                 );
 
             border:
-                1px solid rgba(125,85,190,0.16);
+                1px solid
+                rgba(139,92,246,0.15);
 
-            overflow: hidden;
+            overflow:
+                hidden;
 
-            transition: 0.22s;
+            transition:
+                0.23s;
+        }
+
+
+        .security-card::before {
+
+            content: "";
+
+            position:
+                absolute;
+
+            left: 0;
+            top: 0;
+
+            width:
+                3px;
+
+            height:
+                100%;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    var(--gold),
+                    var(--purple)
+                );
+
+            opacity:
+                0.6;
         }
 
 
         .security-card:hover {
-            transform: translateY(-4px);
+
+            transform:
+                translateY(-5px);
 
             border-color:
-                rgba(255,193,7,0.18);
-        }
+                rgba(212,175,55,0.23);
 
-
-        .security-card::after {
-            content: "";
-
-            position: absolute;
-
-            width: 100px;
-            height: 100px;
-
-            right: -50px;
-            bottom: -50px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(255,193,7,0.08),
-                    transparent 70%
-                );
+            box-shadow:
+                0 18px 42px
+                rgba(0,0,0,0.28);
         }
 
 
         .security-card .icon {
-            width: 42px;
-            height: 42px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width:
+                44px;
 
-            border-radius: 12px;
+            height:
+                44px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                12px;
 
             background:
-                rgba(255,193,7,0.07);
+                rgba(212,175,55,0.07);
 
             border:
-                1px solid rgba(255,193,7,0.14);
+                1px solid
+                rgba(212,175,55,0.14);
 
-            font-size: 20px;
+            font-size:
+                20px;
 
-            margin-bottom: 13px;
+            margin-bottom:
+                14px;
         }
 
 
         .security-card h3 {
-            margin: 0 0 8px;
 
-            font-size: 15px;
+            margin:
+                0 0 8px;
+
+            font-size:
+                15px;
         }
 
 
         .security-card p {
-            margin: 0;
 
-            color: #8f98a9;
+            margin:
+                0;
 
-            line-height: 1.65;
+            color:
+                #8d95a6;
 
-            font-size: 12px;
+            line-height:
+                1.65;
+
+            font-size:
+                12px;
         }
 
 
-        /* ==========================================
+        /* ==================================================
            FOOTER
-        ========================================== */
+        ================================================== */
 
         .footer {
-            text-align: center;
 
-            margin-top: 38px;
+            text-align:
+                center;
 
-            color: #5f6879;
+            margin-top:
+                40px;
 
-            font-size: 11px;
+            color:
+                #5e6575;
 
-            letter-spacing: 0.2px;
+            font-size:
+                10px;
+
+            letter-spacing:
+                0.3px;
         }
 
 
-        /* ==========================================
-           MOBILE
-        ========================================== */
+        /* ==================================================
+           RESPONSIVE
+        ================================================== */
 
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
 
             .stats {
+
                 grid-template-columns:
                     repeat(2, 1fr);
             }
 
             .security-grid {
-                grid-template-columns: 1fr;
-            }
 
+                grid-template-columns:
+                    1fr;
+            }
         }
 
 
         @media (max-width: 650px) {
 
             .topbar {
-                padding: 0 16px;
+
+                padding:
+                    11px 16px;
             }
 
             .nav-area > .nav-btn {
-                display: none;
+
+                display:
+                    none;
             }
 
             .container {
+
                 width:
                     calc(100% - 20px);
 
-                margin-top: 24px;
+                margin-top:
+                    22px;
             }
 
             .hero {
-                padding: 26px;
+
+                padding:
+                    27px;
+
+                border-radius:
+                    22px;
             }
 
             .hero h1 {
-                font-size: 30px;
+
+                font-size:
+                    30px;
             }
 
             .stats {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
             .profile-button span {
-                display: none;
+
+                display:
+                    none;
             }
 
             .recent-card {
-                padding: 16px;
+
+                padding:
+                    15px;
+            }
+        }
+
+
+        @media (max-width: 420px) {
+
+            .brand {
+
+                font-size:
+                    20px;
             }
 
+            .shield {
+
+                width:
+                    42px;
+
+                height:
+                    44px;
+
+                font-size:
+                    20px;
+            }
+
+            .hero {
+
+                padding:
+                    23px;
+            }
+
+            .hero h1 {
+
+                font-size:
+                    27px;
+            }
+
+            .primary-btn,
+            .secondary-btn {
+
+                width:
+                    100%;
+            }
         }
 
     </style>
@@ -1206,11 +1872,12 @@
 <body>
 
 
-<!-- ==========================================
-     TOP BAR
-========================================== -->
+<!-- ======================================================
+     TOP NAVIGATION
+====================================================== -->
 
 <header class="topbar">
+
 
     <div class="brand">
 
@@ -1224,6 +1891,7 @@
 
 
     <div class="nav-area">
+
 
         <a
             href="{{ url_for('index') }}"
@@ -1243,6 +1911,7 @@
 
         <div class="profile">
 
+
             <button class="profile-button">
 
                 <div class="profile-icon">
@@ -1259,6 +1928,7 @@
 
 
             <div class="profile-menu">
+
 
                 <div class="profile-name">
 
@@ -1304,6 +1974,7 @@
                     🚪 Logout
                 </a>
 
+
             </div>
 
         </div>
@@ -1313,41 +1984,52 @@
 </header>
 
 
-
-<!-- ==========================================
+<!-- ======================================================
      MAIN
-========================================== -->
+====================================================== -->
 
 <main class="container">
 
 
-    <!-- ======================================
+    <!-- ==================================================
          HERO
-    ====================================== -->
+    ================================================== -->
 
     <section class="hero">
 
+
         <div class="hero-content">
 
+
             <div class="eyebrow">
+
                 <span class="status-dot"></span>
+
                 Security Command Center
+
             </div>
 
 
             <h1>
-                Welcome to <span>QRGuard</span>
+
+                Welcome to
+                <span>QRGuard</span>
+
             </h1>
 
 
             <p>
-                Monitor QR-code security scans, review risk assessments,
-                and analyze suspicious URLs using QRGuard's rule-based
-                phishing detection system.
+
+                Monitor QR-code security scans, review risk
+                assessments, and analyze suspicious URLs using
+                QRGuard's rule-based and machine-learning
+                security analysis.
+
             </p>
 
 
             <div class="hero-actions">
+
 
                 <a
                     href="{{ url_for('index') }}"
@@ -1364,19 +2046,22 @@
                     🕘 View History
                 </a>
 
+
             </div>
 
+
         </div>
+
 
     </section>
 
 
-
-    <!-- ======================================
-         STATISTICS
-    ====================================== -->
+    <!-- ==================================================
+         SECURITY OVERVIEW
+    ================================================== -->
 
     <section class="section">
+
 
         <div class="section-heading">
 
@@ -1459,17 +2144,19 @@
 
             </div>
 
+
         </div>
+
 
     </section>
 
 
-
-    <!-- ======================================
+    <!-- ==================================================
          RECENT SCANS
-    ====================================== -->
+    ================================================== -->
 
     <section class="section">
+
 
         <div class="section-heading">
 
@@ -1488,185 +2175,193 @@
             {% if recent_scans %}
 
 
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    ID
-                                </th>
-
-                                <th>
-                                    URL
-                                </th>
-
-                                <th>
-                                    Score
-                                </th>
-
-                                <th>
-                                    Risk
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th>
-                                    Report
-                                </th>
-
-                            </tr>
-
-                        </thead>
+            <div class="table-wrapper">
 
 
-                        <tbody>
+                <table>
 
 
-                            {% for scan in recent_scans %}
+                    <thead>
 
-                            <tr>
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                URL
+                            </th>
+
+                            <th>
+                                Score
+                            </th>
+
+                            <th>
+                                Risk
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Report
+                            </th>
+
+                        </tr>
+
+                    </thead>
 
 
-                                <td>
+                    <tbody>
 
-                                    <span class="id">
-                                        #{{ scan["id"] }}
+
+                        {% for scan in recent_scans %}
+
+
+                        <tr>
+
+
+                            <td>
+
+                                <span class="id">
+                                    #{{ scan["id"] }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="url">
+                                    {{ scan["url"] }}
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="score">
+                                    {{ scan["score"] }}/100
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+
+                                {% if scan["risk"] == "LOW RISK" %}
+
+                                    <span class="risk low">
+                                        LOW RISK
                                     </span>
 
-                                </td>
 
+                                {% elif scan["risk"] == "MEDIUM RISK" %}
 
-                                <td>
-
-                                    <div class="url">
-                                        {{ scan["url"] }}
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-
-                                    <span class="score">
-                                        {{ scan["score"] }}/100
+                                    <span class="risk medium">
+                                        MEDIUM RISK
                                     </span>
 
-                                </td>
+
+                                {% else %}
+
+                                    <span class="risk high">
+                                        HIGH RISK
+                                    </span>
+
+                                {% endif %}
 
 
-                                <td>
+                            </td>
 
 
-                                    {% if scan["risk"] == "LOW RISK" %}
-
-                                        <span class="risk low">
-                                            LOW RISK
-                                        </span>
+                            <td>
+                                {{ scan["scanned_at"] }}
+                            </td>
 
 
-                                    {% elif scan["risk"] == "MEDIUM RISK" %}
+                            <td>
 
-                                        <span class="risk medium">
-                                            MEDIUM RISK
-                                        </span>
+                                <a
+                                    href="{{ url_for(
+                                        'report',
+                                        scan_id=scan['id']
+                                    ) }}"
+                                    class="report-btn"
+                                >
+                                    PDF
+                                </a>
 
-
-                                    {% else %}
-
-                                        <span class="risk high">
-                                            HIGH RISK
-                                        </span>
-
-                                    {% endif %}
-
-
-                                </td>
+                            </td>
 
 
-                                <td>
-                                    {{ scan["scanned_at"] }}
-                                </td>
+                        </tr>
 
 
-                                <td>
-
-                                    <a
-                                        href="{{ url_for(
-                                            'report',
-                                            scan_id=scan['id']
-                                        ) }}"
-                                        class="report-btn"
-                                    >
-                                        PDF
-                                    </a>
-
-                                </td>
+                        {% endfor %}
 
 
-                            </tr>
-
-                            {% endfor %}
+                    </tbody>
 
 
-                        </tbody>
-
-                    </table>
-
-                </div>
+                </table>
 
 
-                <div
-                    style="
-                        text-align:center;
-                        margin-top:18px;
-                    "
+            </div>
+
+
+            <div
+                style="
+                    text-align:center;
+                    margin-top:19px;
+                "
+            >
+
+                <a
+                    href="{{ url_for('history') }}"
+                    class="secondary-btn"
                 >
+                    View Complete History →
+                </a>
 
-                    <a
-                        href="{{ url_for('history') }}"
-                        class="secondary-btn"
-                    >
-                        View Complete History →
-                    </a>
-
-                </div>
+            </div>
 
 
             {% else %}
 
 
-                <div class="empty">
-
-                    <div class="empty-icon">
-                        🛡
-                    </div>
+            <div class="empty">
 
 
-                    <h3>
-                        No Security Scans Yet
-                    </h3>
-
-
-                    <p>
-                        Start your first QR-code analysis and
-                        your security activity will appear here.
-                    </p>
-
-
-                    <a
-                        href="{{ url_for('index') }}"
-                        class="primary-btn"
-                    >
-                        Start First Scan
-                    </a>
-
+                <div class="empty-icon">
+                    🛡
                 </div>
+
+
+                <h3>
+                    No Security Scans Yet
+                </h3>
+
+
+                <p>
+                    Start your first QR-code analysis and
+                    your security activity will appear here.
+                </p>
+
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="primary-btn"
+                >
+                    Start First Scan
+                </a>
+
+
+            </div>
 
 
             {% endif %}
@@ -1674,15 +2369,16 @@
 
         </div>
 
+
     </section>
 
 
-
-    <!-- ======================================
+    <!-- ==================================================
          PROTECTION
-    ====================================== -->
+    ================================================== -->
 
     <section class="section">
+
 
         <div class="section-heading">
 
@@ -1700,66 +2396,81 @@
 
             <div class="security-card">
 
+
                 <div class="icon">
                     📷
                 </div>
+
 
                 <h3>
                     QR Extraction
                 </h3>
 
+
                 <p>
                     The uploaded QR image is processed locally
-                    to extract the encoded URL.
+                    to extract the encoded URL without
+                    automatically visiting it.
                 </p>
+
 
             </div>
 
 
             <div class="security-card">
+
 
                 <div class="icon">
                     🔎
                 </div>
 
+
                 <h3>
                     URL Analysis
                 </h3>
 
+
                 <p>
-                    QRGuard checks the URL for predefined
-                    suspicious security indicators.
+                    QRGuard examines URL characteristics using
+                    predefined security-focused indicators.
                 </p>
+
 
             </div>
 
 
             <div class="security-card">
 
+
                 <div class="icon">
-                    🛡
+                    🤖
                 </div>
 
+
                 <h3>
-                    Risk Assessment
+                    ML Risk Analysis
                 </h3>
 
+
                 <p>
-                    Detected indicators are converted into a
-                    risk score from 0 to 100.
+                    A lightweight Random Forest model provides
+                    an additional phishing-risk signal for the
+                    final assessment.
                 </p>
+
 
             </div>
 
+
         </div>
+
 
     </section>
 
 
-
-    <!-- ======================================
+    <!-- ==================================================
          FOOTER
-    ====================================== -->
+    ================================================== -->
 
     <div class="footer">
 
