@@ -20,7 +20,6 @@ import ipaddress
 import io
 import html
 import re
-import hashlib
 import secrets
 import numpy as np
 
@@ -30,18 +29,14 @@ from functools import wraps
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import (
-    getSampleStyleSheet,
-    ParagraphStyle
-)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer,
     Table,
-    TableStyle,
-    KeepTogether
+    TableStyle
 )
 
 from sklearn.ensemble import RandomForestClassifier
@@ -126,6 +121,12 @@ GOOGLE_CLIENT_SECRET = os.environ.get(
     "GOOGLE_CLIENT_SECRET"
 )
 
+# FIXED PRODUCTION GOOGLE CALLBACK
+GOOGLE_REDIRECT_URI = os.environ.get(
+    "GOOGLE_REDIRECT_URI",
+    "https://qr-guard-six.vercel.app/auth/google/callback"
+)
+
 google = None
 
 if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
@@ -196,10 +197,6 @@ def init_db():
         )
     """)
 
-    # --------------------------------------------------------
-    # Migration for older databases
-    # --------------------------------------------------------
-
     existing_columns = [
         row["name"]
         for row in connection.execute(
@@ -255,10 +252,6 @@ def init_db():
 
             except sqlite3.Error:
                 pass
-
-    # --------------------------------------------------------
-    # Create demo admin
-    # --------------------------------------------------------
 
     admin = connection.execute(
         """
@@ -1389,13 +1382,9 @@ def google_login():
             )
         )
 
-    redirect_uri = url_for(
-        "google_callback",
-        _external=True
-    )
-
+    # FIXED PRODUCTION REDIRECT URI
     return google.authorize_redirect(
-        redirect_uri
+        GOOGLE_REDIRECT_URI
     )
 
 
@@ -1608,8 +1597,6 @@ def index():
 )
 @login_required
 def scan():
-
-    filepath = None
 
     try:
 
@@ -1996,10 +1983,6 @@ def dashboard():
 @login_required
 def report(scan_id):
 
-    # --------------------------------------------------------
-    # Fetch scan belonging to current user
-    # --------------------------------------------------------
-
     connection = get_db()
 
     scan = connection.execute(
@@ -2031,10 +2014,6 @@ def report(scan_id):
             "Scan record not found.",
             404
         )
-
-    # --------------------------------------------------------
-    # Stored values
-    # --------------------------------------------------------
 
     url = scan["url"]
 
@@ -2070,17 +2049,9 @@ def report(scan_id):
         scan["scanned_at"]
     )
 
-    # --------------------------------------------------------
-    # Recalculate rule indicators
-    # --------------------------------------------------------
-
     rule_score, _, rule_reasons, rule_details = (
         analyze_url(url)
     )
-
-    # --------------------------------------------------------
-    # Score contributions
-    # --------------------------------------------------------
 
     rule_contribution = round(
         rule_score * 0.70,
@@ -2091,10 +2062,6 @@ def report(scan_id):
         ml_score * 0.30,
         1
     )
-
-    # --------------------------------------------------------
-    # PDF buffer
-    # --------------------------------------------------------
 
     pdf_buffer = io.BytesIO()
 
@@ -2109,10 +2076,6 @@ def report(scan_id):
         author="QRGuard",
         subject="QR-Code Phishing Detection Security Report"
     )
-
-    # --------------------------------------------------------
-    # Styles
-    # --------------------------------------------------------
 
     styles = getSampleStyleSheet()
 
@@ -2192,15 +2155,7 @@ def report(scan_id):
         alignment=TA_RIGHT
     )
 
-    # --------------------------------------------------------
-    # Story
-    # --------------------------------------------------------
-
     story = []
-
-    # ========================================================
-    # REPORT HEADER
-    # ========================================================
 
     story.append(
         Paragraph(
@@ -2270,10 +2225,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 9)
     )
-
-    # ========================================================
-    # 1. SCAN SUMMARY
-    # ========================================================
 
     story.append(
         Paragraph(
@@ -2382,10 +2333,6 @@ def report(scan_id):
         Spacer(1, 9)
     )
 
-    # ========================================================
-    # 2. FINAL RISK ASSESSMENT
-    # ========================================================
-
     story.append(
         Paragraph(
             "2. Final Risk Assessment",
@@ -2425,10 +2372,6 @@ def report(scan_id):
             "The URL contains multiple suspicious indicators "
             "and should be treated with caution."
         )
-
-    # --------------------------------------------------------
-    # Score bar
-    # --------------------------------------------------------
 
     bar_width = 178 * mm
 
@@ -2494,10 +2437,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 5)
     )
-
-    # --------------------------------------------------------
-    # Main risk cards
-    # --------------------------------------------------------
 
     risk_table = Table(
         [
@@ -2584,10 +2523,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 8)
     )
-
-    # ========================================================
-    # 3. SCORE BREAKDOWN
-    # ========================================================
 
     story.append(
         Paragraph(
@@ -2714,10 +2649,6 @@ def report(scan_id):
         Spacer(1, 9)
     )
 
-    # ========================================================
-    # 4. MACHINE LEARNING ANALYSIS
-    # ========================================================
-
     story.append(
         Paragraph(
             "4. Machine Learning Analysis",
@@ -2827,10 +2758,6 @@ def report(scan_id):
         Spacer(1, 9)
     )
 
-    # ========================================================
-    # 5. DETECTION INDICATORS
-    # ========================================================
-
     story.append(
         Paragraph(
             "5. Detection Indicators",
@@ -2876,7 +2803,6 @@ def report(scan_id):
             ]
         )
 
-    # ML result as separate indicator
     indicator_rows.append(
         [
             Paragraph(
@@ -2976,10 +2902,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 9)
     )
-
-    # ========================================================
-    # 6. RISK CLASSIFICATION
-    # ========================================================
 
     story.append(
         Paragraph(
@@ -3087,10 +3009,6 @@ def report(scan_id):
         Spacer(1, 9)
     )
 
-    # ========================================================
-    # 7. SECURITY METHODOLOGY
-    # ========================================================
-
     story.append(
         Paragraph(
             "7. Security Methodology",
@@ -3143,10 +3061,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 7)
     )
-
-    # ========================================================
-    # SECURITY NOTICE
-    # ========================================================
 
     notice_table = Table(
         [
@@ -3219,10 +3133,6 @@ def report(scan_id):
         Spacer(1, 9)
     )
 
-    # ========================================================
-    # 8. DISCLAIMER
-    # ========================================================
-
     story.append(
         Paragraph(
             "8. Disclaimer",
@@ -3249,10 +3159,6 @@ def report(scan_id):
     story.append(
         Spacer(1, 13)
     )
-
-    # ========================================================
-    # REPORT FOOTER
-    # ========================================================
 
     footer_table = Table(
         [
@@ -3295,10 +3201,6 @@ def report(scan_id):
         footer_table
     )
 
-    # ========================================================
-    # PAGE NUMBER FUNCTION
-    # ========================================================
-
     def add_page_number(
         canvas,
         doc
@@ -3322,10 +3224,6 @@ def report(scan_id):
         )
 
         canvas.restoreState()
-
-    # ========================================================
-    # BUILD PDF
-    # ========================================================
 
     document.build(
         story,
