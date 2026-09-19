@@ -177,6 +177,8 @@ def init_db():
             password_salt TEXT,
             google_id TEXT UNIQUE,
             display_name TEXT,
+            profile_photo BLOB,
+            profile_photo_mimetype TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -208,7 +210,9 @@ def init_db():
         "password_hash": "TEXT",
         "password_salt": "TEXT",
         "google_id": "TEXT",
-        "display_name": "TEXT"
+        "display_name": "TEXT",
+        "profile_photo": "BLOB",
+        "profile_photo_mimetype": "TEXT"
     }
 
     for column, datatype in user_columns.items():
@@ -1558,6 +1562,378 @@ def google_callback():
                 )
             )
         )
+
+
+# ============================================================
+# PROFILE
+# ============================================================
+
+@app.route(
+    "/profile",
+    methods=["GET", "POST"]
+)
+@login_required
+def profile():
+
+    user_id = session["user_id"]
+    error = None
+    success = None
+
+    if request.method == "POST":
+
+        action = request.form.get(
+            "action",
+            ""
+        )
+
+        connection = get_db()
+
+        user = connection.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE id = ?
+            """,
+            (user_id,)
+        ).fetchone()
+
+        if user is None:
+
+            connection.close()
+
+            session.clear()
+
+            return redirect(
+                url_for("login")
+            )
+
+        # ----------------------------------------------------
+        # EDIT PROFILE
+        # ----------------------------------------------------
+
+        if action == "edit_profile":
+
+            display_name = request.form.get(
+                "display_name",
+                ""
+            ).strip()
+
+            email = request.form.get(
+                "email",
+                ""
+            ).strip().lower()
+
+            if not display_name:
+
+                error = "Display name cannot be empty."
+
+            elif not email or "@" not in email:
+
+                error = "Please enter a valid email address."
+
+            else:
+
+                existing = connection.execute(
+                    """
+                    SELECT id
+                    FROM users
+                    WHERE email = ?
+                    AND id != ?
+                    """,
+                    (
+                        email,
+                        user_id
+                    )
+                ).fetchone()
+
+                if existing:
+
+                    error = "That email address is already in use."
+
+                else:
+
+                    connection.execute(
+                        """
+                        UPDATE users
+                        SET display_name = ?,
+                            email = ?
+                        WHERE id = ?
+                        """,
+                        (
+                            display_name,
+                            email,
+                            user_id
+                        )
+                    )
+
+                    connection.commit()
+
+                    session["display_name"] = display_name
+
+                    success = "Profile updated successfully."
+
+        # ----------------------------------------------------
+        # PROFILE PHOTO
+        # ----------------------------------------------------
+
+        elif action == "profile_photo":
+
+            photo = request.files.get(
+                "profile_photo"
+            )
+
+            if photo is None or not photo.filename:
+
+                error = "Please choose a profile image."
+
+            else:
+
+                allowed_photo_types = {
+                    "image/png": "PNG",
+                    "image/jpeg": "JPEG",
+                    "image/webp": "WEBP"
+                }
+
+                mimetype = (
+                    photo.mimetype or ""
+                ).lower()
+
+                if mimetype not in allowed_photo_types:
+
+                    error = (
+                        "Use a PNG, JPG/JPEG, or WEBP profile image."
+                    )
+
+                else:
+
+                    photo_bytes = photo.read()
+
+                    if not photo_bytes:
+
+                        error = "The selected profile image is empty."
+
+                    elif len(photo_bytes) > 2 * 1024 * 1024:
+
+                        error = (
+                            "Profile image must be 2 MB or smaller."
+                        )
+
+                    else:
+
+                        connection.execute(
+                            """
+                            UPDATE users
+                            SET profile_photo = ?,
+                                profile_photo_mimetype = ?
+                            WHERE id = ?
+                            """,
+                            (
+                                sqlite3.Binary(photo_bytes),
+                                mimetype,
+                                user_id
+                            )
+                        )
+
+                        connection.commit()
+
+                        success = "Profile photo updated successfully."
+
+        # ----------------------------------------------------
+        # CHANGE PASSWORD
+        # ----------------------------------------------------
+
+        elif action == "change_password":
+
+            if user["google_id"]:
+
+                error = (
+                    "Google accounts do not use a QRGuard password. "
+                    "Use Google to manage your account security."
+                )
+
+            elif not user["password_hash"]:
+
+                error = "Password change is not available for this account."
+
+            else:
+
+                current_password = request.form.get(
+                    "current_password",
+                    ""
+                )
+
+                new_password = request.form.get(
+                    "new_password",
+                    ""
+                )
+
+                confirm_password = request.form.get(
+                    "confirm_password",
+                    ""
+                )
+
+                if not check_password_hash(
+                    user["password_hash"],
+                    current_password
+                ):
+
+                    error = "Current password is incorrect."
+
+                elif len(new_password) < 6:
+
+                    error = (
+                        "New password must contain at least 6 characters."
+                    )
+
+                elif new_password != confirm_password:
+
+                    error = "New passwords do not match."
+
+                elif new_password == current_password:
+
+                    error = (
+                        "New password must be different from the current password."
+                    )
+
+                else:
+
+                    connection.execute(
+                        """
+                        UPDATE users
+                        SET password_hash = ?,
+                            password_salt = ?
+                        WHERE id = ?
+                        """,
+                        (
+                            generate_password_hash(new_password),
+                            secrets.token_hex(16),
+                            user_id
+                        )
+                    )
+
+                    connection.commit()
+
+                    success = "Password changed successfully."
+
+        else:
+
+            error = "Invalid profile action."
+
+        connection.close()
+
+    connection = get_db()
+
+    user = connection.execute(
+        """
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            google_id,
+            display_name,
+            profile_photo,
+            profile_photo_mimetype,
+            created_at
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    connection.close()
+
+    if user is None:
+
+        session.clear()
+
+        return redirect(
+            url_for("login")
+        )
+
+    account_type = (
+        "Google"
+        if user["google_id"]
+        else "Local"
+    )
+
+    return render_template(
+        "profile.html",
+        user=user,
+        account_type=account_type,
+        error=error,
+        success=success
+    )
+
+
+# ============================================================
+# PROFILE PHOTO
+# ============================================================
+
+@app.route("/profile/photo")
+@login_required
+def profile_photo():
+
+    user_id = session["user_id"]
+
+    connection = get_db()
+
+    user = connection.execute(
+        """
+        SELECT
+            profile_photo,
+            profile_photo_mimetype
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    connection.close()
+
+    if not user or not user["profile_photo"]:
+
+        return "", 404
+
+    return send_file(
+        io.BytesIO(user["profile_photo"]),
+        mimetype=(
+            user["profile_photo_mimetype"]
+            or "image/png"
+        ),
+        max_age=300
+    )
+
+
+# ============================================================
+# DELETE PROFILE PHOTO
+# ============================================================
+
+@app.route(
+    "/profile/photo/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_profile_photo():
+
+    connection = get_db()
+
+    connection.execute(
+        """
+        UPDATE users
+        SET profile_photo = NULL,
+            profile_photo_mimetype = NULL
+        WHERE id = ?
+        """,
+        (session["user_id"],)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return redirect(
+        url_for("profile")
+    )
 
 
 # ============================================================
